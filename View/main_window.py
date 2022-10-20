@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
 
 
 class MainWindow(QMainWindow):
@@ -13,3 +13,11 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Qualitative Coding Desktop App")
         self.setWindowState(Qt.WindowMaximized)
+
+        central_widget = QWidget()
+
+        horizontal_layout = QHBoxLayout()
+
+        self.setCentralWidget(central_widget)
+        self.centralWidget().setLayout(horizontal_layout)
+
