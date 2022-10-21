@@ -1,3 +1,6 @@
+from PySide6.QtCore import Slot
+
+
 class Controller:
     """
     The Controller responds to input events from the View. The Controller
@@ -13,7 +16,10 @@ class Controller:
             window (MainWindow): the main Window of the application
         """
         self.window = window
-        
-     def addrow(self):
+        self.window.get_encoding_table_widget().connect_add_table_row_to_slot(self.add_row_to_encoding_table)
+
+    @Slot()
+    def add_row_to_encoding_table(self):
         """Add Row Button Logic"""
-        self._table.setRowCount(self.table.rowCount() + 1)
+        self.window.get_encoding_table_widget().add_row()
+

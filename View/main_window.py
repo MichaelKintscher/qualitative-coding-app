@@ -1,6 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
 
+from View.encoding_table_widget import EncodingTableWidget
+
 
 class MainWindow(QMainWindow):
     """MainWindow is the main window of the application."""
@@ -18,9 +20,12 @@ class MainWindow(QMainWindow):
 
         horizontal_layout = QHBoxLayout()
         
-        encoding_table_widget = EncodingTableWidget()
-        horizontal_layout.addWidget(encoding_table_widget)
+        self._encoding_table_widget = EncodingTableWidget()
+        horizontal_layout.addWidget(self._encoding_table_widget)
         
         self.setCentralWidget(central_widget)
         self.centralWidget().setLayout(horizontal_layout)
+
+    def get_encoding_table_widget(self):
+        return self._encoding_table_widget
 
