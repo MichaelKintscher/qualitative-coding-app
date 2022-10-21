@@ -13,3 +13,7 @@ class Controller:
             window (MainWindow): the main Window of the application
         """
         self.window = window
+        
+     def addrow(self):
+        """Add Row Button Logic"""
+        self._table.setRowCount(self.table.rowCount() + 1)
