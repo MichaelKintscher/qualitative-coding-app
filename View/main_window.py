@@ -17,7 +17,10 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
 
         horizontal_layout = QHBoxLayout()
-
+        
+        encoding_table_widget = EncodingTableWidget()
+        horizontal_layout.addWidget(encoding_table_widget)
+        
         self.setCentralWidget(central_widget)
         self.centralWidget().setLayout(horizontal_layout)
 
