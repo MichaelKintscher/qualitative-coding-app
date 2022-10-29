@@ -1,5 +1,5 @@
 import PySide6
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGridLayout
 
 from View.button_panel import ButtonPanel
 
@@ -20,13 +20,26 @@ class CodingAssistancePanel(QWidget):
         # Center the title in the panel.
         self._title.setAlignment(PySide6.QtCore.Qt.AlignCenter)
 
-        # Create empty widgets to pad the panel.
-        empty_widget_top = QWidget()
-        empty_widget_bottom = QWidget()
-
+        # Create a container widget that will encompass the panel widgets.
+        panel_container = QWidget()
         vertical_layout = QVBoxLayout()
-        vertical_layout.addWidget(empty_widget_top, stretch=4)
+
+        # Create an empty widget to pad the panel.
+        empty_widget = QWidget()
+
         vertical_layout.addWidget(self._title, stretch=1)
+        vertical_layout.addWidget(empty_widget, stretch=6)
         vertical_layout.addWidget(self.button_panel, stretch=2)
-        vertical_layout.addWidget(empty_widget_bottom, stretch=4)
-        self.setLayout(vertical_layout)
+        panel_container.setLayout(vertical_layout)
+
+        # Add css styling to give a border to the panel.
+        panel_container.setProperty("class", "coding-panel")
+        self.setStyleSheet('''
+            .coding-panel {
+                border: 1px solid black;
+            }
+        ''')
+
+        # Add the container widget to the coding assistance panel.
+        self.setLayout(QGridLayout())
+        self.layout().addWidget(panel_container)
