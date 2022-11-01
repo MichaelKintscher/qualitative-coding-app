@@ -14,7 +14,7 @@ class ButtonPanel(QWidget):
         button_container = QWidget()
         horizontal_layout = QHBoxLayout()
 
-        # Create four placeholder buttons
+        # Create four placeholder buttons.
         buttons = [QPushButton("Button 1"), QPushButton("Button 2"),
                    QPushButton("Button 3"), QPushButton("Button 4")]
 
