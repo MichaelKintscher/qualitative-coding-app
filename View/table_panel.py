@@ -14,8 +14,8 @@ class TablePanel(QWidget):
         super().__init__()
 
         self.table = EncodingTable()
-        self.add_col_button = QPushButton("Add column")
-        self.add_row_button = QPushButton("Add row")
+        self.add_col_button = QPushButton("Add Column")
+        self.add_row_button = QPushButton("Add Row")
 
         # Configure the add column button to expand vertically.
         self.add_col_button.setSizePolicy(

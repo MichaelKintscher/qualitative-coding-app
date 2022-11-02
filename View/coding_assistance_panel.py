@@ -27,6 +27,7 @@ class CodingAssistancePanel(QWidget):
         # Create an empty widget to pad the panel.
         empty_widget = QWidget()
 
+        # Add the coding assistance related widgets to a vertical layout.
         vertical_layout.addWidget(self._title, stretch=1)
         vertical_layout.addWidget(empty_widget, stretch=6)
         vertical_layout.addWidget(self.button_panel, stretch=2)
