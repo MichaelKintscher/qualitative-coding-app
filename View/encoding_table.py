@@ -19,8 +19,12 @@ class EncodingTable(QTableWidget):
 
         self.horizontalHeader().setStretchLastSection(True)
         self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.horizontalHeader().setDefaultSectionSize(60)
+        self.horizontalHeader().setMaximumSectionSize(100)
         self.verticalHeader().setStretchLastSection(True)
         self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.verticalHeader().setDefaultSectionSize(30)
+        self.setStyleSheet("QTableWidget::item {border: 0px; padding: 5px;}")
 
         # Ensure at least 5 rows are visible at all times.
         self.minimum_visible_rows = 5
