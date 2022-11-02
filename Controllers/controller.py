@@ -68,6 +68,9 @@ class Controller:
         # Opens the file browser, doesn't need any arguments as the window calls this.
         file_dialog = QFileDialog()
 
+        # Opens file browser with qt specific file browser instead of os specific.
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog)
+
         # This gets the mime_types for the specific system and sets a filter.
         is_windows = sys.platform == 'win32'
         mime_types = get_supported_mime_types()
