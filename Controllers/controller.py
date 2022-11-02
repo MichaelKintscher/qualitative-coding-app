@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QMimeDatabase
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog
 
@@ -63,10 +63,13 @@ class Controller:
         """
         # Variables for AVI and MP4 video files.
         avi_video_file = "video/x-msvideo"
-        mp4_video_file = 'video/mp4'
+        mp4_video_file = "video/mp4"
 
         # Opens the file browser, doesn't need any arguments as the window calls this.
         file_dialog = QFileDialog()
+
+        # Opens file browser with qt specific file browser instead of os specific.
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog)
 
         # This gets the mime_types for the specific system and sets a filter.
         is_windows = sys.platform == 'win32'
@@ -77,7 +80,25 @@ class Controller:
             mime_types.append(avi_video_file)
         elif mp4_video_file not in mime_types:
             mime_types.append(mp4_video_file)
+
+        # Store all the supported mime type glob patterns into a single list.
+        mime_db = QMimeDatabase()
+        glob_pattern_lists = []
+        for mime_type in mime_types:
+            mime_name = mime_db.mimeTypeForName(mime_type)
+            glob_pattern_lists.append(mime_name.globPatterns())
+
+        # Set the QFileDialog mime type filters.
         file_dialog.setMimeTypeFilters(mime_types)
+
+        # Add an "all supported types" filter and make it the default.
+        glob_patterns_list = [item for sublist in glob_pattern_lists for item in sublist]
+        glob_patterns_str = " ".join(glob_patterns_list)
+        all_supported_types = f"All supported formats {glob_patterns_str}"
+        name_filters = file_dialog.nameFilters()
+        name_filters.insert(0, all_supported_types)
+        file_dialog.setNameFilters(name_filters)
+        file_dialog.selectNameFilter(all_supported_types)
 
         # This checks if a file to play has been selected.
         if file_dialog.exec() == QDialog.Accepted:
