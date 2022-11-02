@@ -63,7 +63,7 @@ class Controller:
         """
         # Variables for AVI and MP4 video files.
         avi_video_file = "video/x-msvideo"
-        mp4_video_file = 'video/mp4'
+        mp4_video_file = "video/mp4"
 
         # Opens the file browser, doesn't need any arguments as the window calls this.
         file_dialog = QFileDialog()
@@ -77,7 +77,35 @@ class Controller:
             mime_types.append(avi_video_file)
         elif mp4_video_file not in mime_types:
             mime_types.append(mp4_video_file)
-        file_dialog.setMimeTypeFilters(mime_types)
+
+        # Uses list of mime types to get filenames.
+        for i, item in enumerate(mime_types):
+            temp = ""
+            temp = item.removeprefix("audio/")
+            if temp == item:
+                temp = item.removeprefix("video/")
+            mime_types[i] = temp
+
+        # Appends the correct file types to a new list based on the Mime Types list.
+        filtered_types = []
+        for i in mime_types:
+            if i == "quicktime":
+                filtered_types.append("QuickTime video (*.mov)")
+            elif i == "mp4":
+                filtered_types.append("MP4 video (*.mp4)")
+            elif i == "x-msvideo":
+                filtered_types.append("AVI video (*.avi)")
+            else:
+                continue
+
+        # Appends .wmv and a default option that allows all files to be selected.
+        filtered_types.append("WMV video (*.wmv)")
+        filtered_types.append("All supported files (*.mov *.mp4 *avi *wmv)")
+        file_dialog.setNameFilters(filtered_types)
+
+        # This sets the defaulted displayed mime type to all supported files.
+        default_mimetype = "All supported files (*.mov *.mp4 *avi *wmv)"
+        file_dialog.selectNameFilter(default_mimetype)
 
         # This checks if a file to play has been selected.
         if file_dialog.exec() == QDialog.Accepted:
