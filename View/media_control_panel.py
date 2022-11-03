@@ -12,10 +12,11 @@ class MediaControlPanel(QWidget):
         """
         super().__init__()
 
+        # Create an HBox layout and adds the items
         horizontal_layout = QHBoxLayout()
 
         self.time_stamp = QLabel()
-        self.time_stamp.setText("Test")
+        self.time_stamp.setText("")
         horizontal_layout.addWidget(self.time_stamp)
 
         self.setLayout(horizontal_layout)

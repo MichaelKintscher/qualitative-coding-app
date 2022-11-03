@@ -1,4 +1,5 @@
 import sys
+import time
 
 from PySide6.QtCore import Slot, QMimeDatabase
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
@@ -43,7 +44,10 @@ class Controller:
 
         self._window.connect_load_video_to_slot(self.open_file_dialog)
 
-        self.curr_in_sec = 0
+        self.total_time_in_secs = 0
+        self.curr_time_secs = 0
+        self.curr_time_minutes = 0
+        self.curr_time_hours = 0
         self._media_player.positionChanged.connect(self.get_video_time_total)
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
@@ -120,40 +124,51 @@ class Controller:
         total_in_ms = self._media_player.duration()
         current_time = self._media_player.position()
 
-        # video_sink = QVideoSink()
-        # self._media_player.setVideoSink(video_sink)
-        # print(video_sink.videoFrame())
-
-        # This convert to seconds, minutes, hours, and frames.
+        # This convert to seconds, minutes, hours, and frames
+        # and rounds down to the nearest value.
         sec_rounded_down = 0
         minutes_rounded_down = 0
         hours_rounded_down = 0
         frames = 0
+        total_time_str = ""
 
         if total_in_ms > 1000:
             sec = total_in_ms / 1000
             sec_rounded_down = int(sec)
-        elif sec_rounded_down > 60:
+        if sec_rounded_down > 60:
             minutes = sec_rounded_down / 60
             minutes_rounded_down = int(minutes)
-        elif minutes_rounded_down > 60:
+            sec_rounded_down -= (minutes_rounded_down * 60)
+        if minutes_rounded_down > 60:
             hours = minutes_rounded_down / 60
-            minutes_rounded_down = int(hours)
-        else:
-            ms = total_in_ms % 1000
-            frames = ms * .024
+            hours_rounded_down = int(hours)
+            minutes_rounded_down -= (hours_rounded_down * 60)
+        ms = total_in_ms % 1000
+        frames = ms * .024
+        frames = int(frames)
 
-        """print(hours_rounded_down)
-        print(minutes_rounded_down)
-        print(sec_rounded_down)
-        print(frames)"""
+        # This formats the time in the hr:min:sec:frame format.
+        total_time_str = f"{hours_rounded_down}:{minutes_rounded_down}:{sec_rounded_down}:{frames}"
 
         # This gets the current time in seconds.
-        temp = self.curr_in_sec
-        current_time = current_time - (1000 * self.curr_in_sec)
+        temp = self.total_time_in_secs
+        current_time = current_time - (1000 * self.total_time_in_secs)
         if current_time > 1000:
-            self.curr_in_sec += 1
-        if self.curr_in_sec != temp:
-            print(self.curr_in_sec)
-        seconds_str = str(self.curr_in_sec)
-        self._window.media_panel.media_control_panel.time_stamp.setText(seconds_str)
+            self.total_time_in_secs += 1
+            self.curr_time_secs += 1
+        if self.curr_time_secs > 60:
+            self.curr_time_secs = 0
+            self.curr_time_minutes += 1
+        if self.curr_time_minutes > 60:
+            self.curr_time_minutes = 0
+            self.curr_time_hours += 1
+
+        # Converts the values from ints to str
+        seconds_str = str(self.curr_time_secs)
+        minutes_str = str(self.curr_time_minutes)
+        hours_str = str(self.curr_time_hours)
+
+        # Formats the time displaying current time/ total time
+        # and then sets the text label in the media control panel.
+        time_str_formatted = f"{hours_str}:{minutes_str}:{seconds_str}:0/{total_time_str}"
+        self._window.media_panel.media_control_panel.time_stamp.setText(time_str_formatted)
