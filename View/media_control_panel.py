@@ -1,5 +1,5 @@
 from PySide6 import QtCore
-from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QBoxLayout, QSizePolicy, QHBoxLayout
 
 
 class MediaControlPanel(QWidget):
@@ -11,3 +11,11 @@ class MediaControlPanel(QWidget):
         to the panel using some layout.
         """
         super().__init__()
+
+        horizontal_layout = QHBoxLayout()
+
+        self.time_stamp = QLabel()
+        self.time_stamp.setText("Test")
+        horizontal_layout.addWidget(self.time_stamp)
+
+        self.setLayout(horizontal_layout)

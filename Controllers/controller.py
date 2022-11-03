@@ -43,6 +43,9 @@ class Controller:
 
         self._window.connect_load_video_to_slot(self.open_file_dialog)
 
+        self.curr_in_sec = 0
+        self._media_player.positionChanged.connect(self.get_video_time_total)
+
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
@@ -106,3 +109,51 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
+
+    @Slot()
+    def get_video_time_total(self):
+        """
+        get_video_time_total() - Slot function that will act as a handler whenever a video
+        is loaded in order to get the time in hr, mins, sec, frames.
+        """
+        # Get the total time of the video in milliseconds.
+        total_in_ms = self._media_player.duration()
+        current_time = self._media_player.position()
+
+        # video_sink = QVideoSink()
+        # self._media_player.setVideoSink(video_sink)
+        # print(video_sink.videoFrame())
+
+        # This convert to seconds, minutes, hours, and frames.
+        sec_rounded_down = 0
+        minutes_rounded_down = 0
+        hours_rounded_down = 0
+        frames = 0
+
+        if total_in_ms > 1000:
+            sec = total_in_ms / 1000
+            sec_rounded_down = int(sec)
+        elif sec_rounded_down > 60:
+            minutes = sec_rounded_down / 60
+            minutes_rounded_down = int(minutes)
+        elif minutes_rounded_down > 60:
+            hours = minutes_rounded_down / 60
+            minutes_rounded_down = int(hours)
+        else:
+            ms = total_in_ms % 1000
+            frames = ms * .024
+
+        """print(hours_rounded_down)
+        print(minutes_rounded_down)
+        print(sec_rounded_down)
+        print(frames)"""
+
+        # This gets the current time in seconds.
+        temp = self.curr_in_sec
+        current_time = current_time - (1000 * self.curr_in_sec)
+        if current_time > 1000:
+            self.curr_in_sec += 1
+        if self.curr_in_sec != temp:
+            print(self.curr_in_sec)
+        seconds_str = str(self.curr_in_sec)
+        self._window.media_panel.media_control_panel.time_stamp.setText(seconds_str)
