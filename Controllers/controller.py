@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QMimeDatabase
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog
 
@@ -81,34 +81,24 @@ class Controller:
         elif mp4_video_file not in mime_types:
             mime_types.append(mp4_video_file)
 
-        # Uses list of mime types to get filenames.
-        for i, item in enumerate(mime_types):
-            temp = ""
-            temp = item.removeprefix("audio/")
-            if temp == item:
-                temp = item.removeprefix("video/")
-            mime_types[i] = temp
+        # Store all the supported mime type glob patterns into a single list.
+        mime_db = QMimeDatabase()
+        glob_pattern_lists = []
+        for mime_type in mime_types:
+            mime_name = mime_db.mimeTypeForName(mime_type)
+            glob_pattern_lists.append(mime_name.globPatterns())
 
-        # Appends the correct file types to a new list based on the Mime Types list.
-        filtered_types = []
-        for i in mime_types:
-            if i == "quicktime":
-                filtered_types.append("QuickTime video (*.mov)")
-            elif i == "mp4":
-                filtered_types.append("MP4 video (*.mp4)")
-            elif i == "x-msvideo":
-                filtered_types.append("AVI video (*.avi)")
-            else:
-                continue
+        # Set the QFileDialog mime type filters.
+        file_dialog.setMimeTypeFilters(mime_types)
 
-        # Appends .wmv and a default option that allows all files to be selected.
-        filtered_types.append("WMV video (*.wmv)")
-        filtered_types.append("All supported files (*.mov *.mp4 *avi *wmv)")
-        file_dialog.setNameFilters(filtered_types)
-
-        # This sets the defaulted displayed mime type to all supported files.
-        default_mimetype = "All supported files (*.mov *.mp4 *avi *wmv)"
-        file_dialog.selectNameFilter(default_mimetype)
+        # Add an "all supported types" filter and make it the default.
+        glob_patterns_list = [item for sublist in glob_pattern_lists for item in sublist]
+        glob_patterns_str = " ".join(glob_patterns_list)
+        all_supported_types = f"All supported formats {glob_patterns_str}"
+        name_filters = file_dialog.nameFilters()
+        name_filters.insert(0, all_supported_types)
+        file_dialog.setNameFilters(name_filters)
+        file_dialog.selectNameFilter(all_supported_types)
 
         # This checks if a file to play has been selected.
         if file_dialog.exec() == QDialog.Accepted:
