@@ -38,22 +38,23 @@ class Controller:
         self._window = window
 
         self._media_player = QMediaPlayer()
-        self._media_player.setVideoOutput(self._window.get_video_widget())
-        self._media_player.setAudioOutput(self._window.get_audio_widget())
+        self._media_player.setVideoOutput(self._window.media_panel.video_widget)
+        self._media_player.setAudioOutput(self._window.media_panel.audio_widget)
 
         self._window.connect_load_video_to_slot(self.open_file_dialog)
 
-        self._window.get_encoding_table_widget().connect_add_table_row_to_slot(self.add_row_to_encoding_table)
-        self._window.get_encoding_table_widget().connect_add_table_col_to_slot(self.add_col_to_encoding_table)
+        self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
+        self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
     @Slot()
     def add_col_to_encoding_table(self):
-        self._window.get_encoding_table_widget().add_column()
+        """Command the table widget to add a column."""
+        self._window.table_panel.table.add_column()
 
     @Slot()
     def add_row_to_encoding_table(self):
-        """Add Row Button Logic"""
-        self._window.get_encoding_table_widget().add_row()
+        """Command the table widget to add a row."""
+        self._window.table_panel.table.add_row()
 
     @Slot()
     def open_file_dialog(self):

@@ -1,10 +1,10 @@
-from PySide6.QtCore import Qt, QRect
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
-from PySide6.QtMultimedia import QAudioOutput
-from PySide6.QtMultimediaWidgets import QVideoWidget
-from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget
+from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout
 
-from View.encoding_table_widget import EncodingTableWidget
+from View.coding_assistance_panel import CodingAssistancePanel
+from View.media_panel import MediaPanel
+from View.table_panel import TablePanel
 
 
 class MainWindow(QMainWindow):
@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         """
         Constructor - Initializes the properties of the main window and all
-        containing GUI elements.
+        containing widgets.
         """
         super().__init__()
 
@@ -22,20 +22,11 @@ class MainWindow(QMainWindow):
 
         self.create_menu_bar()
 
-        self._video_widget = QVideoWidget()
-        self._audio_widget = QAudioOutput()
-        self._encoding_table_widget = EncodingTableWidget()
+        self.table_panel = TablePanel()
+        self.media_panel = MediaPanel()
+        self.coding_assistance_panel = CodingAssistancePanel()
 
-        horizontal_layout = QHBoxLayout()
-        horizontal_layout.addWidget(self._video_widget, stretch=1)
-        horizontal_layout.addWidget(self._encoding_table_widget, stretch=1)
-
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        self.centralWidget().setLayout(horizontal_layout)
-
-    def get_encoding_table_widget(self):
-        return self._encoding_table_widget
+        self.set_layout()
 
     def connect_load_video_to_slot(self, slot):
         """
@@ -60,20 +51,24 @@ class MainWindow(QMainWindow):
         self._open_action = QAction(file_dialog_icon, "Load video file", self)
         file_menu.addAction(self._open_action)
 
-    def get_audio_widget(self):
+    def set_layout(self):
         """
-        Gets the audio widget reference of the View.
+        Sets the layout for the main window and adds the window's panels to
+        the layout.
+        """
+        vertical_container_layout = QVBoxLayout()
 
-        Return:
-            Reference to the audio output widget.
-        """
-        return self._audio_widget
+        # Create a container widget for the video and coding assistance panels
+        # to be stored in the first slot in the vertical container layout.
+        top_container_widget = QWidget()
+        horizontal_layout = QHBoxLayout()
+        horizontal_layout.addWidget(self.media_panel, stretch=16)
+        horizontal_layout.addWidget(self.coding_assistance_panel, stretch=5)
+        top_container_widget.setLayout(horizontal_layout)
 
-    def get_video_widget(self):
-        """
-        Gets the video widget reference of the View.
+        vertical_container_layout.addWidget(top_container_widget, stretch=9)
+        vertical_container_layout.addWidget(self.table_panel)
 
-        Return:
-            Reference to the video widget.
-        """
-        return self._video_widget
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        self.centralWidget().setLayout(vertical_container_layout)
