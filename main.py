@@ -12,6 +12,7 @@ def main():
     window = MainWindow()
     window.show()
     controller = Controller(window)
+    window.read_settings()
     sys.exit(app.exec())
 
 
