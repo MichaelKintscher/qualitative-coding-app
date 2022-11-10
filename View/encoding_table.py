@@ -23,9 +23,9 @@ class EncodingTable(QTableWidget):
         self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
         # Ensure at least 5 rows are visible at all times.
-        #self.minimum_visible_rows = 5
-        #total_border_height = 2
-        #self.setMinimumHeight(self.rowHeight(0) * (self.minimum_visible_rows + total_border_height))
+        self.minimum_visible_rows = 5
+        total_border_height = 2
+        self.setMinimumHeight(self.rowHeight(0) * (self.minimum_visible_rows + total_border_height))
 
     def add_column(self):
         """Increases the column count of the table by 1."""
