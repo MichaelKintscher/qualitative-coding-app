@@ -148,7 +148,7 @@ class Controller:
         frames = int(frames)
 
         # This formats the time in the hr:min:sec:frame format.
-        total_time_str = f"{hours_rounded_down}:{minutes_rounded_down}:{sec_rounded_down}:{frames}"
+        total_time_str = f"{hours_rounded_down:02d}:{minutes_rounded_down:02d}:{sec_rounded_down:02d}:{frames:02d}"
 
         # This gets the current time in seconds.
         temp = self.total_time_in_secs
@@ -163,12 +163,8 @@ class Controller:
             self.curr_time_minutes = 0
             self.curr_time_hours += 1
 
-        # Converts the values from ints to str
-        seconds_str = str(self.curr_time_secs)
-        minutes_str = str(self.curr_time_minutes)
-        hours_str = str(self.curr_time_hours)
-
         # Formats the time displaying current time/ total time
         # and then sets the text label in the media control panel.
-        time_str_formatted = f"{hours_str}:{minutes_str}:{seconds_str}:0/{total_time_str}"
+        time_str_formatted = f"Time: {self.curr_time_hours:02d}:{self.curr_time_minutes:02d}:{self.curr_time_secs:02d}" \
+                             f"/{total_time_str}"
         self._window.media_panel.media_control_panel.time_stamp.setText(time_str_formatted)
