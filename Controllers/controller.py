@@ -2,7 +2,7 @@ import sys
 
 from PySide6.QtCore import Slot, QMimeDatabase
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog
+from PySide6.QtWidgets import QFileDialog, QDialog, QMessageBox
 
 
 def get_supported_mime_types():
@@ -45,6 +45,8 @@ class Controller:
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
+
+        self._window.connect_export_file_to_slot(self.save_to_file)
 
     @Slot()
     def add_col_to_encoding_table(self):
@@ -106,3 +108,14 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
+
+    @Slot()
+    def save_to_file(self):
+        """
+        save_to_file() - Slot function that will act as a handler whenever the
+        Save table data button is clicked.
+        """
+        self._window.save_to_file_popup.setText("Do you want to save table data?")
+        self._window.save_to_file_popup.addButton(QMessageBox.Cancel)
+        self._window.save_to_file_popup.addButton(QMessageBox.Save)
+        self._window.save_to_file_popup.show()
