@@ -17,9 +17,11 @@ class VideoWidget(QVideoWidget):
         p.setWidthForHeight(True)
         self.setSizePolicy(p)
 
+        self.minimum_width = 500
+
         # Set the minimum size.
-        self.setMinimumWidth(500)
-        self.setMinimumHeight((9 / 16) * 500)
+        self.setMinimumWidth(self.minimum_width)
+        self.setMinimumHeight(self.heightForWidth(self.minimum_width))
 
     def heightForWidth(self, width):
         """The video widget height should be 9/16 of the width."""
