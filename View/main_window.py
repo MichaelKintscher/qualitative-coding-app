@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from PySide6.QtCore import Qt, QCoreApplication, QSettings
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QMessageBox
@@ -10,16 +12,12 @@ from View.table_panel import TablePanel
 class MainWindow(QMainWindow):
     """MainWindow is the main window of the application."""
 
-    def __init__(self):
+    def __init__(self, session_id):
         """
         Constructor - Initializes the properties of the main window and all
         containing widgets.
         """
         super().__init__()
-
-        # Establish the organization and application name for persistence storage.
-        QCoreApplication.setOrganizationName("Capstone")
-        QCoreApplication.setApplicationName("Qualitative-Coding-Desktop-Application")
 
         self.setWindowTitle("Qualitative Coding Desktop App")
         self.setWindowState(Qt.WindowMaximized)
@@ -31,6 +29,10 @@ class MainWindow(QMainWindow):
         self.coding_assistance_panel = CodingAssistancePanel()
 
         self.set_layout()
+
+        self.session_id = session_id
+        if self.session_id != "New Session":
+            self.read_settings()
 
     def closeEvent(self, event):
         """
@@ -67,17 +69,7 @@ class MainWindow(QMainWindow):
         Reads the QSettings object and restore state if it currently exists and if
         the user wants to reload the previous session.
         """
-        settings = QSettings()
-        # If the columns key exists, then the state must be saved.
-        if settings.contains("encoding-table/columns"):
-            # Ask the user if they want to load the previous session.
-            msg_box = QMessageBox()
-            msg_box.raise_()
-            msg_box.setText("Do you want to load the previous session?")
-            msg_box.addButton(QMessageBox.Yes)
-            msg_box.addButton(QMessageBox.No)
-            if msg_box.exec() == QMessageBox.Yes:
-                self.table_panel.table.read_settings()
+        self.table_panel.table.read_settings(self.session_id)
 
     def set_layout(self):
         """
@@ -106,5 +98,11 @@ class MainWindow(QMainWindow):
         Saves the state of the application to the QSettings object.
         """
         settings = QSettings()
-        settings.clear()
-        self.table_panel.table.write_settings()
+
+        # If this session is new, save it as a new session group using the current time
+        # as an identifier. Otherwise, use the previous identifier.
+        if self.session_id == "New Session":
+            self.session_id = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Create the group for this session and save the user data in it.
+        self.table_panel.table.write_settings(self.session_id)

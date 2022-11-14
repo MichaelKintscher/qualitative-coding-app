@@ -40,11 +40,13 @@ class EncodingTable(QTableWidget):
         """Increases the row count of the table by 1."""
         self.setRowCount(self.rowCount() + 1)
 
-    def read_settings(self):
+    def read_settings(self, session_id):
         """
-        Reads table settings and updates the table content to the saved state.
+        Reads table settings and updates the table content to the saved state
+        for the group with the given session_id.
         """
         settings = QSettings()
+        settings.beginGroup(session_id)
         settings.beginGroup("encoding-table")
 
         # Update the column count of the table.
@@ -67,12 +69,14 @@ class EncodingTable(QTableWidget):
 
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
+        settings.endGroup()  # session-id
 
-    def write_settings(self):
+    def write_settings(self, session_id):
         """
         Writes the table data to the QSettings object for persistence.
         """
         settings = QSettings()
+        settings.beginGroup(session_id)
         settings.beginGroup("encoding-table")
 
         # Save the column count.
@@ -100,3 +104,4 @@ class EncodingTable(QTableWidget):
 
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
+        settings.endGroup()  # session-id
