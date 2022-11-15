@@ -129,7 +129,6 @@ class Controller:
         sec_rounded_down = 0
         minutes_rounded_down = 0
         hours_rounded_down = 0
-        frames = 0
         total_time_str = ""
 
         if total_in_ms > 1000:
@@ -144,11 +143,9 @@ class Controller:
             hours_rounded_down = int(hours)
             minutes_rounded_down -= (hours_rounded_down * 60)
         ms = total_in_ms % 1000
-        frames = ms * .024
-        frames = int(frames)
 
         # This formats the time in the hr:min:sec:frame format.
-        total_time_str = f"{hours_rounded_down:02d}:{minutes_rounded_down:02d}:{sec_rounded_down:02d}:{frames:02d}"
+        total_time_str = f"{hours_rounded_down:02d}:{minutes_rounded_down:02d}:{sec_rounded_down:02d}"
 
         # This gets the current time in seconds.
         temp = self.total_time_in_secs
