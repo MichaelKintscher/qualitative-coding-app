@@ -21,9 +21,6 @@ class MainWindow(QMainWindow):
         self.setWindowState(Qt.WindowMaximized)
 
         self.create_menu_bar()
-        popup = QMessageBox()
-        self.save_to_file_popup = popup
-
 
         self.table_panel = TablePanel()
         self.media_panel = MediaPanel()
