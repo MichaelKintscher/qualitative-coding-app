@@ -46,6 +46,11 @@ class Controller:
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
+        self._window.media_panel.progress_bar_slider.sliderMoved.connect(self.set_position)
+
+        self._media_player.positionChanged.connect(self.position_changed)
+        self._media_player.durationChanged.connect(self.duration_changed)
+
     @Slot()
     def add_col_to_encoding_table(self):
         """Command the table widget to add a column."""
@@ -55,6 +60,15 @@ class Controller:
     def add_row_to_encoding_table(self):
         """Command the table widget to add a row."""
         self._window.table_panel.table.add_row()
+
+    @Slot()
+    def duration_changed(self):
+        """
+        Sets the range of the progress bar when the
+        duration of the media player changes.
+        """
+        duration = self._media_player.duration()
+        self._window.media_panel.progress_bar_slider.setRange(0, duration)
 
     @Slot()
     def open_file_dialog(self):
@@ -106,3 +120,20 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
+
+    @Slot()
+    def position_changed(self):
+        """
+        Sets the value of the progress bar slider based
+        on the position of the media player.
+        """
+        position = self._media_player.position()
+        self._window.media_panel.progress_bar_slider.setValue(position)
+
+    @Slot()
+    def set_position(self, position):
+        """
+        Commands the video player to set the position state
+        based on the value of the progress bar slider.
+        """
+        self._media_player.setPosition(position)
