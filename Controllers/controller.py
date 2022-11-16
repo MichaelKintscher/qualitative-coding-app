@@ -2,7 +2,7 @@ import sys
 
 from PySide6.QtCore import Slot, QMimeDatabase
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle
 
 
 def get_supported_mime_types():
@@ -45,15 +45,17 @@ class Controller:
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
+        
+        self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(self.play_video)
 
     @Slot()
     def add_col_to_encoding_table(self):
-        """Command the table widget to add a column."""
+        """ Command the table widget to add a column. """
         self._window.table_panel.table.add_column()
 
     @Slot()
     def add_row_to_encoding_table(self):
-        """Command the table widget to add a row."""
+        """ Command the table widget to add a row."""
         self._window.table_panel.table.add_row()
 
     @Slot()
@@ -106,3 +108,21 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
+            
+    @Slot()
+    def play_video(self):
+        """ Command a video to change the state to play and pause when clicked. """
+        if self._media_player.playbackState() == QMediaPlayer.PlayingState:
+            self._media_player.pause()
+        else:
+            self._media_player.play()
+        self.toggle_play_pause_icon()
+
+    @Slot()
+    def toggle_play_pause_icon(self):
+        """ Toggles the icon of the play/pause button. """
+        button = self._window.media_panel.media_control_panel.play_pause_button
+        if self._media_player.playbackState() == QMediaPlayer.PlayingState:
+            button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
+        else:
+            button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
