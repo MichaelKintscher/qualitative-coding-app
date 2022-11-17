@@ -24,10 +24,14 @@ class VideoWidget(QVideoWidget):
         self.setMinimumHeight(self.heightForWidth(self.minimum_width))
 
     def heightForWidth(self, width):
-        """The video widget height should be 9/16 of the width."""
+        """
+        The video widget height should be 9/16 of the width.
+        """
         return (9 / 16) * width
 
     def sizeHint(self):
-        """Set the preferred sizing to follow the 16:9 aspect ratio."""
+        """
+        Set the preferred sizing to follow the 16:9 aspect ratio.
+        """
         w = self.width()
         return QSize(w, self.heightForWidth(w))
