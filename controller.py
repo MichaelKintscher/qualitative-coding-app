@@ -53,6 +53,9 @@ class Controller:
         
     @Slot()
     def set_cell_size(self):
+        """
+        Takes input from the settings dialog and calls the set_cell_size function in encoding_table.py
+        """
         width_text = self.user_settings.minimum_size_width_box.text()
         height_text = self.user_settings.minimum_size_height_box.text()
         try:
@@ -64,6 +67,9 @@ class Controller:
 
     @Slot()
     def set_maximum_width(self):
+    """
+    Takes input from the settings dialog and calls the set_maximum_width function in encoding_table.py
+    """
         width_text = self.user_settings.maximum_width_text_box.text()
         try:
             width = int(width_text)
@@ -73,17 +79,24 @@ class Controller:
 
     @Slot()
     def set_padding(self):
+    """
+    Takes input from the settings dialog and calls the set_padding function in encoding_table.py
+    """
         padding = self.user_settings.padding_text_box.text()
         self._window.table_panel.table.set_padding(padding)
 
     @Slot()
     def add_col_to_encoding_table(self):
-        """Command the table widget to add a column."""
+        """
+        Command the table widget to add a column.
+        """
         self._window.table_panel.table.add_column()
 
     @Slot()
     def add_row_to_encoding_table(self):
-        """Command the table widget to add a row."""
+        """
+        Command the table widget to add a row.
+        """
         self._window.table_panel.table.add_row()
 
     @Slot()
