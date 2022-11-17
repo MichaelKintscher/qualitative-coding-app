@@ -1,6 +1,5 @@
 import sys
 
-from PySide6 import QtCore
 from PySide6.QtCore import Slot, QMimeDatabase
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import *
@@ -51,9 +50,85 @@ class Controller:
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
     @Slot()
+    def add_col_to_encoding_table(self):
+        """
+        Command the table widget to add a column.
+        """
+        self._window.table_panel.table.add_column()
+
+    @Slot()
+    def add_row_to_encoding_table(self):
+        """
+        Command the table widget to add a row.
+        """
+        self._window.table_panel.table.add_row()
+
+    @Slot()
+    def open_file_dialog(self):
+        """
+        load_video_handler() - Slot function that will act as a handler whenever the
+        load video button is clicked.
+        """
+        # Variables for AVI and MP4 video files.
+        avi_video_file = "video/x-msvideo"
+        mp4_video_file = "video/mp4"
+
+        # Opens the file browser, doesn't need any arguments as the window calls this.
+        file_dialog = QFileDialog()
+
+        # Opens file browser with qt specific file browser instead of os specific.
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog)
+
+        # This gets the mime_types for the specific system and sets a filter.
+        is_windows = sys.platform == 'win32'
+        mime_types = get_supported_mime_types()
+
+        # Adds AVI and MP4 if they were not supported.
+        if is_windows and avi_video_file not in mime_types:
+            mime_types.append(avi_video_file)
+        elif mp4_video_file not in mime_types:
+            mime_types.append(mp4_video_file)
+
+        # Store all the supported mime type glob patterns into a single list.
+        mime_db = QMimeDatabase()
+        glob_pattern_lists = []
+        for mime_type in mime_types:
+            mime_name = mime_db.mimeTypeForName(mime_type)
+            glob_pattern_lists.append(mime_name.globPatterns())
+
+        # Set the QFileDialog mime type filters.
+        file_dialog.setMimeTypeFilters(mime_types)
+
+        # Add an "all supported types" filter and make it the default.
+        glob_patterns_list = [item for sublist in glob_pattern_lists for item in sublist]
+        glob_patterns_str = " ".join(glob_patterns_list)
+        all_supported_types = f"All supported formats {glob_patterns_str}"
+        name_filters = file_dialog.nameFilters()
+        name_filters.insert(0, all_supported_types)
+        file_dialog.setNameFilters(name_filters)
+        file_dialog.selectNameFilter(all_supported_types)
+
+        # This checks if a file to play has been selected.
+        if file_dialog.exec() == QDialog.Accepted:
+            url = file_dialog.selectedUrls()[0]
+            self._media_player.setSource(url)
+            self._media_player.play()
+
+    @Slot()
+    def open_settings_dialog(self):
+        """
+        Creates the layout for the settings dialog in header menu and allows for settings to be changed
+        """
+        self.user_settings = UserSettingsDialog()
+        self.user_settings.connect_cell_size_to_slot(self.set_cell_size)
+        self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
+        self.user_settings.connect_padding_to_slot(self.set_padding)
+        self.user_settings.exec()
+
+    @Slot()
     def set_cell_size(self):
         """
-        Takes input from the settings dialog and calls the set_cell_size function in encoding_table.py
+        Takes input from the settings dialog and calls the set_cell_size function in the encoding table.
         """
         width_text = self.user_settings.minimum_size_width_box.text()
         height_text = self.user_settings.minimum_size_height_box.text()
@@ -67,104 +142,19 @@ class Controller:
     @Slot()
     def set_maximum_width(self):
         """
-        Takes input from the settings dialog and calls the set_maximum_width function in encoding_table.py
+        Takes input from the settings dialog and calls the set_maximum_width function in the encoding table.
         """
+        width_text = self.user_settings.maximum_width_text_box.text()
+        try:
+            width = int(width_text)
+            self._window.table_panel.table.set_maximum_width(width)
+        except ValueError:
+            pass
 
-    width_text = self.user_settings.maximum_width_text_box.text()
-    try:
-        width = int(width_text)
-        self._window.table_panel.table.set_maximum_width(width)
-    except ValueError:
-        pass
-
-
-@Slot()
-def set_padding(self):
-    """
-    Takes input from the settings dialog and calls the set_padding function in encoding_table.py
-    """
-
-
-padding = self.user_settings.padding_text_box.text()
-self._window.table_panel.table.set_padding(padding)
-
-
-@Slot()
-def add_col_to_encoding_table(self):
-    """
-    Command the table widget to add a column.
-    """
-    self._window.table_panel.table.add_column()
-
-
-@Slot()
-def add_row_to_encoding_table(self):
-    """
-    Command the table widget to add a row.
-    """
-    self._window.table_panel.table.add_row()
-
-
-@Slot()
-def open_file_dialog(self):
-    """
-    load_video_handler() - Slot function that will act as a handler whenever the
-    load video button is clicked.
-    """
-    # Variables for AVI and MP4 video files.
-    avi_video_file = "video/x-msvideo"
-    mp4_video_file = "video/mp4"
-
-    # Opens the file browser, doesn't need any arguments as the window calls this.
-    file_dialog = QFileDialog()
-
-    # Opens file browser with qt specific file browser instead of os specific.
-    file_dialog.setOption(QFileDialog.DontUseNativeDialog)
-
-    # This gets the mime_types for the specific system and sets a filter.
-    is_windows = sys.platform == 'win32'
-    mime_types = get_supported_mime_types()
-
-    # Adds AVI and MP4 if they were not supported.
-    if is_windows and avi_video_file not in mime_types:
-        mime_types.append(avi_video_file)
-    elif mp4_video_file not in mime_types:
-        mime_types.append(mp4_video_file)
-
-    # Store all the supported mime type glob patterns into a single list.
-    mime_db = QMimeDatabase()
-    glob_pattern_lists = []
-    for mime_type in mime_types:
-        mime_name = mime_db.mimeTypeForName(mime_type)
-        glob_pattern_lists.append(mime_name.globPatterns())
-
-    # Set the QFileDialog mime type filters.
-    file_dialog.setMimeTypeFilters(mime_types)
-
-    # Add an "all supported types" filter and make it the default.
-    glob_patterns_list = [item for sublist in glob_pattern_lists for item in sublist]
-    glob_patterns_str = " ".join(glob_patterns_list)
-    all_supported_types = f"All supported formats {glob_patterns_str}"
-    name_filters = file_dialog.nameFilters()
-    name_filters.insert(0, all_supported_types)
-    file_dialog.setNameFilters(name_filters)
-    file_dialog.selectNameFilter(all_supported_types)
-
-    # This checks if a file to play has been selected.
-    if file_dialog.exec() == QDialog.Accepted:
-        url = file_dialog.selectedUrls()[0]
-        self._media_player.setSource(url)
-        self._media_player.play()
-
-
-@Slot()
-def open_settings_dialog(self):
-    """
-    Creates the layout for the settings dialog in header menu and allows for settings to be changed
-    """
-    self.user_settings = UserSettingsDialog()
-    self.user_settings.connect_cell_size_to_slot(self.set_cell_size)
-    self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
-    self.user_settings.connect_padding_to_slot(self.set_padding)
-    self.user_settings.exec()
-
+    @Slot()
+    def set_padding(self):
+        """
+        Takes input from the settings dialog and calls the set_padding function in encoding_table.py
+        """
+        padding = self.user_settings.padding_text_box.text()
+        self._window.table_panel.table.set_padding(padding)
