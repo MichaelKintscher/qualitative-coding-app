@@ -38,13 +38,25 @@ class Controller:
         self._window = window
 
         self._media_player = QMediaPlayer()
-        self._media_player.setVideoOutput(self._window.media_panel.video_widget)
-        self._media_player.setAudioOutput(self._window.media_panel.audio_widget)
+        self._media_player.setVideoOutput(
+            self._window.media_panel.video_widget)
+        self._media_player.setAudioOutput(
+            self._window.media_panel.audio_widget)
 
         self._window.connect_load_video_to_slot(self.open_file_dialog)
 
-        self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
-        self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
+        self._window.table_panel.add_col_button.clicked.connect(
+            self.add_col_to_encoding_table)
+        self._window.table_panel.add_row_button.clicked.connect(
+            self.add_row_to_encoding_table)
+
+        self._window.table_panel.change_font_dropDown.activated.connect(
+            self.change_font_of_encoding_table)
+
+        self._window.table_panel.table.horizontalHeader(
+        ).sectionDoubleClicked.connect(self.edit_header)
+        self._window.table_panel.table.horizontalHeader(
+        ).line.editingFinished.connect(self.done_editing)
 
     @Slot()
     def add_col_to_encoding_table(self):
@@ -55,6 +67,31 @@ class Controller:
     def add_row_to_encoding_table(self):
         """Command the table widget to add a row."""
         self._window.table_panel.table.add_row()
+
+    @Slot()
+    def change_font_of_encoding_table(self):
+        """
+        Get selected item from font dropdown.
+        Command table cells font to update to selected font size.
+        """
+        selected_font = int(
+            self._window.table_panel.change_font_dropDown.currentText())
+        self._window.table_panel.table.change_font(selected_font)
+
+    @Slot()
+    def edit_header(self, section):
+        """
+        Commands QLineEdit item to become editable.
+
+        Parameters:
+            section: keeps track of which column header is being edited.
+        """
+        self._window.table_panel.table.edit_header(section)
+
+    @Slot()
+    def done_editing(self):
+        """Commands the table widget to update header label to the text entered in the QLineEdit item"""
+        self._window.table_panel.table.done_editing()
 
     @Slot()
     def open_file_dialog(self):
@@ -93,7 +130,8 @@ class Controller:
         file_dialog.setMimeTypeFilters(mime_types)
 
         # Add an "all supported types" filter and make it the default.
-        glob_patterns_list = [item for sublist in glob_pattern_lists for item in sublist]
+        glob_patterns_list = [
+            item for sublist in glob_pattern_lists for item in sublist]
         glob_patterns_str = " ".join(glob_patterns_list)
         all_supported_types = f"All supported formats {glob_patterns_str}"
         name_filters = file_dialog.nameFilters()
