@@ -3,6 +3,9 @@ from PySide6.QtWidgets import *
 class UserSettingsDialog(QDialog):
   
   def __init__(self):
+  """
+  Contructor: Initializes the layout of the settings dialog
+  """
     super().__init__()
 
     dialog_layout = QVBoxLayout()
@@ -45,10 +48,20 @@ class UserSettingsDialog(QDialog):
     self.setLayout(dialog_layout)
 
   def connect_cell_size_to_slot(self, slot):
+  """
+  Connects a minimum_size_button event to a slot function in Controller.py
+  """
     self.minimum_size_button.clicked.connect(slot)
 
   def connect_maximum_size_to_slot(self, slot):
+  """
+  Connects a maximum_width_button event to a slot function in Controller.py
+  """
     self.maximum_width_button.clicked.connect(slot)
 
   def connect_padding_to_slot(self, slot):
+  """
+  Connects a padding_button event to a slot function in Controller.py
+  """
     self.padding_button.clicked.connect(slot)
+    
