@@ -47,7 +47,7 @@ class Controller:
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
         self._window.media_panel.media_control_panel. \
-            playback_speed_combobox.currentIndexChanged.connect(self.set_playback_speed)
+            playback_speed_combo_box.currentIndexChanged.connect(self.set_playback_speed)
 
     @Slot()
     def add_col_to_encoding_table(self):
@@ -63,9 +63,9 @@ class Controller:
     def set_playback_speed(self):
         """
         Updates the playback speed of the multimedia based on the data of the
-        playback speed combobox.
+        playback speed combo box.
         """
-        current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combobox.currentData()
+        current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
         self._media_player.setPlaybackRate(current_playback_speed)
 
     @Slot()

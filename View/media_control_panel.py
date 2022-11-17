@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 
-from View.playback_speed_combobox import PlaybackSpeedComboBox
+from View.playback_speed_combo_box import PlaybackSpeedComboBox
 
 
 class MediaControlPanel(QWidget):
@@ -16,13 +16,13 @@ class MediaControlPanel(QWidget):
         horizontal_layout = QHBoxLayout()
 
         # Create a playback speed combobox as a media control widget.
-        self.playback_speed_combobox = PlaybackSpeedComboBox()
+        self.playback_speed_combo_box = PlaybackSpeedComboBox()
 
         # Create an empty widget to fill negative space (remove later).
         empty_widget = QWidget()
 
         # Adds the widgets to the layout.
-        horizontal_layout.addWidget(self.playback_speed_combobox, stretch=1)
+        horizontal_layout.addWidget(self.playback_speed_combo_box, stretch=1)
         horizontal_layout.addWidget(empty_widget, stretch=5)
 
         self.setLayout(horizontal_layout)
