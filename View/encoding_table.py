@@ -33,33 +33,29 @@ class EncodingTable(QTableWidget):
         """
         Increases the column count of the table by 1.
         """
-
         self.setColumnCount(self.columnCount() + 1)
 
     def add_row(self):
         """
         Increases the row count of the table by 1.
         """
-
         self.setRowCount(self.rowCount() + 1)
 
     def set_cell_size(self, width, height):
         """
-        Changes default cell width
+        Changes default cell width.
         """
-
         self.horizontalHeader().setMinimumSectionSize(width)
         self.verticalHeader().setMinimumSectionSize(height)
 
     def set_maximum_width(self, width):
         """
-        Changes default cell height
+        Changes default cell height.
         """
-
         self.horizontalHeader().setMaximumSectionSize(width)
 
     def set_padding(self, padding):
         """
-        Changes default padding
+        Changes default padding.
         """
         self.setStyleSheet("QTableWidget::item { padding: " + padding + "px }")
