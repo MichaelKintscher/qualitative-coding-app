@@ -19,9 +19,11 @@ class EncodingTable(QTableWidget):
         self.setColumnCount(4)
 
         self.horizontalHeader().setStretchLastSection(True)
-        self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
+        self.horizontalHeader().setDefaultSectionSize(100)
         self.verticalHeader().setStretchLastSection(True)
-        self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.verticalHeader().setDefaultSectionSize(70)
 
         # Map the initial header values to [0, columnCount).
         for colIx in range(self.columnCount()):
@@ -33,11 +35,15 @@ class EncodingTable(QTableWidget):
         self.setMinimumHeight(self.rowHeight(0) * (self.minimum_visible_rows + total_border_height))
 
     def add_column(self):
-        """Increases the column count of the table by 1."""
+        """
+        Increases the column count of the table by 1.
+        """
         self.setColumnCount(self.columnCount() + 1)
 
     def add_row(self):
-        """Increases the row count of the table by 1."""
+        """
+        Increases the row count of the table by 1.
+        """
         self.setRowCount(self.rowCount() + 1)
 
     def read_settings(self, session_id):
@@ -70,7 +76,26 @@ class EncodingTable(QTableWidget):
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
+        
+    def set_cell_size(self, width, height):
+        """
+        Changes default cell width.
+        """
+        self.horizontalHeader().setMinimumSectionSize(width)
+        self.verticalHeader().setMinimumSectionSize(height)
 
+    def set_maximum_width(self, width):
+        """
+        Changes default cell height.
+        """
+        self.horizontalHeader().setMaximumSectionSize(width)
+
+    def set_padding(self, padding):
+        """
+        Changes default padding.
+        """
+        self.setStyleSheet("QTableWidget::item { padding: " + padding + "px }")
+        
     def write_settings(self, session_id):
         """
         Writes the table data to the QSettings object for persistence.

@@ -49,20 +49,33 @@ class MainWindow(QMainWindow):
         Parameters:
             slot: The handler function that is called when the signal is clicked.
         """
-        self._open_action.triggered.connect(slot)
+        self._open_file_dialog_action.triggered.connect(slot)
+
+    def connect_settings_to_slot(self, slot):
+        """
+        In this case this function checks whether the settings button is pressed
+        then calls the slot specific slot function in the controller.
+
+        Parameters:
+            slot: The handler function that is called when the signal is clicked.
+        """
+        self._open_settings_dialog_action.triggered.connect(slot)
 
     def create_menu_bar(self):
         """
         Creates the main menu-bar for the application window and populates it with a
-        File sub-menu.
+        File sub-menu, and a settings sub-menu.
         """
         file_menu = self.menuBar().addMenu("File")
+        settings_menu = self.menuBar().addMenu("Settings")
         # Accesses image from the resource qrc file.
         file_dialog_icon = self.style().standardIcon(QStyle.SP_FileDialogStart)
-
+        settings_dialog_icon = self.style().standardIcon(QStyle.SP_FileDialogDetailedView)
         # Adds a load video button with an action.
-        self._open_action = QAction(file_dialog_icon, "Load video file", self)
-        file_menu.addAction(self._open_action)
+        self._open_file_dialog_action = QAction(file_dialog_icon, "Load video file", self)
+        self._open_settings_dialog_action = QAction(settings_dialog_icon, "Settings", self)
+        file_menu.addAction(self._open_file_dialog_action)
+        settings_menu.addAction(self._open_settings_dialog_action)
 
     def read_settings(self):
         """
