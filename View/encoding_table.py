@@ -1,5 +1,6 @@
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QTableWidget
+from PySide6.QtCore import QSettings
+from PySide6.QtWidgets import QTableWidget, QTableWidgetItem
 
 
 class EncodingTable(QTableWidget):
@@ -24,6 +25,10 @@ class EncodingTable(QTableWidget):
         self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self.verticalHeader().setDefaultSectionSize(70)
 
+        # Map the initial header values to [0, columnCount).
+        for colIx in range(self.columnCount()):
+            self.setHorizontalHeaderItem(colIx, QTableWidgetItem(str(colIx)))
+
         # Ensure at least 5 rows are visible at all times.
         self.minimum_visible_rows = 5
         total_border_height = 2
@@ -41,6 +46,37 @@ class EncodingTable(QTableWidget):
         """
         self.setRowCount(self.rowCount() + 1)
 
+    def read_settings(self, session_id):
+        """
+        Reads table settings and updates the table content to the saved state
+        for the group with the given session_id.
+        """
+        settings = QSettings()
+        settings.beginGroup(session_id)
+        settings.beginGroup("encoding-table")
+
+        # Update the column count of the table.
+        self.setColumnCount(int(settings.value("columns")))
+
+        # Update the headers of the table.
+        for colIx in range(self.columnCount()):
+            self.setHorizontalHeaderItem(colIx, QTableWidgetItem(str(colIx)))
+
+        # Update the table data of the table.
+        settings.beginGroup("table-data")
+        for rowIx in range(self.rowCount()):
+            size = settings.beginReadArray(str(rowIx))
+            for colIx in range(size):
+                settings.setArrayIndex(colIx)
+                cell_data = settings.value("cell")
+                if cell_data is not None:
+                    self.setItem(rowIx, colIx, QTableWidgetItem(cell_data))
+            settings.endArray()
+
+        settings.endGroup()  # table-data
+        settings.endGroup()  # encoding-table
+        settings.endGroup()  # session-id
+        
     def set_cell_size(self, width, height):
         """
         Changes default cell width.
@@ -59,3 +95,38 @@ class EncodingTable(QTableWidget):
         Changes default padding.
         """
         self.setStyleSheet("QTableWidget::item { padding: " + padding + "px }")
+        
+    def write_settings(self, session_id):
+        """
+        Writes the table data to the QSettings object for persistence.
+        """
+        settings = QSettings()
+        settings.beginGroup(session_id)
+        settings.beginGroup("encoding-table")
+
+        # Save the column count.
+        settings.setValue("columns", self.columnCount())
+
+        # Save the table headers.
+        settings.beginWriteArray("headers", self.columnCount())
+        for colIx in range(self.columnCount()):
+            settings.setArrayIndex(colIx)
+            settings.setValue("header", self.horizontalHeaderItem(colIx).text())
+        settings.endArray()
+
+        # Save the table data
+        settings.beginGroup("table-data")
+        for rowIx in range(self.rowCount()):
+            settings.beginWriteArray(str(rowIx))
+            for colIx in range(self.columnCount()):
+                settings.setArrayIndex(colIx)
+                item = self.item(rowIx, colIx)
+                if item is not None and item.text() != '':
+                    settings.setValue("cell", item.text())
+                else:
+                    settings.setValue("cell", None)
+            settings.endArray()
+
+        settings.endGroup()  # table-data
+        settings.endGroup()  # encoding-table
+        settings.endGroup()  # session-id

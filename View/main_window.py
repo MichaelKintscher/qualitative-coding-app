@@ -1,7 +1,8 @@
-from PySide6.QtCore import Qt
+from datetime import datetime
+
+from PySide6.QtCore import Qt, QCoreApplication, QSettings
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QDialog, QLabel, QLineEdit, \
-    QPushButton
+from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QMessageBox
 
 from View.coding_assistance_panel import CodingAssistancePanel
 from View.media_panel import MediaPanel
@@ -11,7 +12,7 @@ from View.table_panel import TablePanel
 class MainWindow(QMainWindow):
     """MainWindow is the main window of the application."""
 
-    def __init__(self):
+    def __init__(self, session_id):
         """
         Constructor - Initializes the properties of the main window and all
         containing widgets.
@@ -28,6 +29,17 @@ class MainWindow(QMainWindow):
         self.coding_assistance_panel = CodingAssistancePanel()
 
         self.set_layout()
+
+        self.session_id = session_id
+        if self.session_id != "New Session":
+            self.read_settings()
+
+    def closeEvent(self, event):
+        """
+        Event handler for the user closing the window.
+        """
+        self.write_settings()
+        event.accept()
 
     def connect_load_video_to_slot(self, slot):
         """
@@ -65,6 +77,13 @@ class MainWindow(QMainWindow):
         file_menu.addAction(self._open_file_dialog_action)
         settings_menu.addAction(self._open_settings_dialog_action)
 
+    def read_settings(self):
+        """
+        Reads the QSettings object and restore state if it currently exists and if
+        the user wants to reload the previous session.
+        """
+        self.table_panel.table.read_settings(self.session_id)
+
     def set_layout(self):
         """
         Sets the layout for the main window and adds the window's panels to
@@ -86,3 +105,15 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.centralWidget().setLayout(vertical_container_layout)
+
+    def write_settings(self):
+        """
+        Saves the state of the application to the QSettings object.
+        """
+        # If this session is new, save it as a new session group using the current time
+        # as an identifier. Otherwise, use the previous identifier.
+        if self.session_id == "New Session":
+            self.session_id = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Create the group for this session and save the user data in it.
+        self.table_panel.table.write_settings(self.session_id)
