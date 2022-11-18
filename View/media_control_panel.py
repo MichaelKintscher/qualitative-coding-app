@@ -1,10 +1,12 @@
-from PySide6.QtWidgets import QWidget, QHBoxLayout
+from PySide6 import QtCore
+from PySide6.QtWidgets import QWidget, QPushButton, QStyle, \
+    QVBoxLayout, QHBoxLayout
 
 from View.playback_speed_combo_box import PlaybackSpeedComboBox
 
 
 class MediaControlPanel(QWidget):
-    """Container of all Media Control related widgets."""
+    """ Container of all Media Control related widgets."""
 
     def __init__(self):
         """
@@ -12,17 +14,32 @@ class MediaControlPanel(QWidget):
         to the panel using a horizontal layout.
         """
         super().__init__()
-
-        horizontal_layout = QHBoxLayout()
-
+        
+        # Create play pause button.
+        self.play_pause_button = QPushButton()
+        self.play_pause_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        
         # Create a playback speed combobox as a media control widget.
         self.playback_speed_combo_box = PlaybackSpeedComboBox()
+        
+        # Create horizontal box layout.
+        horizontal_layout = QHBoxLayout()
+        horizontal_layout.setContentsMargins(0, 0, 0, 0)
+        horizontal_layout.addWidget(self.playback_speed_combo_box)
+        horizontal_layout.addWidget(self.play_pause_button)
 
-        # Create an empty widget to fill negative space (remove later).
-        empty_widget = QWidget()
+        # Add vertical box layout to add all widgets.
+        vertical_layout = VBoxLayout()
+        vertical_layout.addLayout(horizontal_layout)
+        
+        # Create empty widgets to fill negative space (remove later).
+        empty_widget1 = QWidget()
+        empty_widget2 = QWidget()
 
         # Adds the widgets to the layout.
-        horizontal_layout.addWidget(self.playback_speed_combo_box, stretch=1)
-        horizontal_layout.addWidget(empty_widget, stretch=4)
+        horizontal_layout.addWidget(self.playback_speed_combo_box, stretch=3)
+        horizontal_layout.addWidget(empty_widget1, stretch=3)
+        horizontal_layout.addWidget(self.play_pause_button, stretch=1)
+        horizontal_layout.addWidget(empty_widget2, stretch=6)
 
-        self.setLayout(horizontal_layout)
+        self.setLayout(vertical_layout)

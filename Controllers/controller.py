@@ -2,7 +2,7 @@ import sys
 
 from PySide6.QtCore import Slot, QMimeDatabase
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import *
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle
 
 from View.user_settings_dialog import UserSettingsDialog
 
@@ -48,6 +48,8 @@ class Controller:
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
+        
+        self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(self.play_video)
 
         self._window.media_panel.progress_bar_slider.sliderMoved.connect(self.set_position)
 
@@ -59,16 +61,12 @@ class Controller:
 
     @Slot()
     def add_col_to_encoding_table(self):
-        """
-        Command the table widget to add a column.
-        """
+        """ Command the table widget to add a column. """
         self._window.table_panel.table.add_column()
 
     @Slot()
     def add_row_to_encoding_table(self):
-        """
-        Command the table widget to add a row.
-        """
+        """ Command the table widget to add a row. """
         self._window.table_panel.table.add_row()
 
     @Slot()
@@ -130,7 +128,7 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
-
+    
     @Slot()
     def open_settings_dialog(self):
         """
@@ -141,7 +139,25 @@ class Controller:
         self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
         self.user_settings.connect_padding_to_slot(self.set_padding)
         self.user_settings.exec()
-
+            
+    @Slot()
+    def play_video(self):
+        """ Command a video to change the state to play and pause when clicked. """
+        if self._media_player.playbackState() == QMediaPlayer.PlayingState:
+            self._media_player.pause()
+        else:
+            self._media_player.play()
+        self.toggle_play_pause_icon()
+        
+    @Slot()
+    def set_playback_speed(self):
+        """
+        Updates the playback speed of the multimedia based on the data of the
+        playback speed combo box.
+        """
+        current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
+        self._media_player.setPlaybackRate(current_playback_speed)
+        
     @Slot()
     def position_changed(self):
         """
@@ -201,3 +217,12 @@ class Controller:
         based on the value of the progress bar slider.
         """
         self._media_player.setPosition(position)
+        
+     @Slot()
+    def toggle_play_pause_icon(self):
+        """ Toggles the icon of the play/pause button. """
+        button = self._window.media_panel.media_control_panel.play_pause_button
+        if self._media_player.playbackState() == QMediaPlayer.PlayingState:
+            button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
+        else:
+            button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
