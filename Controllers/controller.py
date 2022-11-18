@@ -2,7 +2,9 @@ import sys
 
 from PySide6.QtCore import Slot, QMimeDatabase
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle
+
+from View.user_settings_dialog import UserSettingsDialog
 
 
 def get_supported_mime_types():
@@ -44,11 +46,7 @@ class Controller:
             self._window.media_panel.audio_widget)
 
         self._window.connect_load_video_to_slot(self.open_file_dialog)
-
-        self._window.table_panel.add_col_button.clicked.connect(
-            self.add_col_to_encoding_table)
-        self._window.table_panel.add_row_button.clicked.connect(
-            self.add_row_to_encoding_table)
+        self._window.connect_settings_to_slot(self.open_settings_dialog)
 
         self._window.table_panel.change_font_dropDown.activated.connect(
             self.change_font_of_encoding_table)
@@ -58,14 +56,32 @@ class Controller:
         self._window.table_panel.table.horizontalHeader(
         ).line.editingFinished.connect(self.done_editing)
 
+        self._window.table_panel.add_col_button.clicked.connect(
+            self.add_col_to_encoding_table)
+        self._window.table_panel.add_row_button.clicked.connect(
+            self.add_row_to_encoding_table)
+
+        self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(
+            self.play_video)
+
+        self._window.media_panel.progress_bar_slider.sliderMoved.connect(
+            self.set_position)
+
+        self._media_player.positionChanged.connect(self.position_changed)
+        self._media_player.durationChanged.connect(self.duration_changed)
+
+        self._window.media_panel.media_control_panel. \
+            playback_speed_combo_box.currentIndexChanged.connect(
+                self.set_playback_speed)
+
     @Slot()
     def add_col_to_encoding_table(self):
-        """Command the table widget to add a column."""
+        """ Command the table widget to add a column. """
         self._window.table_panel.table.add_column()
 
     @Slot()
     def add_row_to_encoding_table(self):
-        """Command the table widget to add a row."""
+        """ Command the table widget to add a row. """
         self._window.table_panel.table.add_row()
 
     @Slot()
@@ -92,6 +108,14 @@ class Controller:
     def done_editing(self):
         """Commands the table widget to update header label to the text entered in the QLineEdit item"""
         self._window.table_panel.table.done_editing()
+
+    def duration_changed(self):
+        """
+        Sets the range of the progress bar when the
+        duration of the media player changes.
+        """
+        duration = self._media_player.duration()
+        self._window.media_panel.progress_bar_slider.setRange(0, duration)
 
     @Slot()
     def open_file_dialog(self):
@@ -144,3 +168,101 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
+
+    @Slot()
+    def open_settings_dialog(self):
+        """
+        Creates the layout for the settings dialog in header menu and allows for settings to be changed
+        """
+        self.user_settings = UserSettingsDialog()
+        self.user_settings.connect_cell_size_to_slot(self.set_cell_size)
+        self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
+        self.user_settings.connect_padding_to_slot(self.set_padding)
+        self.user_settings.exec()
+
+    @Slot()
+    def play_video(self):
+        """ Command a video to change the state to play and pause when clicked. """
+        if self._media_player.playbackState() == QMediaPlayer.PlayingState:
+            self._media_player.pause()
+        else:
+            self._media_player.play()
+        self.toggle_play_pause_icon()
+
+    @Slot()
+    def set_playback_speed(self):
+        """
+        Updates the playback speed of the multimedia based on the data of the
+        playback speed combo box.
+        """
+        current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
+        self._media_player.setPlaybackRate(current_playback_speed)
+
+    @Slot()
+    def position_changed(self):
+        """
+        Sets the value of the progress bar slider based
+        on the position of the media player.
+        """
+        position = self._media_player.position()
+        self._window.media_panel.progress_bar_slider.setValue(position)
+
+    @Slot()
+    def set_cell_size(self):
+        """
+        Takes input from the settings dialog and calls the set_cell_size function in the encoding table.
+        """
+        width_text = self.user_settings.minimum_size_width_box.text()
+        height_text = self.user_settings.minimum_size_height_box.text()
+        try:
+            width = int(width_text)
+            height = int(height_text)
+            self._window.table_panel.table.set_cell_size(width, height)
+        except ValueError:
+            pass
+
+    @Slot()
+    def set_maximum_width(self):
+        """
+        Takes input from the settings dialog and calls the set_maximum_width function in the encoding table.
+        """
+        width_text = self.user_settings.maximum_width_text_box.text()
+        try:
+            width = int(width_text)
+            self._window.table_panel.table.set_maximum_width(width)
+        except ValueError:
+            pass
+
+    @Slot()
+    def set_padding(self):
+        """
+        Takes input from the settings dialog and calls the set_padding function in encoding_table.py
+        """
+        padding = self.user_settings.padding_text_box.text()
+        self._window.table_panel.table.set_padding(padding)
+
+    @Slot()
+    def set_playback_speed(self):
+        """
+        Updates the playback speed of the multimedia based on the data of the
+        playback speed combo box.
+        """
+        current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
+        self._media_player.setPlaybackRate(current_playback_speed)
+
+    @Slot()
+    def set_position(self, position):
+        """
+        Commands the video player to set the position state
+        based on the value of the progress bar slider.
+        """
+        self._media_player.setPosition(position)
+
+    @Slot()
+    def toggle_play_pause_icon(self):
+        """ Toggles the icon of the play/pause button. """
+        button = self._window.media_panel.media_control_panel.play_pause_button
+        if self._media_player.playbackState() == QMediaPlayer.PlayingState:
+            button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
+        else:
+            button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
