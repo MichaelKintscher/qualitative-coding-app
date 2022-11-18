@@ -1,10 +1,9 @@
 import PySide6
-from PySide6.QtGui import QPalette
 from PySide6.QtMultimedia import QAudioOutput
-from PySide6.QtMultimediaWidgets import QVideoWidget
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSlider
 
 from View.media_control_panel import MediaControlPanel
+from View.video_widget import VideoWidget
 
 
 class MediaPanel(QWidget):
@@ -17,13 +16,13 @@ class MediaPanel(QWidget):
         """
         super().__init__()
 
-        self.video_widget = QVideoWidget()
+        self.video_widget = VideoWidget()
         self.audio_widget = QAudioOutput()
         self.progress_bar_placeholder = QSlider(PySide6.QtCore.Qt.Orientation.Horizontal)
         self.media_control_panel = MediaControlPanel()
 
         vertical_layout = QVBoxLayout()
-        vertical_layout.addWidget(self.video_widget, stretch=7)
+        vertical_layout.addWidget(self.video_widget)
         vertical_layout.addWidget(self.progress_bar_placeholder)
         vertical_layout.addWidget(self.media_control_panel)
         self.setLayout(vertical_layout)

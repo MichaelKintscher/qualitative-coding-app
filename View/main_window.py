@@ -95,11 +95,11 @@ class MainWindow(QMainWindow):
         # to be stored in the first slot in the vertical container layout.
         top_container_widget = QWidget()
         horizontal_layout = QHBoxLayout()
-        horizontal_layout.addWidget(self.media_panel, stretch=16)
-        horizontal_layout.addWidget(self.coding_assistance_panel, stretch=5)
+        horizontal_layout.addWidget(self.media_panel, stretch=3)
+        horizontal_layout.addWidget(self.coding_assistance_panel, stretch=2)
         top_container_widget.setLayout(horizontal_layout)
 
-        vertical_container_layout.addWidget(top_container_widget, stretch=9)
+        vertical_container_layout.addWidget(top_container_widget)
         vertical_container_layout.addWidget(self.table_panel)
 
         central_widget = QWidget()
