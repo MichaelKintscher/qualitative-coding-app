@@ -130,7 +130,7 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
-    
+
     @Slot()
     def open_settings_dialog(self):
         """

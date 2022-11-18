@@ -23,6 +23,6 @@ class MediaControlPanel(QWidget):
 
         # Adds the widgets to the layout.
         horizontal_layout.addWidget(self.playback_speed_combo_box, stretch=1)
-        horizontal_layout.addWidget(empty_widget, stretch=5)
+        horizontal_layout.addWidget(empty_widget, stretch=4)
 
         self.setLayout(horizontal_layout)
