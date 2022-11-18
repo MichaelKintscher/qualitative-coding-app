@@ -110,8 +110,6 @@ class MainWindow(QMainWindow):
         """
         Saves the state of the application to the QSettings object.
         """
-        settings = QSettings()
-
         # If this session is new, save it as a new session group using the current time
         # as an identifier. Otherwise, use the previous identifier.
         if self.session_id == "New Session":
