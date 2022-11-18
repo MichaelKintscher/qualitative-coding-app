@@ -49,6 +49,11 @@ class Controller:
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
+        self._window.media_panel.progress_bar_slider.sliderMoved.connect(self.set_position)
+
+        self._media_player.positionChanged.connect(self.position_changed)
+        self._media_player.durationChanged.connect(self.duration_changed)
+        
         self._window.media_panel.media_control_panel. \
             playback_speed_combo_box.currentIndexChanged.connect(self.set_playback_speed)
 
@@ -67,13 +72,13 @@ class Controller:
         self._window.table_panel.table.add_row()
 
     @Slot()
-    def set_playback_speed(self):
+    def duration_changed(self):
         """
-        Updates the playback speed of the multimedia based on the data of the
-        playback speed combo box.
+        Sets the range of the progress bar when the
+        duration of the media player changes.
         """
-        current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
-        self._media_player.setPlaybackRate(current_playback_speed)
+        duration = self._media_player.duration()
+        self._window.media_panel.progress_bar_slider.setRange(0, duration)
 
     @Slot()
     def open_file_dialog(self):
@@ -138,6 +143,15 @@ class Controller:
         self.user_settings.exec()
 
     @Slot()
+    def position_changed(self):
+        """
+        Sets the value of the progress bar slider based
+        on the position of the media player.
+        """
+        position = self._media_player.position()
+        self._window.media_panel.progress_bar_slider.setValue(position)
+        
+    @Slot()
     def set_cell_size(self):
         """
         Takes input from the settings dialog and calls the set_cell_size function in the encoding table.
@@ -150,7 +164,7 @@ class Controller:
             self._window.table_panel.table.set_cell_size(width, height)
         except ValueError:
             pass
-
+            
     @Slot()
     def set_maximum_width(self):
         """
@@ -162,7 +176,7 @@ class Controller:
             self._window.table_panel.table.set_maximum_width(width)
         except ValueError:
             pass
-
+            
     @Slot()
     def set_padding(self):
         """
@@ -170,3 +184,20 @@ class Controller:
         """
         padding = self.user_settings.padding_text_box.text()
         self._window.table_panel.table.set_padding(padding)
+    
+    @Slot()
+    def set_playback_speed(self):
+        """
+        Updates the playback speed of the multimedia based on the data of the
+        playback speed combo box.
+        """
+        current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
+        self._media_player.setPlaybackRate(current_playback_speed)
+
+    @Slot()
+    def set_position(self, position):
+        """
+        Commands the video player to set the position state
+        based on the value of the progress bar slider.
+        """
+        self._media_player.setPosition(position)

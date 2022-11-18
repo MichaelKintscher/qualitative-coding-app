@@ -7,7 +7,9 @@ from View.video_widget import VideoWidget
 
 
 class MediaPanel(QWidget):
-    """Container of all Media player related widgets."""
+    """
+    Container of all Media player related widgets.
+    """
 
     def __init__(self):
         """
@@ -18,11 +20,16 @@ class MediaPanel(QWidget):
 
         self.video_widget = VideoWidget()
         self.audio_widget = QAudioOutput()
-        self.progress_bar_placeholder = QSlider(PySide6.QtCore.Qt.Orientation.Horizontal)
         self.media_control_panel = MediaControlPanel()
-
+        
+        # Create slider for the media player
+        self.progress_bar_slider = QSlider(PySide6.QtCore.Qt.Orientation.Horizontal)
+        
+        # Add vertical layout box to add widgets
         vertical_layout = QVBoxLayout()
-        vertical_layout.addWidget(self.video_widget)
-        vertical_layout.addWidget(self.progress_bar_placeholder)
+
+        vertical_layout.addWidget(self.video_widget, stretch=7)
+        vertical_layout.addWidget(self.progress_bar_slider)
+
         vertical_layout.addWidget(self.media_control_panel)
         self.setLayout(vertical_layout)
