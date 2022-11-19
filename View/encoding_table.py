@@ -74,7 +74,7 @@ class EncodingTable(QTableWidget):
         Changes font size of cells.
 
         Parameters:
-            font_choice: size of user selected font
+            font_choice: size of user selected font.
         """
         font = self.font()
         font.setPointSize(font_choice)
