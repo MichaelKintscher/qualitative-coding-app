@@ -40,24 +40,39 @@ class Controller:
         self._window = window
 
         self._media_player = QMediaPlayer()
-        self._media_player.setVideoOutput(self._window.media_panel.video_widget)
-        self._media_player.setAudioOutput(self._window.media_panel.audio_widget)
+        self._media_player.setVideoOutput(
+            self._window.media_panel.video_widget)
+        self._media_player.setAudioOutput(
+            self._window.media_panel.audio_widget)
 
         self._window.connect_load_video_to_slot(self.open_file_dialog)
         self._window.connect_settings_to_slot(self.open_settings_dialog)
 
-        self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
-        self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
-        
-        self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(self.play_video)
+        self._window.table_panel.change_font_dropDown.activated.connect(
+            self.change_font_of_encoding_table)
 
-        self._window.media_panel.progress_bar_slider.sliderMoved.connect(self.set_position)
+        self._window.table_panel.table.horizontalHeader(
+        ).sectionDoubleClicked.connect(self.edit_header)
+        self._window.table_panel.table.horizontalHeader(
+        ).line.editingFinished.connect(self.done_editing)
+
+        self._window.table_panel.add_col_button.clicked.connect(
+            self.add_col_to_encoding_table)
+        self._window.table_panel.add_row_button.clicked.connect(
+            self.add_row_to_encoding_table)
+
+        self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(
+            self.play_video)
+
+        self._window.media_panel.progress_bar_slider.sliderMoved.connect(
+            self.set_position)
 
         self._media_player.positionChanged.connect(self.position_changed)
         self._media_player.durationChanged.connect(self.duration_changed)
-        
+
         self._window.media_panel.media_control_panel. \
-            playback_speed_combo_box.currentIndexChanged.connect(self.set_playback_speed)
+            playback_speed_combo_box.currentIndexChanged.connect(
+                self.set_playback_speed)
 
     @Slot()
     def add_col_to_encoding_table(self):
@@ -70,6 +85,30 @@ class Controller:
         self._window.table_panel.table.add_row()
 
     @Slot()
+    def change_font_of_encoding_table(self):
+        """
+        Get selected item from font dropdown.
+        Command table cells font to update to selected font size.
+        """
+        selected_font = int(
+            self._window.table_panel.change_font_dropDown.currentText())
+        self._window.table_panel.table.change_font(selected_font)
+
+    @Slot()
+    def edit_header(self, section):
+        """
+        Commands QLineEdit item to become editable.
+
+        Parameters:
+            section: keeps track of which column header is being edited.
+        """
+        self._window.table_panel.table.edit_header(section)
+
+    @Slot()
+    def done_editing(self):
+        """Commands the table widget to update header label to the text entered in the QLineEdit item"""
+        self._window.table_panel.table.done_editing()
+
     def duration_changed(self):
         """
         Sets the range of the progress bar when the
@@ -115,7 +154,8 @@ class Controller:
         file_dialog.setMimeTypeFilters(mime_types)
 
         # Add an "all supported types" filter and make it the default.
-        glob_patterns_list = [item for sublist in glob_pattern_lists for item in sublist]
+        glob_patterns_list = [
+            item for sublist in glob_pattern_lists for item in sublist]
         glob_patterns_str = " ".join(glob_patterns_list)
         all_supported_types = f"All supported formats {glob_patterns_str}"
         name_filters = file_dialog.nameFilters()
@@ -128,7 +168,7 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
-    
+
     @Slot()
     def open_settings_dialog(self):
         """
@@ -139,7 +179,7 @@ class Controller:
         self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
         self.user_settings.connect_padding_to_slot(self.set_padding)
         self.user_settings.exec()
-            
+
     @Slot()
     def play_video(self):
         """ Command a video to change the state to play and pause when clicked. """
@@ -148,7 +188,7 @@ class Controller:
         else:
             self._media_player.play()
         self.toggle_play_pause_icon()
-        
+
     @Slot()
     def set_playback_speed(self):
         """
@@ -157,7 +197,7 @@ class Controller:
         """
         current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
         self._media_player.setPlaybackRate(current_playback_speed)
-        
+
     @Slot()
     def position_changed(self):
         """
@@ -166,7 +206,7 @@ class Controller:
         """
         position = self._media_player.position()
         self._window.media_panel.progress_bar_slider.setValue(position)
-        
+
     @Slot()
     def set_cell_size(self):
         """
@@ -180,7 +220,7 @@ class Controller:
             self._window.table_panel.table.set_cell_size(width, height)
         except ValueError:
             pass
-            
+
     @Slot()
     def set_maximum_width(self):
         """
@@ -192,7 +232,7 @@ class Controller:
             self._window.table_panel.table.set_maximum_width(width)
         except ValueError:
             pass
-            
+
     @Slot()
     def set_padding(self):
         """
@@ -200,7 +240,7 @@ class Controller:
         """
         padding = self.user_settings.padding_text_box.text()
         self._window.table_panel.table.set_padding(padding)
-    
+
     @Slot()
     def set_playback_speed(self):
         """
@@ -217,8 +257,8 @@ class Controller:
         based on the value of the progress bar slider.
         """
         self._media_player.setPosition(position)
-        
-     @Slot()
+
+    @Slot()
     def toggle_play_pause_icon(self):
         """ Toggles the icon of the play/pause button. """
         button = self._window.media_panel.media_control_panel.play_pause_button

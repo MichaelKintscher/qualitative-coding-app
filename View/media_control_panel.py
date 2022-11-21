@@ -29,7 +29,7 @@ class MediaControlPanel(QWidget):
         horizontal_layout.addWidget(self.play_pause_button)
 
         # Add vertical box layout to add all widgets.
-        vertical_layout = VBoxLayout()
+        vertical_layout = QVBoxLayout()
         vertical_layout.addLayout(horizontal_layout)
         
         # Create empty widgets to fill negative space (remove later).
