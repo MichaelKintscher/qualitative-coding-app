@@ -74,6 +74,15 @@ class Controller:
             playback_speed_combo_box.currentIndexChanged.connect(
                 self.set_playback_speed)
 
+        self.total_time_in_secs = 0
+        self.curr_time_secs = 0
+        self.curr_time_minutes = 0
+        self.curr_time_hours = 0
+        self._media_player.positionChanged.connect(self.get_video_time_total)
+
+        self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
+        self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
+
     @Slot()
     def add_col_to_encoding_table(self):
         """ Command the table widget to add a column. """
@@ -116,6 +125,58 @@ class Controller:
         """
         duration = self._media_player.duration()
         self._window.media_panel.progress_bar_slider.setRange(0, duration)
+
+    @Slot()
+    def get_video_time_total(self):
+        """
+        get_video_time_total() - Slot function that will act as a handler whenever a video
+        is loaded in order to get the time in hr, mins, sec, frames.
+        """
+        # Get the total time of the video in milliseconds.
+        total_in_ms = self._media_player.duration()
+        current_time = self._media_player.position()
+
+        # This convert to seconds, minutes, hours, and frames
+        # and rounds down to the nearest value.
+        sec_rounded_down = 0
+        minutes_rounded_down = 0
+        hours_rounded_down = 0
+        total_time_str = ""
+
+        if total_in_ms > 1000:
+            sec = total_in_ms / 1000
+            sec_rounded_down = int(sec)
+        if sec_rounded_down > 60:
+            minutes = sec_rounded_down / 60
+            minutes_rounded_down = int(minutes)
+            sec_rounded_down -= (minutes_rounded_down * 60)
+        if minutes_rounded_down > 60:
+            hours = minutes_rounded_down / 60
+            hours_rounded_down = int(hours)
+            minutes_rounded_down -= (hours_rounded_down * 60)
+        ms = total_in_ms % 1000
+
+        # This formats the time in the hr:min:sec:frame format.
+        total_time_str = f"{hours_rounded_down:02d}:{minutes_rounded_down:02d}:{sec_rounded_down:02d}"
+
+        # This gets the current time in seconds.
+        temp = self.total_time_in_secs
+        current_time = current_time - (1000 * self.total_time_in_secs)
+        if current_time > 1000:
+            self.total_time_in_secs += 1
+            self.curr_time_secs += 1
+        if self.curr_time_secs > 60:
+            self.curr_time_secs = 0
+            self.curr_time_minutes += 1
+        if self.curr_time_minutes > 60:
+            self.curr_time_minutes = 0
+            self.curr_time_hours += 1
+
+        # Formats the time displaying current time/ total time
+        # and then sets the text label in the media control panel.
+        time_str_formatted = f"Time: {self.curr_time_hours:02d}:{self.curr_time_minutes:02d}:{self.curr_time_secs:02d}" \
+                             f"/{total_time_str}"
+        self._window.media_panel.media_control_panel.time_stamp.setText(time_str_formatted)
 
     @Slot()
     def open_file_dialog(self):
