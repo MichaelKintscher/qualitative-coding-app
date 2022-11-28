@@ -177,8 +177,9 @@ class EncodingTable(QTableWidget):
         settings.beginWriteArray("headers", self.columnCount())
         for colIx in range(self.columnCount()):
             settings.setArrayIndex(colIx)
-            settings.setValue(
-                "header", self.horizontalHeaderItem(colIx).text())
+            if self.horizontalHeaderItem(colIx).text() is not None:
+                settings.setValue(
+                    "header", self.horizontalHeaderItem(colIx).text())
         settings.endArray()
 
         # Save the table data
