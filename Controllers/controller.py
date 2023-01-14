@@ -56,10 +56,8 @@ class Controller:
         self._window.table_panel.table.horizontalHeader(
         ).line.editingFinished.connect(self.done_editing)
 
-        self._window.table_panel.add_col_button.clicked.connect(
-            self.add_col_to_encoding_table)
-        self._window.table_panel.add_row_button.clicked.connect(
-            self.add_row_to_encoding_table)
+        self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
+        self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
         self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(
             self.play_video)
@@ -79,9 +77,6 @@ class Controller:
         self.curr_time_minutes = 0
         self.curr_time_hours = 0
         self._media_player.positionChanged.connect(self.get_video_time_total)
-
-        self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
-        self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
     @Slot()
     def add_col_to_encoding_table(self):
