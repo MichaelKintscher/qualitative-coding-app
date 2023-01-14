@@ -85,6 +85,10 @@ class Controller:
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
+        # Since the table title textChanged signal is not yet connected when it receives
+        # its initial value, we must manually resize it on startup.
+        self.resize_to_content()
+
     @Slot()
     def add_col_to_encoding_table(self):
         """ Command the table widget to add a column. """

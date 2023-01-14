@@ -82,6 +82,7 @@ class MainWindow(QMainWindow):
         Reads the QSettings object and restore state if it currently exists and if
         the user wants to reload the previous session.
         """
+        self.table_panel.read_settings(self.session_id)
         self.table_panel.table.read_settings(self.session_id)
 
     def set_layout(self):
@@ -115,5 +116,6 @@ class MainWindow(QMainWindow):
         if self.session_id == "New Session":
             self.session_id = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Create the group for this session and save the user data in it.
+        # Save user data using the session_id group
+        self.table_panel.write_settings(self.session_id)
         self.table_panel.table.write_settings(self.session_id)
