@@ -1,6 +1,7 @@
 import sys
 
 from PySide6.QtCore import Slot, QMimeDatabase
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QStyle
 
@@ -56,6 +57,7 @@ class Controller:
         self._window.table_panel.table.horizontalHeader(
         ).line.editingFinished.connect(self.done_editing)
 
+        self._window.table_panel.title.textChanged.connect(self.resize_to_content)
         self._window.table_panel.add_col_button.clicked.connect(
             self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(
@@ -249,6 +251,16 @@ class Controller:
         else:
             self._media_player.play()
         self.toggle_play_pause_icon()
+
+    @Slot()
+    def resize_to_content(self):
+        """ Update the width of the table title label to its title content width. """
+        title = self._window.table_panel.title
+        text = title.text()
+        font_metrics = QFontMetrics(title.font())
+
+        padding = 25
+        title.setFixedWidth(font_metrics.horizontalAdvance(text) + padding)
 
     @Slot()
     def set_playback_speed(self):

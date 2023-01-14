@@ -27,8 +27,8 @@ class EncodingTable(QTableWidget):
         self.verticalHeader().setDefaultSectionSize(70)
 
         # Map the initial header values to [0, columnCount).
-        for colIx in range(self.columnCount()):
-            self.setHorizontalHeaderItem(colIx, QTableWidgetItem(str(colIx)))
+        for col_ix in range(self.columnCount()):
+            self.setHorizontalHeaderItem(col_ix, QTableWidgetItem(str(col_ix)))
 
         # Ensure at least 5 rows are visible at all times.
         self.minimum_visible_rows = 5
@@ -36,7 +36,7 @@ class EncodingTable(QTableWidget):
         self.setMinimumHeight(self.rowHeight(
             0) * (self.minimum_visible_rows + total_border_height))
 
-        """Sets up QLineEdit item over headers"""
+        # Sets up QLineEdit item over headers.
         self.horizontalHeader().line = QLineEdit(
             parent=self.horizontalHeader().viewport())
         self.horizontalHeader().line.setAlignment(QtCore.Qt.AlignTop)
@@ -44,14 +44,14 @@ class EncodingTable(QTableWidget):
         self.horizontalHeader().line.blockSignals(True)
         self.horizontalHeader().sectionedit = 0
 
-        """Makes columns take up even space. It's not perfect but width/4 doesn't work either"""
+        # Makes columns take up even space. It's not perfect but width/4 doesn't work either.
         for column in range(self.columnCount()):
             self.setColumnWidth(column, self.width()/2)
 
-        """Sets the first column header to 'Time'"""
+        # Sets the first column header to 'Time'.
         self.setHorizontalHeaderLabels(["Time"])
 
-        """Creates a QTableWidgetItem for all column headers whose type is None"""
+        # Creates a QTableWidgetItem for all column headers whose type is None.
         for column in range(self.columnCount()):
             if self.horizontalHeaderItem(column) is None:
                 self.setHorizontalHeaderItem(
