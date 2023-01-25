@@ -337,13 +337,8 @@ class Controller:
         Changes the start position of the scrubbing bar.
         """
         str_start_time = self._window.media_panel.media_control_panel.input_start_time.text()
-        int_start_time = int(str_start_time)
-        #duration = self._media_player.duration()
-        #temp = self._window.media_panel.progress_bar_slider.minimum
-        #print(temp)
+        int_start_time = int(str_start_time) * 1000
         self._window.media_panel.progress_bar_slider.setMinimum(int_start_time)
-        #temp = self._window.media_panel.progress_bar_slider.minimum
-        #print(temp)
 
     @Slot()
     def change_scrub_end(self):
@@ -351,8 +346,5 @@ class Controller:
         Changes the end position of the scrubbing bar.
         """
         str_end_time = self._window.media_panel.media_control_panel.input_end_time.text()
-        int_end_time = int(str_end_time)
-        #position = self._media_player.position()
-        #print(self._window.media_panel.progress_bar_slider.maximum)
+        int_end_time = int(str_end_time) * 1000
         self._window.media_panel.progress_bar_slider.setMaximum(int_end_time)
-        #print(self._window.media_panel.progress_bar_slider.maximum)
