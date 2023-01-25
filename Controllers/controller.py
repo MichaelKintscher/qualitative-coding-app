@@ -128,9 +128,11 @@ class Controller:
                 if item is not None:
                     single_entity_of_table = "\"" + item.text() + "\","
                     table_data += single_entity_of_table
-
-        # Remove the excess comma from string at end.
-        table_data = table_data[:-1]
+                else:
+                    table_data += ","
+            # Remove the excess comma from string at end.
+            table_data = table_data[:-1]
+            table_data += "\n"
 
         # Convert to a byte array and open file browser to save.
         table_data_as_byte_array = QByteArray(table_data)
