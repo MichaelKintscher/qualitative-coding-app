@@ -83,6 +83,9 @@ class Controller:
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
+        self._window.media_panel.media_control_panel.input_start_time.editingFinished.connect(self.change_scrub_start)
+        self._window.media_panel.media_control_panel.input_end_time.editingFinished.connect(self.change_scrub_end)
+
     @Slot()
     def add_col_to_encoding_table(self):
         """ Command the table widget to add a column. """
@@ -327,3 +330,29 @@ class Controller:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
         else:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
+
+    @Slot()
+    def change_scrub_start(self):
+        """
+        Changes the start position of the scrubbing bar.
+        """
+        str_start_time = self._window.media_panel.media_control_panel.input_start_time.text()
+        int_start_time = int(str_start_time)
+        #duration = self._media_player.duration()
+        #temp = self._window.media_panel.progress_bar_slider.minimum
+        #print(temp)
+        self._window.media_panel.progress_bar_slider.setMinimum(int_start_time)
+        #temp = self._window.media_panel.progress_bar_slider.minimum
+        #print(temp)
+
+    @Slot()
+    def change_scrub_end(self):
+        """
+        Changes the end position of the scrubbing bar.
+        """
+        str_end_time = self._window.media_panel.media_control_panel.input_end_time.text()
+        int_end_time = int(str_end_time)
+        #position = self._media_player.position()
+        #print(self._window.media_panel.progress_bar_slider.maximum)
+        self._window.media_panel.progress_bar_slider.setMaximum(int_end_time)
+        #print(self._window.media_panel.progress_bar_slider.maximum)
