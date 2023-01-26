@@ -58,10 +58,6 @@ class Controller:
         ).line.editingFinished.connect(self.done_editing)
 
         self._window.table_panel.title.textChanged.connect(self.resize_to_content)
-        self._window.table_panel.add_col_button.clicked.connect(
-            self.add_col_to_encoding_table)
-        self._window.table_panel.add_row_button.clicked.connect(
-            self.add_row_to_encoding_table)
 
         self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(
             self.play_video)
