@@ -4,6 +4,9 @@ from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QMessageBox
 
+import io
+import csv
+
 
 def get_supported_mime_types():
     """
@@ -118,22 +121,23 @@ class Controller:
         # Opens the file browser on the main window.
         file_dialog = QFileDialog(self._window)
 
+        output = io.StringIO()
+        csv_writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_NONNUMERIC)
+
         # Traverse over the table data and format data in CSV style.
         num_rows = self._window.table_panel.table.rowCount()
         num_columns = self._window.table_panel.table.columnCount()
-        table_data = ""
         for y in range(num_rows):
+            table_row = []
             for x in range(num_columns):
                 item = self._window.table_panel.table.item(y, x)
                 if item is not None:
-                    single_entity_of_table = "\"" + item.text() + "\","
-                    table_data += single_entity_of_table
+                    single_entity_of_table = item.text()
+                    table_row.append(single_entity_of_table)
                 else:
-                    table_data += ","
-            # Remove the excess comma from string at end.
-            table_data = table_data[:-1]
-            table_data += "\n"
+                    table_row.append("")
+            csv_writer.writerow(table_row)
 
         # Convert to a byte array and open file browser to save.
-        table_data_as_byte_array = QByteArray(table_data)
+        table_data_as_byte_array = QByteArray(output.getvalue())
         file_dialog.saveFileContent(table_data_as_byte_array, "your_table_data.csv")
