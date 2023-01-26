@@ -21,6 +21,8 @@ def main():
     start_dialog = StartDialog()
     dialog_choice = start_dialog.exec()
 
+
+
     # If the user rejected the start dialog box, then exit.
     if dialog_choice == 0:
         return

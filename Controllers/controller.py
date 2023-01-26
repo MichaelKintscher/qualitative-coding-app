@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineE
 from View.user_settings_dialog import UserSettingsDialog
 
 
+
 def get_supported_mime_types():
     """
     get_supported_mime_types() - This returns a list of supported
@@ -64,6 +65,14 @@ class Controller:
 
         self._window.media_panel.progress_bar_slider.sliderMoved.connect(
             self.set_position)
+
+        self._window.media_panel.media_control_panel.forward_button.clicked.connect(
+            self.forward)
+
+        self._window.media_panel.media_control_panel.backward_button.clicked.connect(
+            self.backward)
+
+        self._window.media_panel.media_control_panel.go_to_timestamp_button.clicked.connect(self.go_to_timestamp)
 
         self._media_player.positionChanged.connect(self.position_changed)
         self._media_player.durationChanged.connect(self.duration_changed)
@@ -349,3 +358,20 @@ class Controller:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
         else:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
+
+    @Slot()
+    def forward(self):
+        #current_position = self._media_player.position()
+        self._media_player.setPosition(self._media_player.position() + 2000)  # forward 2
+
+
+    @Slot()
+    def backward(self):
+        #current_position = self._media_player.position()
+        self._media_player.setPosition(self._media_player.position() - 2000)  # backward 2
+
+    @Slot()
+    def go_to_timestamp(self):
+        timestamp = int(self._window.media_panel.media_control_panel.timestamp_input.text())
+        self._media_player.setPosition(timestamp * 1000)
+
