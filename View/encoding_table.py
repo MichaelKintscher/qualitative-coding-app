@@ -1,6 +1,7 @@
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, QObject, QItemSelectionModel
 from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QLineEdit
 from PySide6 import QtWidgets, QtCore
+
 
 
 class EncodingTable(QTableWidget):
@@ -68,6 +69,24 @@ class EncodingTable(QTableWidget):
         Increases the row count of the table by 1.
         """
         self.setRowCount(self.rowCount() + 1)
+
+    def del_column(self):
+        """
+        Deletes current selected column
+        """
+        if self.columnCount() > 1:
+            current_col = self.currentColumn()
+            if current_col != 0:
+                self.removeColumn(current_col)
+
+    def del_row(self):
+        """
+        Deletes current selected row
+        """
+        if self.rowCount() > 1:
+            current_row = self.currentRow()
+            if current_row != 0:
+                self.removeRow(current_row)
 
     def change_font(self, font_choice):
         """
