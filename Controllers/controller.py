@@ -84,6 +84,11 @@ class Controller:
         if self._window.session_id == "New Session":
             self.establish_table_title()
 
+        # Resizes the title bar of the encoding table, this is triggered
+        #   manually here since the slot was not connected to the encoding
+        #   table when its title was initialized.
+        self.resize_to_content()
+
     @Slot()
     def add_col_to_encoding_table(self):
         """ Command the table widget to add a column. """
