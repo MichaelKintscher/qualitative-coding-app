@@ -8,7 +8,6 @@ from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineE
 from View.user_settings_dialog import UserSettingsDialog
 
 
-
 def get_supported_mime_types():
     """
     get_supported_mime_types() - This returns a list of supported
@@ -67,10 +66,10 @@ class Controller:
             self.set_position)
 
         self._window.media_panel.media_control_panel.forward_button.clicked.connect(
-            self.forward)
+            self.skip_video_forward)
 
         self._window.media_panel.media_control_panel.backward_button.clicked.connect(
-            self.backward)
+            self.skip_video_backward)
 
         self._window.media_panel.media_control_panel.go_to_timestamp_button.clicked.connect(self.go_to_timestamp)
 
@@ -260,6 +259,7 @@ class Controller:
         self.user_settings.connect_cell_size_to_slot(self.set_cell_size)
         self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
         self.user_settings.connect_padding_to_slot(self.set_padding)
+        self.user_settings.connect_seconds_skip_to_slot(self.set_second_jumps_forward_backward_scrubbing)
         self.user_settings.exec()
 
     @Slot()
@@ -351,6 +351,40 @@ class Controller:
         self._media_player.setPosition(position)
 
     @Slot()
+    def set_second_jumps_forward_backward_scrubbing(self):
+        """
+        Sets the number of seconds that the forward and backward buttons skip
+        by based on the user-input skip amount in the user settings box.
+        """
+        try:
+            skip_amount_seconds = int(self.user_settings.seconds_skip_text_box.text())
+            self._window.media_panel.media_control_panel.time_step_seconds = skip_amount_seconds
+        except ValueError:
+            print("Invalid user settings: seconds to skip")
+
+    @Slot()
+    def skip_video_backward(self):
+        """
+        Slot function for the backwards button in the media control panel. This
+        slot function skips the state of the media player backwards by the
+        number of seconds set by the time_step field in the media control panel.
+        """
+        current_position = self._media_player.position()
+        time_jump_seconds = self._window.media_panel.media_control_panel.time_step_seconds * 1000
+        self._media_player.setPosition(current_position - time_jump_seconds)
+
+    @Slot()
+    def skip_video_forward(self):
+        """
+        Slot function for the forward button in the media control panel. This
+        slot function skips the state of the media player forwards by the
+        number of seconds set by the time_step field in the media control panel.
+        """
+        current_position = self._media_player.position()
+        time_jump_seconds = self._window.media_panel.media_control_panel.time_step_seconds * 1000
+        self._media_player.setPosition(current_position + time_jump_seconds)
+
+    @Slot()
     def toggle_play_pause_icon(self):
         """ Toggles the icon of the play/pause button. """
         button = self._window.media_panel.media_control_panel.play_pause_button
@@ -358,17 +392,6 @@ class Controller:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
         else:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
-
-    @Slot()
-    def forward(self):
-        #current_position = self._media_player.position()
-        self._media_player.setPosition(self._media_player.position() + 2000)  # forward 2
-
-
-    @Slot()
-    def backward(self):
-        #current_position = self._media_player.position()
-        self._media_player.setPosition(self._media_player.position() - 2000)  # backward 2
 
     @Slot()
     def go_to_timestamp(self):

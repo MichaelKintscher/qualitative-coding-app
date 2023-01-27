@@ -29,6 +29,7 @@ class MediaControlPanel(QWidget):
         self.time_stamp.setText("")
 
         # Create the forward backward button
+        self.time_step_seconds = 2
         self.forward_button = QPushButton("Forward")
         self.backward_button = QPushButton("Backward")
 

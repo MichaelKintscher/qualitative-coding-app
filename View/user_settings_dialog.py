@@ -17,8 +17,8 @@ class UserSettingsDialog(QDialog):
         maximum_width_hbox = QHBoxLayout()
         padding_hbox = QHBoxLayout()
 
-        # Create a new horizontal layout for the "Number of frames to skip" setting
-        frames_skip_hbox = QHBoxLayout()
+        # Create a new horizontal layout for the "Number of seconds to skip" setting
+        seconds_skip_hbox = QHBoxLayout()
 
         # Initializes the widgets of the dialog.
         encoding_table_label = QLabel("Encoding Table Settings:")
@@ -33,9 +33,9 @@ class UserSettingsDialog(QDialog):
         self.padding_text_box = QLineEdit()
         self.padding_button = QPushButton("Set Padding")
         encoding_video_label = QLabel("Encoding Video Settings:")
-        frames_skip_label = QLabel("Set number of frames to skip")
-        self.frames_skip_text_box = QLineEdit()
-        self.frames_skip_button = QPushButton("Change Number of frames to skip")
+        seconds_skip_label = QLabel("Set number of seconds to skip")
+        self.seconds_skip_text_box = QLineEdit()
+        self.seconds_skip_button = QPushButton("Change Number of seconds to skip")
 
 
         # Adds the widgets to the internal layouts.
@@ -46,8 +46,8 @@ class UserSettingsDialog(QDialog):
         maximum_width_hbox.addWidget(self.maximum_width_button)
         padding_hbox.addWidget(self.padding_text_box)
         padding_hbox.addWidget(self.padding_button)
-        frames_skip_hbox.addWidget(self.frames_skip_text_box)
-        frames_skip_hbox.addWidget(self.frames_skip_button)
+        seconds_skip_hbox.addWidget(self.seconds_skip_text_box)
+        seconds_skip_hbox.addWidget(self.seconds_skip_button)
 
         # Adds a title for the encoding table settings to the dialog.
         dialog_layout.addWidget(encoding_table_label)
@@ -66,8 +66,8 @@ class UserSettingsDialog(QDialog):
         dialog_layout.addSpacing(50)
         dialog_layout.addWidget(encoding_video_label)
         dialog_layout.addSpacing(50)
-        dialog_layout.addWidget(frames_skip_label)
-        dialog_layout.addLayout(frames_skip_hbox)
+        dialog_layout.addWidget(seconds_skip_label)
+        dialog_layout.addLayout(seconds_skip_hbox)
 
         # Sets the layout of the dialog.
         self.setLayout(dialog_layout)
@@ -90,18 +90,8 @@ class UserSettingsDialog(QDialog):
         """
         self.padding_button.clicked.connect(slot)
 
-    def connect_frames_skip_to_slot(self, slot):
+    def connect_seconds_skip_to_slot(self, slot):
         """
-        Connects a frames_skip_button event to a slot function in the controller.
+        Connects a seconds_skip_button event to a slot function in the controller.
         """
-        self.frames_skip_button.clicked.connect(slot)
-
-    def get_frames_skip(self):
-        return self.frames_skip_text_box.text()
-
-    def slot_function(self):
-        frames_skip = self.get_frames_skip()
-        print("Number of frames to skip:", frames_skip)
-
-
-    
+        self.seconds_skip_button.clicked.connect(slot)
