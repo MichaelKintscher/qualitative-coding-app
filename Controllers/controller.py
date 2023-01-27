@@ -1,8 +1,9 @@
 import sys
 
 from PySide6.QtCore import Slot, QMimeDatabase
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit
 
 from View.user_settings_dialog import UserSettingsDialog
 
@@ -56,10 +57,7 @@ class Controller:
         self._window.table_panel.table.horizontalHeader(
         ).line.editingFinished.connect(self.done_editing)
 
-        self._window.table_panel.add_col_button.clicked.connect(
-            self.add_col_to_encoding_table)
-        self._window.table_panel.add_row_button.clicked.connect(
-            self.add_row_to_encoding_table)
+        self._window.table_panel.title.textChanged.connect(self.resize_to_content)
 
         self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(
             self.play_video)
@@ -83,8 +81,12 @@ class Controller:
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
+
         self._window.media_panel.media_control_panel.input_start_time.editingFinished.connect(self.change_scrub_start)
         self._window.media_panel.media_control_panel.input_end_time.editingFinished.connect(self.change_scrub_end)
+
+        if self._window.session_id == "New Session":
+            self.establish_table_title()
 
     @Slot()
     def add_col_to_encoding_table(self):
@@ -115,6 +117,17 @@ class Controller:
             section: keeps track of which column header is being edited.
         """
         self._window.table_panel.table.edit_header(section)
+
+    def establish_table_title(self):
+        """
+        Opens an input dialog box to request an initial title for the encoding
+        table of the session. Then, sets the initial title to the user-response.
+        """
+        text, ok = QInputDialog.getText(self._window, "Encoding Table Title Name",
+                                        "Encoding Table Title:", QLineEdit.Normal, "")
+        if ok and text:
+            self._window.table_panel.title.setText(text)
+            self.resize_to_content()
 
     @Slot()
     def done_editing(self):
@@ -252,6 +265,16 @@ class Controller:
         else:
             self._media_player.play()
         self.toggle_play_pause_icon()
+
+    @Slot()
+    def resize_to_content(self):
+        """ Update the width of the table title label to its title content width. """
+        title = self._window.table_panel.title
+        text = title.text()
+        font_metrics = QFontMetrics(title.font())
+
+        padding = 25
+        title.setFixedWidth(font_metrics.horizontalAdvance(text) + padding)
 
     @Slot()
     def set_playback_speed(self):
