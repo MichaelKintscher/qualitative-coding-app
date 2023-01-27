@@ -86,6 +86,13 @@ class MainWindow(QMainWindow):
         self._open_settings_dialog_action = QAction(settings_dialog_icon, "Settings", self)
         file_menu.addAction(self._open_file_dialog_action)
         settings_menu.addAction(self._open_settings_dialog_action)
+        # This adds a new sub-menu for exporting a file.
+        export_menu = self.menuBar().addMenu("Export")
+        export_dialog_icon = self.style().standardIcon(QStyle.SP_DialogSaveButton)
+
+        # Adds a Save table data button with an action.
+        self._save_action = QAction(export_dialog_icon, "Save table data", self)
+        export_menu.addAction(self._save_action)
 
     def read_settings(self):
         """
@@ -94,14 +101,6 @@ class MainWindow(QMainWindow):
         """
         self.table_panel.read_settings(self.session_id)
         self.table_panel.table.read_settings(self.session_id)
-
-        # This adds a new sub-menu for exporting a file.
-        export_menu = self.menuBar().addMenu("Export")
-        export_dialog_icon = self.style().standardIcon(QStyle.SP_DialogSaveButton)
-
-        # Adds a Save table data button with an action.
-        self._save_action = QAction(export_dialog_icon, "Save table data", self)
-        export_menu.addAction(self._save_action)
 
     def set_layout(self):
         """
