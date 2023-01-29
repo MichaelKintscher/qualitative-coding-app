@@ -1,13 +1,17 @@
 import sys
 
-from PySide6.QtCore import Slot, QMimeDatabase
+import io
+import csv
+
+from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox
 
 
 from View.user_settings_dialog import UserSettingsDialog
 from View.coding_assistance_button_dialog import CodingAssistanceButtonDialog
+
 
 
 def get_supported_mime_types():
@@ -82,6 +86,8 @@ class Controller:
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
+
+        self._window.connect_export_file_to_slot(self.save_to_file)
 
         self._window.coding_assistance_panel.button_panel.connect_add_button_to_slot(self.open_coding_assistance_dialog)
         #self._window.coding_assistance_panel.button_panel.connect_new_button_to_slot(self.coding_assistance_button_operation)
@@ -251,6 +257,36 @@ class Controller:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
+
+    @Slot()
+    def save_to_file(self):
+        """
+        save_to_file() - Slot function that will act as a handler whenever the
+        Save table data button is clicked.
+        """
+        # Opens the file browser on the main window.
+        file_dialog = QFileDialog(self._window)
+
+        output = io.StringIO()
+        csv_writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_NONNUMERIC)
+
+        # Traverse over the table data and format data in CSV style.
+        num_rows = self._window.table_panel.table.rowCount()
+        num_columns = self._window.table_panel.table.columnCount()
+        for y in range(num_rows):
+            table_row = []
+            for x in range(num_columns):
+                item = self._window.table_panel.table.item(y, x)
+                if item is not None:
+                    single_entity_of_table = item.text()
+                    table_row.append(single_entity_of_table)
+                else:
+                    table_row.append("")
+            csv_writer.writerow(table_row)
+
+        # Convert to a byte array and open file browser to save.
+        table_data_as_byte_array = QByteArray(output.getvalue())
+        file_dialog.saveFileContent(table_data_as_byte_array, "your_table_data.csv")
 
     @Slot()
     def open_settings_dialog(self):
