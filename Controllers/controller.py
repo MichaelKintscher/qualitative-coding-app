@@ -87,6 +87,9 @@ class Controller:
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
+        self._window.media_panel.media_control_panel.input_start_time.editingFinished.connect(self.change_scrub_start)
+        self._window.media_panel.media_control_panel.input_end_time.editingFinished.connect(self.change_scrub_end)
+
         self._window.connect_export_file_to_slot(self.save_to_file)
 
         self._window.coding_assistance_panel.button_panel.connect_add_button_to_slot(self.open_coding_assistance_dialog)
@@ -397,6 +400,23 @@ class Controller:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
 
     @Slot()
+    def change_scrub_start(self):
+        """
+        Changes the start position of the scrubbing bar.
+        """
+        str_start_time = self._window.media_panel.media_control_panel.input_start_time.text()
+        int_start_time = int(str_start_time) * 1000
+        self._window.media_panel.progress_bar_slider.setMinimum(int_start_time)
+
+    @Slot()
+    def change_scrub_end(self):
+        """
+        Changes the end position of the scrubbing bar.
+        """
+        str_end_time = self._window.media_panel.media_control_panel.input_end_time.text()
+        int_end_time = int(str_end_time) * 1000
+        self._window.media_panel.progress_bar_slider.setMaximum(int_end_time)
+
     def open_coding_assistance_dialog(self):
         """Open a dialog to create a new Coding Assistance Button"""
         self.coding_assistance_button_dialog = CodingAssistanceButtonDialog()
