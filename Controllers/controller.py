@@ -8,7 +8,9 @@ from PySide6.QtGui import QFontMetrics
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox
 
+
 from View.user_settings_dialog import UserSettingsDialog
+from View.coding_assistance_button_dialog import CodingAssistanceButtonDialog
 
 
 
@@ -86,9 +88,17 @@ class Controller:
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
 
         self._window.connect_export_file_to_slot(self.save_to_file)
+
+        self._window.coding_assistance_panel.button_panel.connect_add_button_to_slot(self.open_coding_assistance_dialog)
+        #self._window.coding_assistance_panel.button_panel.connect_new_button_to_slot(self.coding_assistance_button_operation)
+        
         if self._window.session_id == "New Session":
             self.establish_table_title()
 
+        # Resizes the title bar of the encoding table, this is triggered
+        #   manually here since the slot was not connected to the encoding
+        #   table when its title was initialized.
+        self.resize_to_content()
 
     @Slot()
     def add_col_to_encoding_table(self):
@@ -385,3 +395,36 @@ class Controller:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
         else:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
+
+    @Slot()
+    def open_coding_assistance_dialog(self):
+        """Open a dialog to create a new Coding Assistance Button"""
+        self.coding_assistance_button_dialog = CodingAssistanceButtonDialog()
+        self.coding_assistance_button_dialog.connect_create_button_to_slot(self.create_coding_assistance_button)
+        self.coding_assistance_button_dialog.exec()
+
+    @Slot()
+    def create_coding_assistance_button(self):
+        """Add a button to the Coding Assistance Panel"""
+        button_title = self.coding_assistance_button_dialog.apply_text_field.text()
+        button_hotkey = self.coding_assistance_button_dialog.hotkey_field.text()
+
+        if len(self.coding_assistance_button_dialog.hotkeys) == 0:
+            self.coding_assistance_button_dialog.hotkeys.append(button_hotkey)
+            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_title,
+                                                                                              button_hotkey)
+        else:
+            for hotkey in self.coding_assistance_button_dialog.hotkeys:
+                if hotkey == button_hotkey:
+                    self.coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
+                    break
+                else:
+                    self.coding_assistance_button_dialog.hotkeys.append(button_hotkey)
+                    self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_title,
+                                                                                                      button_hotkey)
+
+
+    @Slot()
+    def coding_assistance_button_operation(self):
+        """Set the data a Coding Assistance Button will input into the table"""
+
