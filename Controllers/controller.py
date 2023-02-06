@@ -1,10 +1,15 @@
 import sys
 
-from PySide6.QtCore import Slot, QMimeDatabase
+import io
+import csv
+
+from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox
 from View.user_settings_dialog import UserSettingsDialog
+from View.coding_assistance_button_dialog import CodingAssistanceButtonDialog
+
 
 
 def get_supported_mime_types():
@@ -83,8 +88,21 @@ class Controller:
         self._window.table_panel.delete_col_button.clicked.connect(self.del_current_column)
         self._window.table_panel.delete_row_button.clicked.connect(self.del_current_row)
 
+        self._window.media_panel.media_control_panel.input_start_time.editingFinished.connect(self.change_scrub_start)
+        self._window.media_panel.media_control_panel.input_end_time.editingFinished.connect(self.change_scrub_end)
+
+        self._window.connect_export_file_to_slot(self.save_to_file)
+
+        self._window.coding_assistance_panel.button_panel.connect_add_button_to_slot(self.open_coding_assistance_dialog)
+        #self._window.coding_assistance_panel.button_panel.connect_new_button_to_slot(self.coding_assistance_button_operation)
+        
         if self._window.session_id == "New Session":
             self.establish_table_title()
+
+        # Resizes the title bar of the encoding table, this is triggered
+        #   manually here since the slot was not connected to the encoding
+        #   table when its title was initialized.
+        self.resize_to_content()
 
     @Slot()
     def add_col_to_encoding_table(self):
@@ -255,6 +273,36 @@ class Controller:
             self._media_player.play()
 
     @Slot()
+    def save_to_file(self):
+        """
+        save_to_file() - Slot function that will act as a handler whenever the
+        Save table data button is clicked.
+        """
+        # Opens the file browser on the main window.
+        file_dialog = QFileDialog(self._window)
+
+        output = io.StringIO()
+        csv_writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_NONNUMERIC)
+
+        # Traverse over the table data and format data in CSV style.
+        num_rows = self._window.table_panel.table.rowCount()
+        num_columns = self._window.table_panel.table.columnCount()
+        for y in range(num_rows):
+            table_row = []
+            for x in range(num_columns):
+                item = self._window.table_panel.table.item(y, x)
+                if item is not None:
+                    single_entity_of_table = item.text()
+                    table_row.append(single_entity_of_table)
+                else:
+                    table_row.append("")
+            csv_writer.writerow(table_row)
+
+        # Convert to a byte array and open file browser to save.
+        table_data_as_byte_array = QByteArray(output.getvalue())
+        file_dialog.saveFileContent(table_data_as_byte_array, "your_table_data.csv")
+
+    @Slot()
     def open_settings_dialog(self):
         """
         Creates the layout for the settings dialog in header menu and allows for settings to be changed
@@ -361,3 +409,53 @@ class Controller:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
         else:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
+
+    @Slot()
+    def change_scrub_start(self):
+        """
+        Changes the start position of the scrubbing bar.
+        """
+        str_start_time = self._window.media_panel.media_control_panel.input_start_time.text()
+        int_start_time = int(str_start_time) * 1000
+        self._window.media_panel.progress_bar_slider.setMinimum(int_start_time)
+
+    @Slot()
+    def change_scrub_end(self):
+        """
+        Changes the end position of the scrubbing bar.
+        """
+        str_end_time = self._window.media_panel.media_control_panel.input_end_time.text()
+        int_end_time = int(str_end_time) * 1000
+        self._window.media_panel.progress_bar_slider.setMaximum(int_end_time)
+
+    def open_coding_assistance_dialog(self):
+        """Open a dialog to create a new Coding Assistance Button"""
+        self.coding_assistance_button_dialog = CodingAssistanceButtonDialog()
+        self.coding_assistance_button_dialog.connect_create_button_to_slot(self.create_coding_assistance_button)
+        self.coding_assistance_button_dialog.exec()
+
+    @Slot()
+    def create_coding_assistance_button(self):
+        """Add a button to the Coding Assistance Panel"""
+        button_title = self.coding_assistance_button_dialog.apply_text_field.text()
+        button_hotkey = self.coding_assistance_button_dialog.hotkey_field.text()
+
+        if len(self.coding_assistance_button_dialog.hotkeys) == 0:
+            self.coding_assistance_button_dialog.hotkeys.append(button_hotkey)
+            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_title,
+                                                                                              button_hotkey)
+        else:
+            for hotkey in self.coding_assistance_button_dialog.hotkeys:
+                if hotkey == button_hotkey:
+                    self.coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
+                    break
+                else:
+                    self.coding_assistance_button_dialog.hotkeys.append(button_hotkey)
+                    self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_title,
+                                                                                                      button_hotkey)
+
+
+    @Slot()
+    def coding_assistance_button_operation(self):
+        """Set the data a Coding Assistance Button will input into the table"""
+
