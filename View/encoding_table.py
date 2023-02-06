@@ -83,9 +83,37 @@ class EncodingTable(QTableWidget):
         """
         Deletes current selected row
         """
+
         if self.rowCount() > 1:
             current_row = self.currentRow()
-            if current_row != 0:
+            item_list = self.selectedIndexes()
+            num_columns = self.columnCount()
+            num_rows = self.rowCount()
+            row = False
+            col = False
+
+            # This logic determines whether a column or a row is selected
+            if num_columns == 1:
+                if len(item_list) == 0:
+                    return
+                elif len(item_list) == num_rows:
+                    col = True
+                else:
+                    row = True
+            elif len(item_list) > 1:
+                row1 = item_list[0].row()
+                col1 = item_list[0].column()
+                row2 = item_list[1].row()
+                col2 = item_list[1].column()
+                print( row1, row1, col1, col2)
+                if row1 == row2 and col1 != col2:
+                    row = True
+                if row1 != row2 and col1 == col2:
+                    col = True
+
+            if current_row == -1 or col:
+                return
+            elif row:
                 self.removeRow(current_row)
 
     def change_font(self, font_choice):
