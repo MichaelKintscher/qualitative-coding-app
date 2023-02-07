@@ -1,7 +1,11 @@
+from PySide6.QtCore import Slot
+from PySide6.QtGui import QCloseEvent
+
 from Controllers.project_management_controller import ProjectManagementController
 from Controllers.window_controller import WindowController
 from View.main_window import MainWindow
 from View.project_management_window import ProjectManagementWindow
+from Application.session_manager import SessionManager
 
 
 class StateController:
@@ -21,6 +25,7 @@ class StateController:
         self.project_management_controller = ProjectManagementController(self.project_management_window, self)
         self.window = None
         self.window_controller = None
+        self.session_manager = SessionManager()
 
     def create_new_session(self, session_name, table_name="Default Title", video=None):
         """
@@ -32,6 +37,7 @@ class StateController:
         self.window = MainWindow(session_name)
         self.window_controller = WindowController(self.window)
         self.window.show()
+        #self.window.closing.connect(self.write_session_slot)
 
     def exec_start(self):
         """
@@ -46,7 +52,48 @@ class StateController:
         """
         Loads the session with the session id.
         """
-        if self.program_running:
-            return
+        if not self.program_running:
+            self.window = MainWindow(session_id)
+            self.window_controller = WindowController(self.window)
+            self.window.show()
+            self.window.closing.connect(self.write_session_slot)
 
-        self.create_new_session(session_id)
+        # here logic to load data into window that we create
+        # calling set functions using the qsettings object
+        # QWindow parent has slot called close
+        # controller has instance of session_manager created
+        # session gets that data from manager and holds it in variables
+        # self.window.close.connect(write_session_slot)
+
+    @Slot()
+    def write_session_slot(self):
+
+        session_id = self.window.get_session_id()
+        self.session_manager.set_session_id(session_id)
+
+        table_title = self.window.table_panel.get_table_name()
+        self.session_manager.set_table_name(table_title)
+
+        table_rows = self.window.table_panel.table.get_row_count()
+        self.session_manager.set_table_rows(table_rows)
+
+        table_cols = self.window.table_panel.table.get_col_count()
+        self.session_manager.set_table_cols(table_cols)
+
+        table_headers = self.window.table_panel.table.get_headers()
+        self.session_manager.set_table_headers(table_headers)
+
+        table_data = self.window.table_panel.table.get_table_data()
+        self.session_manager.set_table_data(table_data)
+
+
+    """
+        write session slot
+            which gets all the data from the window
+            get table name
+            get row/col count
+            get headers
+            get table data in a list of lists
+            send all to manager
+    """
+    """save session"""

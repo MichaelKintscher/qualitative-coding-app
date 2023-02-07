@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from PySide6.QtCore import Qt, QCoreApplication, QSettings
+from PySide6.QtCore import Qt, QCoreApplication, QSettings, Signal, QObject
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QMessageBox
 
@@ -9,8 +9,11 @@ from View.media_panel import MediaPanel
 from View.table_panel import TablePanel
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, QObject):
     """MainWindow is the main window of the application."""
+
+    # Create signal for the main window is closed.
+    closing = Signal(bool)
 
     def __init__(self, session_id):
         """
@@ -38,7 +41,12 @@ class MainWindow(QMainWindow):
         """
         Event handler for the user closing the window.
         """
-        self.write_settings()
+        # move this event handler to controller class.
+        # see if theres a signal on close that we can connect
+        # to a slot function in the controller class
+
+        self.closing.emit(True)
+
         event.accept()
 
     def connect_load_video_to_slot(self, slot):
@@ -99,6 +107,7 @@ class MainWindow(QMainWindow):
         Reads the QSettings object and restore state if it currently exists and if
         the user wants to reload the previous session.
         """
+        # move to the controller as well with a setter function
         self.table_panel.read_settings(self.session_id)
         self.table_panel.table.read_settings(self.session_id)
 
@@ -143,6 +152,16 @@ class MainWindow(QMainWindow):
         """
         Saves the state of the application to the QSettings object.
         """
+        # Move this to a controller, this should be a getter function to get the data
         # Save user data using the session_id group
         self.table_panel.write_settings(self.session_id)
         self.table_panel.table.write_settings(self.session_id)
+
+    def get_session_id(self):
+        """
+        Getter to return the session id
+
+        Returns:
+            String holding session id
+        """
+        return self.session_id

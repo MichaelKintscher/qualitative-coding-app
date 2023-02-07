@@ -117,6 +117,7 @@ class EncodingTable(QTableWidget):
         Reads table settings and updates the table content to the saved state
         for the group with the given session_id.
         """
+        # move as well
         settings = QSettings()
         settings.beginGroup(session_id)
         settings.beginGroup("encoding-table")
@@ -171,6 +172,7 @@ class EncodingTable(QTableWidget):
         """
         Writes the table data to the QSettings object for persistence.
         """
+        # replace this with getter and setter functions
         settings = QSettings()
         settings.beginGroup(session_id)
         settings.beginGroup("encoding-table")
@@ -206,3 +208,55 @@ class EncodingTable(QTableWidget):
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
+
+    def get_row_count(self):
+        """
+        Getter method to get the row count.
+
+        Returns:
+            Int that is row count
+        """
+        return self.rowCount()
+
+    def get_col_count(self):
+        """
+        Getter method to get the column count.
+
+        Returns:
+            Int that is column count
+        """
+        return self.columnCount()
+
+    def get_headers(self):
+        """
+        Getter method to get
+
+        Returns:
+            List of headers
+        """
+        table_headers = []
+        for col_ix in range(self.columnCount()):
+            if self.horizontalHeaderItem(col_ix) is not None:
+                table_headers.append(self.horizontalHeaderItem(col_ix).text())
+            else:
+                table_headers.append(str(col_ix + 1))
+        return table_headers
+
+    def get_table_data(self):
+        """
+            Getter method to get the table data
+
+            Returns:
+                2D list of table data
+        """
+        row_data = []
+        for rowIx in range(self.rowCount()):
+            col_data = []
+            for colIx in range(self.columnCount()):
+                item = self.item(rowIx, colIx)
+                if item is not None and item.text() != '':
+                    col_data.append(item.text())
+                else:
+                    col_data.append(None)
+            row_data.append(col_data)
+        return row_data
