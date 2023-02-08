@@ -9,7 +9,7 @@ from View.media_panel import MediaPanel
 from View.table_panel import TablePanel
 
 
-class MainWindow(QMainWindow, QObject):
+class MainWindow(QMainWindow):
     """MainWindow is the main window of the application."""
 
     # Create signal for the main window is closed.
@@ -34,8 +34,8 @@ class MainWindow(QMainWindow, QObject):
         self.set_layout()
 
         self.session_id = session_id
-        if self.session_exists(session_id):
-            self.read_settings()
+        """if self.session_exists(session_id):
+            self.read_settings()"""
 
     def closeEvent(self, event):
         """

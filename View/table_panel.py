@@ -2,6 +2,7 @@ from PySide6 import QtCore
 from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QWidget, QPushButton, QGridLayout, QSizePolicy, QComboBox, QLabel, QLineEdit
 from View.encoding_table import EncodingTable
+from Models.session_entity import SessionEntity
 
 
 class TablePanel(QWidget):
@@ -84,3 +85,6 @@ class TablePanel(QWidget):
             A string of the table name
         """
         return self.title.text()
+
+    def set_table_name(self, table_name):
+        self.title.setText(table_name)

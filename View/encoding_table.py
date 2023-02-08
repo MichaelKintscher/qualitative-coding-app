@@ -1,6 +1,7 @@
 from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QLineEdit
 from PySide6 import QtWidgets, QtCore
+from Models.session_entity import SessionEntity
 
 
 class EncodingTable(QTableWidget):
@@ -260,3 +261,22 @@ class EncodingTable(QTableWidget):
                     col_data.append(None)
             row_data.append(col_data)
         return row_data
+
+    def set_row_count(self, table_row):
+        self.setRowCount(table_row)
+        print(table_row)
+
+    def set_col_count(self, table_col):
+        self.setColumnCount(table_col)
+
+    def set_headers(self, table_headers):
+        for col_ix in range(self.columnCount()):
+            header = table_headers[col_ix]
+            self.setHorizontalHeaderItem(col_ix, QTableWidgetItem(header))
+
+    """def set_table_data(self, table_data):
+        for rowIx in range(self.rowCount()):
+            for colIx in range(self.columnCount()):
+                #if table_data[rowIx][colIx] is not None:
+                    print("dummy")
+                    self.setItem(rowIx, colIx, QTableWidgetItem(table_data[rowIx][colIx]))"""
