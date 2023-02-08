@@ -37,6 +37,7 @@ class StateController:
         self.window = MainWindow(session_name)
         self.window_controller = WindowController(self.window)
         self.window.show()
+        print(self.window.table_panel.get_table_name())
         self.window.closing.connect(self.write_session_slot(session_name))
 
     def exec_start(self):
@@ -64,7 +65,7 @@ class StateController:
             self.window.table_panel.table.set_col_count(self.session_manager.session_entity.table_col)
             self.window.table_panel.table.set_row_count(self.session_manager.session_entity.table_row)
             self.window.table_panel.table.set_headers(self.session_manager.session_entity.table_headers)
-            self.window.table_panel.table.set_table_data(self.session_manager.session_entity.table_data)
+            #self.window.table_panel.table.set_table_data(self.session_manager.session_entity.table_data)
 
             self.window.closing.connect(self.write_session_slot(session_id))
 

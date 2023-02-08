@@ -12,6 +12,7 @@ class SessionManager:
         self.session_entity.session_id = session_id
 
     def set_table_name(self, table_name):
+        print(table_name)
         self.session_entity.table_name = table_name
 
     def set_table_rows(self, row_count):
@@ -24,8 +25,8 @@ class SessionManager:
         self.session_entity.table_headers = headers
 
     def set_table_data(self, data):
-        print(data)
-        print("here")
+        #print(data)
+        #print("here")
         self.session_entity.table_data = data
 
     def write_to_settings(self):
@@ -73,6 +74,12 @@ class SessionManager:
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
+
+        print(self.session_entity.session_id)
+        print(self.session_entity.table_col)
+        print(self.session_entity.table_row)
+        print(self.session_entity.table_name)
+        print(self.session_entity.table_headers)
 
     def load_existing_session(self, session_id):
 

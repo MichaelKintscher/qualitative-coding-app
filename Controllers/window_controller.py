@@ -137,6 +137,8 @@ class WindowController:
         """
         text, ok = QInputDialog.getText(self._window, "Encoding Table Title Name",
                                         "Encoding Table Title:", QLineEdit.Normal, "")
+        print(text)
+        print("here")
         if ok and text:
             self._window.table_panel.title.setText(text)
             self.resize_to_content()
