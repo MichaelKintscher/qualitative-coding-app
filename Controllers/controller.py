@@ -3,16 +3,20 @@ import sys
 import io
 import csv
 
-from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
-from PySide6.QtGui import QFontMetrics
-from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox
+from datetime import datetime
 
+from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
+from PySide6.QtGui import QFontMetrics, QKeySequence
+from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox, QPushButton, \
+    QTableWidgetItem
 
 from View.user_settings_dialog import UserSettingsDialog
-from View.coding_assistance_button_dialog import CodingAssistanceButtonDialog
+from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
+from View.delete_coding_assistance_button_dialog import DeleteCodingAssistanceButtonDialog
 
-
+from Application.manager import Manager
+from Application.button_definition import ButtonDefinition
 
 def get_supported_mime_types():
     """
@@ -45,6 +49,8 @@ class Controller:
             window (MainWindow): the main Window of the application
         """
         self._window = window
+
+        self._manager = Manager()
 
         self._media_player = QMediaPlayer()
         self._media_player.setVideoOutput(
@@ -92,8 +98,8 @@ class Controller:
 
         self._window.connect_export_file_to_slot(self.save_to_file)
 
-        self._window.coding_assistance_panel.button_panel.connect_add_button_to_slot(self.open_coding_assistance_dialog)
-        #self._window.coding_assistance_panel.button_panel.connect_new_button_to_slot(self.coding_assistance_button_operation)
+        self._window.coding_assistance_panel.button_panel.connect_add_button_to_slot(self.open_add_coding_assistance_button_dialog)
+        self._window.coding_assistance_panel.button_panel.connect_delete_button_to_slot(self.open_delete_coding_assistance_button_dialog)
         
         if self._window.session_id == "New Session":
             self.establish_table_title()
@@ -417,34 +423,64 @@ class Controller:
         int_end_time = int(str_end_time) * 1000
         self._window.media_panel.progress_bar_slider.setMaximum(int_end_time)
 
-    def open_coding_assistance_dialog(self):
+    def open_add_coding_assistance_button_dialog(self):
         """Open a dialog to create a new Coding Assistance Button"""
-        self.coding_assistance_button_dialog = CodingAssistanceButtonDialog()
-        self.coding_assistance_button_dialog.connect_create_button_to_slot(self.create_coding_assistance_button)
-        self.coding_assistance_button_dialog.exec()
+        self.add_coding_assistance_button_dialog = AddCodingAssistanceButtonDialog()
+        self.add_coding_assistance_button_dialog.connect_create_button_to_slot(self.create_coding_assistance_button)
+        self.add_coding_assistance_button_dialog.exec()
+
+    def open_delete_coding_assistance_button_dialog(self):
+        """Open a dialog to create a new Coding Assistance Button"""
+        self.delete_coding_assistance_button_dialog = DeleteCodingAssistanceButtonDialog()
+        self.delete_coding_assistance_button_dialog.connect_delete_button_to_slot(self.delete_coding_assistance_button)
+        self.delete_coding_assistance_button_dialog.exec()
 
     @Slot()
     def create_coding_assistance_button(self):
         """Add a button to the Coding Assistance Panel"""
-        button_title = self.coding_assistance_button_dialog.apply_text_field.text()
-        button_hotkey = self.coding_assistance_button_dialog.hotkey_field.text()
 
-        if len(self.coding_assistance_button_dialog.hotkeys) == 0:
-            self.coding_assistance_button_dialog.hotkeys.append(button_hotkey)
-            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_title,
-                                                                                              button_hotkey)
+        button_name = self.add_coding_assistance_button_dialog.apply_text_field.text()
+        button_hotkey = self.add_coding_assistance_button_dialog.hotkey_field.text()
+        new_button = QPushButton(button_name)
+        new_button.setObjectName(button_name)
+        new_button.setShortcut(QKeySequence(button_hotkey))
+        new_button_definition = ButtonDefinition(new_button, button_name, button_hotkey)
+
+        if not self._manager.hotkey_list:
+            self._manager.hotkey_list.append(button_hotkey)
+            self.add_coding_assistance_button_dialog.error_label.setText("")
+            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
+            self._manager.coding_assistance_button_list.append(new_button_definition)
+            new_button.clicked.connect(self.dynamic_button_click)
         else:
-            for hotkey in self.coding_assistance_button_dialog.hotkeys:
-                if hotkey == button_hotkey:
-                    self.coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
-                    break
-                else:
-                    self.coding_assistance_button_dialog.hotkeys.append(button_hotkey)
-                    self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_title,
-                                                                                                      button_hotkey)
-
+            check = self._manager.hotkey_list.count(button_hotkey)
+            if check > 0:
+                self.add_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
+            else:
+                self._manager.hotkey_list.append(button_hotkey)
+                self.add_coding_assistance_button_dialog.error_label.setText("")
+                self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
+                self._manager.coding_assistance_button_list.append(new_button_definition)
 
     @Slot()
-    def coding_assistance_button_operation(self):
-        """Set the data a Coding Assistance Button will input into the table"""
+    def delete_coding_assistance_button(self):
+        """Delete a button from the Coding Assistance Panel"""
+        check_button_name = self.delete_coding_assistance_button_dialog.button_name_textbox.text()
+        for button_definition in self._manager.coding_assistance_button_list:
+            if check_button_name == button_definition.button_id:
+                if button_definition.hotkey in self._manager.hotkey_list:
+                    self._manager.hotkey_list.remove(button_definition.hotkey)
+                self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(check_button_name)
 
+    def dynamic_button_click(self):
+        """Add dummy data to table"""
+        date_time = datetime.now()
+        dt_string = date_time.strftime("%d/%m/%Y %H:%M:%S")
+
+        column = 0
+        for row in range(self._window.table_panel.table.rowCount()):
+            cell = self._window.table_panel.table.item(row, column)
+            if not cell:
+                text = QTableWidgetItem(dt_string)
+                self._window.table_panel.table.setItem(row, column, text)
+                return

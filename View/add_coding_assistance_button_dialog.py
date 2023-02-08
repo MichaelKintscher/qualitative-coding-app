@@ -1,21 +1,19 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QLineEdit
 
 
-class CodingAssistanceButtonDialog(QDialog):
+class AddCodingAssistanceButtonDialog(QDialog):
 
     def __init__(self):
         """
-        Constructor: Initializes the layout of the Coding Assistance Button dialog
+        Constructor: Initializes the layout of the Add Coding Assistance Button dialog
         """
         super().__init__()
-
-        self.hotkeys = []
 
         # Creates a vertical layout for the dialog box.
         dialog_layout = QVBoxLayout()
 
         apply_text_hbox = QHBoxLayout()
-        apply_text_label = QLabel("Button Label: ")
+        apply_text_label = QLabel("Button Name: ")
         self.apply_text_field = QLineEdit()
         apply_text_hbox.addWidget(apply_text_label)
         apply_text_hbox.addWidget(self.apply_text_field)
