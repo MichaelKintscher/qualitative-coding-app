@@ -1,17 +1,15 @@
-import sys
-
 import io
 import csv
+import sys
 
 from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit
 
 
 from View.user_settings_dialog import UserSettingsDialog
 from View.coding_assistance_button_dialog import CodingAssistanceButtonDialog
-
 
 
 def get_supported_mime_types():
@@ -30,11 +28,10 @@ def get_supported_mime_types():
     return result
 
 
-class Controller:
+class WindowController:
     """
-    The Controller responds to input events from the View. The Controller
-    interacts with the application Manager or with the Qt framework in order to
-    perform the appropriate response.
+    The WindowController responds to input events from the Window. The Controller
+    handles the main logic of the application.
     """
 
     def __init__(self, window):

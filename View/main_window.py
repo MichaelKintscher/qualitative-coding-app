@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         self.set_layout()
 
         self.session_id = session_id
-        if self.session_id != "New Session":
+        if self.session_exists(session_id):
             self.read_settings()
 
     def closeEvent(self, event):
@@ -102,6 +102,21 @@ class MainWindow(QMainWindow):
         self.table_panel.read_settings(self.session_id)
         self.table_panel.table.read_settings(self.session_id)
 
+    @staticmethod
+    def session_exists(session_id):
+        """
+        Determines whether the session_id has been previously stored.
+
+        Return:
+            True if the session_id has been previously stored, False otherwise.
+        """
+        settings = QSettings()
+        for session in settings.childGroups():
+            if session.title() == session_id:
+                return True
+        return False
+
+
     def set_layout(self):
         """
         Sets the layout for the main window and adds the window's panels to
@@ -128,11 +143,6 @@ class MainWindow(QMainWindow):
         """
         Saves the state of the application to the QSettings object.
         """
-        # If this session is new, save it as a new session group using the current time
-        # as an identifier. Otherwise, use the previous identifier.
-        if self.session_id == "New Session":
-            self.session_id = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
         # Save user data using the session_id group
         self.table_panel.write_settings(self.session_id)
         self.table_panel.table.write_settings(self.session_id)

@@ -3,9 +3,7 @@ import sys
 from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QApplication
 
-from Controllers.controller import Controller
-from View.main_window import MainWindow
-from View.start_dialog import StartDialog
+from Controllers.state_controller import StateController
 
 
 def main():
@@ -16,19 +14,8 @@ def main():
 
     app = QApplication([])
 
-    # Before displaying the main application window, load a "welcome"
-    # window which allows the user to choose their session instance.
-    start_dialog = StartDialog()
-    dialog_choice = start_dialog.exec()
-
-    # If the user rejected the start dialog box, then exit.
-    if dialog_choice == 0:
-        return
-
-    # Session is chosen, load the main application.
-    window = MainWindow(start_dialog.session_id)
-    window.show()
-    controller = Controller(window)
+    state_controller = StateController()
+    state_controller.exec_start()
     sys.exit(app.exec())
 
 
