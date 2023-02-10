@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     """MainWindow is the main window of the application."""
 
     # Create signal for the main window is closed.
-    closing = Signal(bool)
+    closing = Signal()
 
     def __init__(self, session_id):
         """
@@ -45,7 +45,8 @@ class MainWindow(QMainWindow):
         # see if theres a signal on close that we can connect
         # to a slot function in the controller class
 
-        self.closing.emit(True)
+        print("close event")
+        #self.closing.emit()
 
         event.accept()
 

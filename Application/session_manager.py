@@ -12,7 +12,7 @@ class SessionManager:
         self.session_entity.session_id = session_id
 
     def set_table_name(self, table_name):
-        print(table_name)
+        print("Session manager setter", table_name)
         self.session_entity.table_name = table_name
 
     def set_table_rows(self, row_count):
@@ -66,7 +66,7 @@ class SessionManager:
                 item = self.session_entity.table_data[rowIx][colIx]
                 if item is not None and item != '':
                     settings.setValue("cell", item)
-                    print(item)
+                    #print(item)
                 else:
                     settings.setValue("cell", None)
             settings.endArray()
@@ -75,6 +75,7 @@ class SessionManager:
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
 
+        print("session entity info on write:")
         print(self.session_entity.session_id)
         print(self.session_entity.table_col)
         print(self.session_entity.table_row)
@@ -122,6 +123,7 @@ class SessionManager:
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
 
+        print("session entity info on load:")
         print(self.session_entity.session_id)
         print(self.session_entity.table_col)
         print(self.session_entity.table_row)
