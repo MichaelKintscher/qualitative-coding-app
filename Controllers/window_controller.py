@@ -286,7 +286,11 @@ class WindowController:
 
         # Convert to a byte array and open file browser to save.
         table_data_as_byte_array = QByteArray(output.getvalue())
-        file_dialog.saveFileContent(table_data_as_byte_array, "your_table_data.csv")
+        title_name = self._window.table_panel.title.text()
+        if title_name == "":
+            file_dialog.saveFileContent(table_data_as_byte_array, "your_table_data.csv")
+        else:
+            file_dialog.saveFileContent(table_data_as_byte_array, title_name + ".csv")
 
     @Slot()
     def open_settings_dialog(self):
