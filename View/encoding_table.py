@@ -271,7 +271,7 @@ class EncodingTable(QTableWidget):
 
     def set_row_count(self, table_row):
         self.setRowCount(table_row)
-        print(table_row)
+        #print(table_row)
 
     def set_col_count(self, table_col):
         self.setColumnCount(table_col)

@@ -46,7 +46,7 @@ class MainWindow(QMainWindow):
         # to a slot function in the controller class
 
         print("close event")
-        #self.closing.emit()
+        self.closing.emit()
 
         event.accept()
 

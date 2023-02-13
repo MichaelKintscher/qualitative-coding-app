@@ -25,7 +25,6 @@ class SessionManager:
         self.session_entity.table_headers = headers
 
     def set_table_data(self, data):
-        #print(data)
         #print("here")
         self.session_entity.table_data = data
 
@@ -81,6 +80,7 @@ class SessionManager:
         print(self.session_entity.table_row)
         print(self.session_entity.table_name)
         print(self.session_entity.table_headers)
+        print(self.session_entity.table_data)
 
     def load_existing_session(self, session_id):
 
@@ -109,15 +109,23 @@ class SessionManager:
         settings.endArray()
 
         # Update the table data of the table.
+        row_data = []
         settings.beginGroup("table-data")
         for rowIx in range(self.session_entity.table_row):
             size = settings.beginReadArray(str(rowIx))
+            col_data = []
             for colIx in range(size):
                 settings.setArrayIndex(colIx)
                 cell_data = settings.value("cell")
                 if cell_data is not None:
-                    self.session_entity.table_data.append(cell_data, rowIx, colIx)
+                    #self.session_entity.table_data.append(cell_data)
+                    col_data.append(cell_data)
+                else:
+                    #self.session_entity.table_data.append(None)
+                    col_data.append(None)
+            row_data.append(col_data)
             settings.endArray()
+        self.session_entity.table_data = row_data
 
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
@@ -129,3 +137,4 @@ class SessionManager:
         print(self.session_entity.table_row)
         print(self.session_entity.table_name)
         print(self.session_entity.table_headers)
+        print(self.session_entity.table_data)
