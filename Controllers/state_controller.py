@@ -37,6 +37,8 @@ class StateController:
         self.window = MainWindow(session_name)
         self.window_controller = WindowController(self.window)
         self.window.show()
+
+        # Connect to the closing signal to call the function that writes all the data to entity and QSettings.
         self.window.closing.connect(lambda: self.write_session_slot(session_name))
 
     def exec_start(self):
@@ -56,24 +58,19 @@ class StateController:
             self.window = MainWindow(session_id)
             self.window_controller = WindowController(self.window)
             self.window.show()
-            # given this session id go thru all data and put in session entity
+
+            # Given this session id go through all data and put in session entity.
             self.session_manager.load_existing_session(session_id)
 
-            # call setters
+            # Call setters to set the values in the view with the values from our session entity.
             self.window.table_panel.set_table_name(self.session_manager.session_entity.table_name)
             self.window.table_panel.table.set_col_count(self.session_manager.session_entity.table_col)
             self.window.table_panel.table.set_row_count(self.session_manager.session_entity.table_row)
             self.window.table_panel.table.set_headers(self.session_manager.session_entity.table_headers)
             self.window.table_panel.table.set_table_data(self.session_manager.session_entity.table_data)
 
+            # Connect to the closing signal to call the function that writes all the data to entity and QSettings.
             self.window.closing.connect(lambda: self.write_session_slot(session_id))
-
-        # here logic to load data into window that we create
-        # calling set functions using the qsettings object
-        # QWindow parent has slot called close
-        # controller has instance of session_manager created
-        # session gets that data from manager and holds it in variables
-        # self.window.close.connect(write_session_slot)
 
     @Slot()
     def write_session_slot(self, session_id):
@@ -98,5 +95,5 @@ class StateController:
         table_data = self.window.table_panel.table.get_table_data()
         self.session_manager.set_table_data(table_data)
 
-        # call function to write everything to q settings
+        # Call function to write everything to QSettings.
         self.session_manager.write_to_settings()

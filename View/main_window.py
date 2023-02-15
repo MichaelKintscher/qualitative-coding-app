@@ -34,18 +34,13 @@ class MainWindow(QMainWindow):
         self.set_layout()
 
         self.session_id = session_id
-        """if self.session_exists(session_id):
-            self.read_settings()"""
 
     def closeEvent(self, event):
         """
         Event handler for the user closing the window.
         """
-        # move this event handler to controller class.
-        # see if theres a signal on close that we can connect
-        # to a slot function in the controller class
 
-        print("close event")
+        # Emits the signal once closeEvent() is called.
         self.closing.emit()
 
         event.accept()
@@ -103,15 +98,6 @@ class MainWindow(QMainWindow):
         self._save_action = QAction(export_dialog_icon, "Save table data", self)
         export_menu.addAction(self._save_action)
 
-    def read_settings(self):
-        """
-        Reads the QSettings object and restore state if it currently exists and if
-        the user wants to reload the previous session.
-        """
-        # move to the controller as well with a setter function
-        self.table_panel.read_settings(self.session_id)
-        self.table_panel.table.read_settings(self.session_id)
-
     @staticmethod
     def session_exists(session_id):
         """
@@ -125,7 +111,6 @@ class MainWindow(QMainWindow):
             if session.title() == session_id:
                 return True
         return False
-
 
     def set_layout(self):
         """
@@ -148,21 +133,3 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.centralWidget().setLayout(vertical_container_layout)
-
-    def write_settings(self):
-        """
-        Saves the state of the application to the QSettings object.
-        """
-        # Move this to a controller, this should be a getter function to get the data
-        # Save user data using the session_id group
-        self.table_panel.write_settings(self.session_id)
-        self.table_panel.table.write_settings(self.session_id)
-
-    def get_session_id(self):
-        """
-        Getter to return the session id
-
-        Returns:
-            String holding session id
-        """
-        return self.session_id

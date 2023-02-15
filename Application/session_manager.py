@@ -5,30 +5,76 @@ from Models.session_entity import SessionEntity
 
 
 class SessionManager:
+    """
+    SessionManager is a manager for every session that takes in data
+    sent from the controller from the view and puts it in QSettings
+    and our session entity.
+    """
     def __init__(self):
+        """
+        Constructor - loads our session entity
+        """
         self.session_entity = SessionEntity()
 
     def set_session_id(self, session_id):
+        """
+        Sets the session entity session id.
+
+        Parameters:
+            session id
+        """
         self.session_entity.session_id = session_id
 
     def set_table_name(self, table_name):
-        print("Session manager setter", table_name)
+        """
+        Sets the session entity table name.
+
+        Parameters:
+            table name
+        """
         self.session_entity.table_name = table_name
 
     def set_table_rows(self, row_count):
+        """
+        Sets the session entity row count
+
+        Parameters:
+            table row count
+        """
         self.session_entity.table_row = row_count
 
     def set_table_cols(self, col_count):
+        """
+        Sets the session entity column count
+
+        Parameters:
+            table column count
+        """
         self.session_entity.table_col = col_count
 
     def set_table_headers(self, headers):
+        """
+        Sets the session entity table headers
+
+        Parameters:
+            table header list
+        """
         self.session_entity.table_headers = headers
 
     def set_table_data(self, data):
-        #print("here")
+        """
+        Sets the session entity table data
+
+        Parameters:
+            table data 2D list
+        """
         self.session_entity.table_data = data
 
     def write_to_settings(self):
+        """
+        Takes the data in our session entity and writes it to QSettings
+        saved under a key of the session id name.
+        """
         settings = QSettings()
 
         settings.beginGroup(self.session_entity.session_id)
@@ -36,7 +82,7 @@ class SessionManager:
 
         settings.setValue("title", self.session_entity.table_name)
 
-        # need to leave the bin
+        # Need to leave the bin.
 
         settings.endGroup()  # encoding-table-panel
 
@@ -65,7 +111,6 @@ class SessionManager:
                 item = self.session_entity.table_data[rowIx][colIx]
                 if item is not None and item != '':
                     settings.setValue("cell", item)
-                    #print(item)
                 else:
                     settings.setValue("cell", None)
             settings.endArray()
@@ -74,16 +119,14 @@ class SessionManager:
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
 
-        print("session entity info on write:")
-        print(self.session_entity.session_id)
-        print(self.session_entity.table_col)
-        print(self.session_entity.table_row)
-        print(self.session_entity.table_name)
-        print(self.session_entity.table_headers)
-        print(self.session_entity.table_data)
-
     def load_existing_session(self, session_id):
+        """
+        Takes a session id and looks in QSettings to gather the data
+        from there and load our session entity.
 
+        Parameters:
+            session id name
+        """
         self.session_entity.session_id = session_id
         settings = QSettings()
 
@@ -118,10 +161,8 @@ class SessionManager:
                 settings.setArrayIndex(colIx)
                 cell_data = settings.value("cell")
                 if cell_data is not None:
-                    #self.session_entity.table_data.append(cell_data)
                     col_data.append(cell_data)
                 else:
-                    #self.session_entity.table_data.append(None)
                     col_data.append(None)
             row_data.append(col_data)
             settings.endArray()
@@ -130,11 +171,3 @@ class SessionManager:
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
-
-        print("session entity info on load:")
-        print(self.session_entity.session_id)
-        print(self.session_entity.table_col)
-        print(self.session_entity.table_row)
-        print(self.session_entity.table_name)
-        print(self.session_entity.table_headers)
-        print(self.session_entity.table_data)

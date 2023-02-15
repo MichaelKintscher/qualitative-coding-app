@@ -46,50 +46,20 @@ class TablePanel(QWidget):
 
         self.setLayout(grid_layout)
 
-    """
-    def read_settings(self, session_id):
-        
-        Reads table panel settings and updates the table panel content to the saved state
-        for the group with the given session_id.
-        
-        # replace with a set title function
-        settings = QSettings()
-        settings.beginGroup(session_id)
-        settings.beginGroup("encoding-table-panel")
-
-        self.title.setText(settings.value("title"))
-
-        settings.endGroup()  # encoding-table-panel
-        settings.endGroup()  # session-id
-    """
-
-    """
-    def write_settings(self, session_id):
-        
-        Writes the table panel data to the QSettings object for persistence.
-        
-        # replace with a get title function, QSettings is static
-        settings = QSettings()
-        settings.beginGroup(session_id)
-        settings.beginGroup("encoding-table-panel") # creates bin within session_id bin
-
-        settings.setValue("title", self.title.text())
-
-        # need to leave the bin
-
-        settings.endGroup()  # encoding-table-panel
-        settings.endGroup()  # session-id
-    """
-
     def get_table_name(self):
         """
-        Getter to get the table name
+        Getter to get the table name.
 
         Returns:
             A string of the table name
         """
-        print(self.title.text())
         return self.title.text()
 
     def set_table_name(self, table_name):
+        """
+        Sets the table name of the view.
+
+        Parameters:
+            A string of the table name
+        """
         self.title.setText(table_name)
