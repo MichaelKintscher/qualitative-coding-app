@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from PySide6.QtCore import Qt, QCoreApplication, QSettings
+from PySide6.QtCore import Qt, QCoreApplication, QSettings, Signal
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QMessageBox
 
@@ -11,6 +9,9 @@ from View.table_panel import TablePanel
 
 class MainWindow(QMainWindow):
     """MainWindow is the main window of the application."""
+
+    # Create signal for the main window is closed.
+    closing = Signal()
 
     def __init__(self, session_id):
         """
@@ -31,14 +32,13 @@ class MainWindow(QMainWindow):
         self.set_layout()
 
         self.session_id = session_id
-        if self.session_exists(session_id):
-            self.read_settings()
 
     def closeEvent(self, event):
         """
         Event handler for the user closing the window.
         """
-        self.write_settings()
+        # Emits the signal once closeEvent() is called.
+        self.closing.emit()
         event.accept()
 
     def connect_load_video_to_slot(self, slot):
@@ -94,14 +94,6 @@ class MainWindow(QMainWindow):
         self._save_action = QAction(export_dialog_icon, "Save table data", self)
         export_menu.addAction(self._save_action)
 
-    def read_settings(self):
-        """
-        Reads the QSettings object and restore state if it currently exists and if
-        the user wants to reload the previous session.
-        """
-        self.table_panel.read_settings(self.session_id)
-        self.table_panel.table.read_settings(self.session_id)
-
     @staticmethod
     def session_exists(session_id):
         """
@@ -115,7 +107,6 @@ class MainWindow(QMainWindow):
             if session.title() == session_id:
                 return True
         return False
-
 
     def set_layout(self):
         """
@@ -138,11 +129,3 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.centralWidget().setLayout(vertical_container_layout)
-
-    def write_settings(self):
-        """
-        Saves the state of the application to the QSettings object.
-        """
-        # Save user data using the session_id group
-        self.table_panel.write_settings(self.session_id)
-        self.table_panel.table.write_settings(self.session_id)
