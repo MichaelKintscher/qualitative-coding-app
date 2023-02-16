@@ -1,5 +1,4 @@
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QCloseEvent
 
 from Controllers.project_management_controller import ProjectManagementController
 from Controllers.window_controller import WindowController
@@ -64,8 +63,8 @@ class StateController:
 
             # Call setters to set the values in the view with the values from our session entity.
             self.window.table_panel.set_table_name(self.session_manager.session_entity.table_name)
-            self.window.table_panel.table.set_col_count(self.session_manager.session_entity.table_col)
-            self.window.table_panel.table.set_row_count(self.session_manager.session_entity.table_row)
+            self.window.table_panel.table.set_col_count(self.session_manager.session_entity.table_col_count)
+            self.window.table_panel.table.set_row_count(self.session_manager.session_entity.table_row_count)
             self.window.table_panel.table.set_headers(self.session_manager.session_entity.table_headers)
             self.window.table_panel.table.set_table_data(self.session_manager.session_entity.table_data)
 
@@ -77,17 +76,16 @@ class StateController:
         """
         Function that get data from the view and sends to manager.
         """
-
         self.session_manager.set_session_id(session_id)
 
         table_title = self.window.table_panel.get_table_name()
         self.session_manager.set_table_name(table_title)
 
         table_rows = self.window.table_panel.table.get_row_count()
-        self.session_manager.set_table_rows(table_rows)
+        self.session_manager.set_table_row_count(table_rows)
 
         table_cols = self.window.table_panel.table.get_col_count()
-        self.session_manager.set_table_cols(table_cols)
+        self.session_manager.set_table_col_count(table_cols)
 
         table_headers = self.window.table_panel.table.get_headers()
         self.session_manager.set_table_headers(table_headers)

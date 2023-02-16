@@ -1,7 +1,5 @@
-from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QLineEdit
 from PySide6 import QtWidgets, QtCore
-from Models.session_entity import SessionEntity
 
 
 class EncodingTable(QTableWidget):
@@ -113,25 +111,6 @@ class EncodingTable(QTableWidget):
             self.horizontalHeader().line.setText('')
             self.horizontalHeader().setCurrentIndex(QtCore.QModelIndex())
 
-    def set_cell_size(self, width, height):
-        """
-        Changes default cell width.
-        """
-        self.horizontalHeader().setMinimumSectionSize(width)
-        self.verticalHeader().setMinimumSectionSize(height)
-
-    def set_maximum_width(self, width):
-        """
-        Changes default cell height.
-        """
-        self.horizontalHeader().setMaximumSectionSize(width)
-
-    def set_padding(self, padding):
-        """
-        Changes default padding.
-        """
-        self.setStyleSheet("QTableWidget::item { padding: " + padding + "px }")
-
     def get_row_count(self):
         """
         Getter method to get the row count.
@@ -167,22 +146,41 @@ class EncodingTable(QTableWidget):
 
     def get_table_data(self):
         """
-            Getter method to get the table data.
+        Getter method to get the table data.
 
-            Returns:
-                2D list of table data
+        Returns:
+            2D list of table data
         """
         row_data = []
-        for rowIx in range(self.rowCount()):
+        for row_ix in range(self.rowCount()):
             col_data = []
-            for colIx in range(self.columnCount()):
-                item = self.item(rowIx, colIx)
+            for col_ix in range(self.columnCount()):
+                item = self.item(row_ix, col_ix)
                 if item is not None and item.text() != '':
                     col_data.append(item.text())
                 else:
                     col_data.append(None)
             row_data.append(col_data)
         return row_data
+
+    def set_cell_size(self, width, height):
+        """
+        Changes default cell width.
+        """
+        self.horizontalHeader().setMinimumSectionSize(width)
+        self.verticalHeader().setMinimumSectionSize(height)
+
+    def set_maximum_width(self, width):
+        """
+        Changes default cell height.
+        """
+        self.horizontalHeader().setMaximumSectionSize(width)
+
+    def set_padding(self, padding):
+        """
+        Changes default padding.
+        """
+        self.setStyleSheet("QTableWidget::item { padding: " + padding + "px }")
 
     def set_row_count(self, table_row):
         """
@@ -220,8 +218,8 @@ class EncodingTable(QTableWidget):
         Parameters:
             2D list of table data
         """
-        for rowIx in range(self.rowCount()):
-            for colIx in range(self.columnCount()):
-                cell_data = table_data[rowIx][colIx]
+        for row_ix in range(self.rowCount()):
+            for col_ix in range(self.columnCount()):
+                cell_data = table_data[row_ix][col_ix]
                 if cell_data is not None:
-                    self.setItem(rowIx, colIx, QTableWidgetItem(table_data[rowIx][colIx]))
+                    self.setItem(row_ix, col_ix, QTableWidgetItem(table_data[row_ix][col_ix]))

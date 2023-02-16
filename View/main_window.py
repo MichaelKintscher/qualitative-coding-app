@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from PySide6.QtCore import Qt, QCoreApplication, QSettings, Signal, QObject
+from PySide6.QtCore import Qt, QCoreApplication, QSettings, Signal
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QMessageBox
 
@@ -39,10 +37,8 @@ class MainWindow(QMainWindow):
         """
         Event handler for the user closing the window.
         """
-
         # Emits the signal once closeEvent() is called.
         self.closing.emit()
-
         event.accept()
 
     def connect_load_video_to_slot(self, slot):

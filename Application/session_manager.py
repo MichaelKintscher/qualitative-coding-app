@@ -1,29 +1,20 @@
-from PySide6.QtCore import Slot, QSettings
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import QSettings
 
 from Models.session_entity import SessionEntity
 
 
 class SessionManager:
     """
-    SessionManager is a manager for every session that takes in data
-    sent from the controller from the view and puts it in QSettings
-    and our session entity.
+    SessionManager is a manager for the current session that takes acts
+    as a middleman setting and getting data between the session entity
+    and QSettings to send back to the state controller.
     """
+
     def __init__(self):
         """
-        Constructor - loads our session entity
+        Constructor - constructs an instance of our session entity
         """
         self.session_entity = SessionEntity()
-
-    def set_session_id(self, session_id):
-        """
-        Sets the session entity session id.
-
-        Parameters:
-            session id
-        """
-        self.session_entity.session_id = session_id
 
     def set_table_name(self, table_name):
         """
@@ -34,23 +25,23 @@ class SessionManager:
         """
         self.session_entity.table_name = table_name
 
-    def set_table_rows(self, row_count):
+    def set_table_row_count(self, row_count):
         """
         Sets the session entity row count
 
         Parameters:
             table row count
         """
-        self.session_entity.table_row = row_count
+        self.session_entity.table_row_count = row_count
 
-    def set_table_cols(self, col_count):
+    def set_table_col_count(self, col_count):
         """
         Sets the session entity column count
 
         Parameters:
             table column count
         """
-        self.session_entity.table_col = col_count
+        self.session_entity.table_col_count = col_count
 
     def set_table_headers(self, headers):
         """
@@ -70,6 +61,15 @@ class SessionManager:
         """
         self.session_entity.table_data = data
 
+    def set_session_id(self, session_id):
+        """
+        Sets the session entity session id.
+
+        Parameters:
+            session id
+        """
+        self.session_entity.session_id = session_id
+
     def write_to_settings(self):
         """
         Takes the data in our session entity and writes it to QSettings
@@ -82,18 +82,16 @@ class SessionManager:
 
         settings.setValue("title", self.session_entity.table_name)
 
-        # Need to leave the bin.
-
-        settings.endGroup()  # encoding-table-panel
+        settings.endGroup()  # need to leave encoding-table-panel bin
 
         settings.beginGroup("encoding-table")  # creates encoding table bin
 
         # Save the row and column count.
-        settings.setValue("rows", self.session_entity.table_row)
-        settings.setValue("columns", self.session_entity.table_col)
+        settings.setValue("rows", self.session_entity.table_row_count)
+        settings.setValue("columns", self.session_entity.table_col_count)
 
-        settings.beginWriteArray("headers", self.session_entity.table_col)
-        for col_ix in range(self.session_entity.table_col):
+        settings.beginWriteArray("headers", self.session_entity.table_col_count)
+        for col_ix in range(self.session_entity.table_col_count):
             settings.setArrayIndex(col_ix)
             if self.session_entity.table_headers[col_ix] is not None:
                 settings.setValue(
@@ -104,9 +102,9 @@ class SessionManager:
 
         settings.beginGroup("table-data")  # creates table-data bin
 
-        for rowIx in range(self.session_entity.table_row):
+        for rowIx in range(self.session_entity.table_row_count):
             settings.beginWriteArray(str(rowIx))
-            for colIx in range(self.session_entity.table_col):
+            for colIx in range(self.session_entity.table_col_count):
                 settings.setArrayIndex(colIx)
                 item = self.session_entity.table_data[rowIx][colIx]
                 if item is not None and item != '':
@@ -140,12 +138,12 @@ class SessionManager:
         settings.beginGroup("encoding-table")
 
         # Update the row and column counts of the table.
-        self.session_entity.table_row = (int(settings.value("rows")))
-        self.session_entity.table_col = (int(settings.value("columns")))
+        self.session_entity.table_row_count = (int(settings.value("rows")))
+        self.session_entity.table_col_count = (int(settings.value("columns")))
 
         # Update the headers of the table.
         settings.beginReadArray("headers")
-        for col_ix in range(self.session_entity.table_col):
+        for col_ix in range(self.session_entity.table_col_count):
             settings.setArrayIndex(col_ix)
             header = settings.value("header")
             self.session_entity.table_headers.append(header)
@@ -154,7 +152,7 @@ class SessionManager:
         # Update the table data of the table.
         row_data = []
         settings.beginGroup("table-data")
-        for rowIx in range(self.session_entity.table_row):
+        for rowIx in range(self.session_entity.table_row_count):
             size = settings.beginReadArray(str(rowIx))
             col_data = []
             for colIx in range(size):

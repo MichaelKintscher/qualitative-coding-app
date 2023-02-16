@@ -1,8 +1,6 @@
 from PySide6 import QtCore
-from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QWidget, QPushButton, QGridLayout, QSizePolicy, QComboBox, QLabel, QLineEdit
 from View.encoding_table import EncodingTable
-from Models.session_entity import SessionEntity
 
 
 class TablePanel(QWidget):
