@@ -105,7 +105,7 @@ class EncodingTable(QTableWidget):
                 col1 = item_list[0].column()
                 row2 = item_list[1].row()
                 col2 = item_list[1].column()
-                print( row1, row1, col1, col2)
+                
                 if row1 == row2 and col1 != col2:
                     row = True
                 if row1 != row2 and col1 == col2:
