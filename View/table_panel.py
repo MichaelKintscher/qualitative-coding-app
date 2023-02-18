@@ -1,5 +1,4 @@
 from PySide6 import QtCore
-from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QWidget, QPushButton, QGridLayout, QSizePolicy, QComboBox, QLabel, QLineEdit
 from View.encoding_table import EncodingTable
 
@@ -45,29 +44,20 @@ class TablePanel(QWidget):
 
         self.setLayout(grid_layout)
 
-    def read_settings(self, session_id):
+    def get_table_name(self):
         """
-        Reads table panel settings and updates the table panel content to the saved state
-        for the group with the given session_id.
+        Getter to get the table name.
+
+        Returns:
+            A string of the table name
         """
-        settings = QSettings()
-        settings.beginGroup(session_id)
-        settings.beginGroup("encoding-table-panel")
+        return self.title.text()
 
-        self.title.setText(settings.value("title"))
-
-        settings.endGroup()  # encoding-table-panel
-        settings.endGroup()  # session-id
-
-    def write_settings(self, session_id):
+    def set_table_name(self, table_name):
         """
-        Writes the table panel data to the QSettings object for persistence.
+        Sets the table name of the view.
+
+        Parameters:
+            A string of the table name
         """
-        settings = QSettings()
-        settings.beginGroup(session_id)
-        settings.beginGroup("encoding-table-panel")
-
-        settings.setValue("title", self.title.text())
-
-        settings.endGroup()  # encoding-table-panel
-        settings.endGroup()  # session-id
+        self.title.setText(table_name)

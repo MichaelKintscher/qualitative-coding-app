@@ -1,15 +1,13 @@
-import sys
-
 import io
 import csv
+import sys
 
 from datetime import datetime
 
 from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics, QKeySequence
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox, QPushButton, \
-    QTableWidgetItem
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox, QPushButton, QTableWidgetItem
 
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
@@ -17,6 +15,7 @@ from View.delete_coding_assistance_button_dialog import DeleteCodingAssistanceBu
 
 from Application.manager import Manager
 from Application.button_definition import ButtonDefinition
+
 
 def get_supported_mime_types():
     """
@@ -34,11 +33,10 @@ def get_supported_mime_types():
     return result
 
 
-class Controller:
+class WindowController:
     """
-    The Controller responds to input events from the View. The Controller
-    interacts with the application Manager or with the Qt framework in order to
-    perform the appropriate response.
+    The WindowController responds to input events from the Window. The Controller
+    handles the main logic of the application.
     """
 
     def __init__(self, window):
@@ -295,7 +293,11 @@ class Controller:
 
         # Convert to a byte array and open file browser to save.
         table_data_as_byte_array = QByteArray(output.getvalue())
-        file_dialog.saveFileContent(table_data_as_byte_array, "your_table_data.csv")
+        title_name = self._window.table_panel.title.text()
+        if title_name == "":
+            file_dialog.saveFileContent(table_data_as_byte_array, "your_table_data.csv")
+        else:
+            file_dialog.saveFileContent(table_data_as_byte_array, title_name + ".csv")
 
     @Slot()
     def open_settings_dialog(self):
