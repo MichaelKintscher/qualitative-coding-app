@@ -98,9 +98,6 @@ class WindowController:
 
         self._window.coding_assistance_panel.button_panel.connect_add_button_to_slot(self.open_add_coding_assistance_button_dialog)
         self._window.coding_assistance_panel.button_panel.connect_delete_button_to_slot(self.open_delete_coding_assistance_button_dialog)
-        
-        if self._window.session_id == "New Session":
-            self.establish_table_title()
 
         # Resizes the title bar of the encoding table, this is triggered
         #   manually here since the slot was not connected to the encoding
