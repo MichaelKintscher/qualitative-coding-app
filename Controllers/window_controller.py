@@ -90,6 +90,8 @@ class WindowController:
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
         self._window.table_panel.add_row_button.clicked.connect(self.add_row_to_encoding_table)
+        self._window.table_panel.delete_col_button.clicked.connect(self.del_current_column)
+        self._window.table_panel.delete_row_button.clicked.connect(self.del_current_row)
 
         self._window.media_panel.media_control_panel.input_start_time.editingFinished.connect(self.change_scrub_start)
         self._window.media_panel.media_control_panel.input_end_time.editingFinished.connect(self.change_scrub_end)
@@ -116,6 +118,16 @@ class WindowController:
     def add_row_to_encoding_table(self):
         """ Command the table widget to add a row. """
         self._window.table_panel.table.add_row()
+
+    @Slot()
+    def del_current_column(self):
+        """ Command the table widget to delete current selected column"""
+        self._window.table_panel.table.del_column()
+
+    @Slot()
+    def del_current_row(self):
+        """ Command the table widget to delete current selected row"""
+        self._window.table_panel.table.del_row()
 
     @Slot()
     def change_font_of_encoding_table(self):

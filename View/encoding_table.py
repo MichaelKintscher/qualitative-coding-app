@@ -1,5 +1,7 @@
+from PySide6.QtCore import QSettings, QObject, QItemSelectionModel
 from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QLineEdit
 from PySide6 import QtWidgets, QtCore
+
 
 
 class EncodingTable(QTableWidget):
@@ -68,6 +70,52 @@ class EncodingTable(QTableWidget):
         """
         self.setRowCount(self.rowCount() + 1)
 
+    def del_column(self):
+        """
+        Deletes current selected column
+        """
+        if self.columnCount() > 1:
+            current_col = self.currentColumn()
+            if current_col != 0:
+                self.removeColumn(current_col)
+
+    def del_row(self):
+        """
+        Deletes current selected row
+        """
+
+        if self.rowCount() > 1:
+            current_row = self.currentRow()
+            item_list = self.selectedIndexes()
+            num_columns = self.columnCount()
+            num_rows = self.rowCount()
+            row = False
+            col = False
+
+            # This logic determines whether a column or a row is selected
+            if num_columns == 1:
+                if len(item_list) == 0:
+                    return
+                elif len(item_list) == num_rows:
+                    col = True
+                else:
+                    row = True
+            elif len(item_list) > 1:
+                row1 = item_list[0].row()
+                col1 = item_list[0].column()
+                row2 = item_list[1].row()
+                col2 = item_list[1].column()
+                
+                if row1 == row2 and col1 != col2:
+                    row = True
+                if row1 != row2 and col1 == col2:
+                    col = True
+
+            if current_row == -1 or col:
+                return
+            elif row:
+                self.removeRow(current_row)
+
     def change_font(self, font_choice):
         """
         Changes font size of cells.
@@ -111,57 +159,41 @@ class EncodingTable(QTableWidget):
             self.horizontalHeader().line.setText('')
             self.horizontalHeader().setCurrentIndex(QtCore.QModelIndex())
 
-    def get_row_count(self):
+    def read_settings(self, session_id):
         """
-        Getter method to get the row count.
+        Reads table settings and updates the table content to the saved state
+        for the group with the given session_id.
+        """
+        settings = QSettings()
+        settings.beginGroup(session_id)
+        settings.beginGroup("encoding-table")
 
-        Returns:
-            Int that is row count
-        """
-        return self.rowCount()
+        # Update the row and column counts of the table.
+        self.setRowCount(int(settings.value("rows")))
+        self.setColumnCount(int(settings.value("columns")))
 
-    def get_col_count(self):
-        """
-        Getter method to get the column count.
-
-        Returns:
-            Int that is column count
-        """
-        return self.columnCount()
-
-    def get_headers(self):
-        """
-        Getter method to get table headers.
-
-        Returns:
-            List of headers
-        """
-        table_headers = []
+        # Update the headers of the table.
+        settings.beginReadArray("headers")
         for col_ix in range(self.columnCount()):
-            if self.horizontalHeaderItem(col_ix) is not None:
-                table_headers.append(self.horizontalHeaderItem(col_ix).text())
-            else:
-                table_headers.append(str(col_ix + 1))
-        return table_headers
+            settings.setArrayIndex(col_ix)
+            header = settings.value("header")
+            self.setHorizontalHeaderItem(col_ix, QTableWidgetItem(header))
+        settings.endArray()
 
-    def get_table_data(self):
-        """
-        Getter method to get the table data.
+        # Update the table data of the table.
+        settings.beginGroup("table-data")
+        for rowIx in range(self.rowCount()):
+            size = settings.beginReadArray(str(rowIx))
+            for colIx in range(size):
+                settings.setArrayIndex(colIx)
+                cell_data = settings.value("cell")
+                if cell_data is not None:
+                    self.setItem(rowIx, colIx, QTableWidgetItem(cell_data))
+            settings.endArray()
 
-        Returns:
-            2D list of table data
-        """
-        row_data = []
-        for row_ix in range(self.rowCount()):
-            col_data = []
-            for col_ix in range(self.columnCount()):
-                item = self.item(row_ix, col_ix)
-                if item is not None and item.text() != '':
-                    col_data.append(item.text())
-                else:
-                    col_data.append(None)
-            row_data.append(col_data)
-        return row_data
+        settings.endGroup()  # table-data
+        settings.endGroup()  # encoding-table
+        settings.endGroup()  # session-id
 
     def set_cell_size(self, width, height):
         """
@@ -182,44 +214,42 @@ class EncodingTable(QTableWidget):
         """
         self.setStyleSheet("QTableWidget::item { padding: " + padding + "px }")
 
-    def set_row_count(self, table_row):
+    def write_settings(self, session_id):
         """
-        Sets the row count of the view.
+        Writes the table data to the QSettings object for persistence.
+        """
+        settings = QSettings()
+        settings.beginGroup(session_id)
+        settings.beginGroup("encoding-table")
 
-        Parameter:
-            int of table rows
-        """
-        self.setRowCount(table_row)
+        # Save the row and column count.
+        settings.setValue("rows", self.rowCount())
+        settings.setValue("columns", self.columnCount())
 
-    def set_col_count(self, table_col):
-        """
-        Sets the column count of the view.
-
-        Parameter:
-            int of table columns
-        """
-        self.setColumnCount(table_col)
-
-    def set_headers(self, table_headers):
-        """
-        Sets the table headers of the view.
-
-        Parameters:
-            list of table headers
-        """
+        # Save the table headers.
+        settings.beginWriteArray("headers", self.columnCount())
         for col_ix in range(self.columnCount()):
-            header = table_headers[col_ix]
-            self.setHorizontalHeaderItem(col_ix, QTableWidgetItem(header))
+            settings.setArrayIndex(col_ix)
+            if self.horizontalHeaderItem(col_ix) is not None:
+                settings.setValue(
+                    "header", self.horizontalHeaderItem(col_ix).text())
+            else:
+                settings.setValue("header", str(col_ix + 1))
+        settings.endArray()
 
-    def set_table_data(self, table_data):
-        """
-        Sets the table data of the view.
+        # Save the table data
+        settings.beginGroup("table-data")
+        for rowIx in range(self.rowCount()):
+            settings.beginWriteArray(str(rowIx))
+            for colIx in range(self.columnCount()):
+                settings.setArrayIndex(colIx)
+                item = self.item(rowIx, colIx)
+                if item is not None and item.text() != '':
+                    settings.setValue("cell", item.text())
+                else:
+                    settings.setValue("cell", None)
+            settings.endArray()
 
-        Parameters:
-            2D list of table data
-        """
-        for row_ix in range(self.rowCount()):
-            for col_ix in range(self.columnCount()):
-                cell_data = table_data[row_ix][col_ix]
-                if cell_data is not None:
-                    self.setItem(row_ix, col_ix, QTableWidgetItem(table_data[row_ix][col_ix]))
+        settings.endGroup()  # table-data
+        settings.endGroup()  # encoding-table
+        settings.endGroup()  # session-id
