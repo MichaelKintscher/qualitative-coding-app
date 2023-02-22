@@ -56,7 +56,7 @@ class StartDialog(QDialog):
         """
         settings = QSettings()
         for group in settings.childGroups():
-            button = QPushButton(group.title())
+            button = QPushButton(group)
             self.button_container.addButton(button)
 
     @Slot()
