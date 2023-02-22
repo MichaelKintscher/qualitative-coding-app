@@ -2,13 +2,10 @@ import io
 import csv
 import sys
 
-from datetime import datetime
-
-from PySide6.QtCore import Slot, QMimeDatabase, QByteArray, QObject
+from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics, QKeySequence
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox, QPushButton, \
-    QTableWidgetItem, QWidget
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem
 
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
@@ -447,7 +444,9 @@ class WindowController:
 
         button_name = self.add_coding_assistance_button_dialog.apply_text_field.text()
         button_hotkey = self.add_coding_assistance_button_dialog.hotkey_field.text()
-        data = self.add_coding_assistance_button_dialog.dynamic_line_edits
+        data = []
+        for text in self.add_coding_assistance_button_dialog.dynamic_line_edits:
+            data.append(text.text())
         new_button = QPushButton(button_name)
         new_button.setShortcut(QKeySequence(button_hotkey))
         self.encoding_buttons.append(new_button)
@@ -458,7 +457,7 @@ class WindowController:
             self.add_coding_assistance_button_dialog.error_label.setText("")
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
             self._manager.coding_assistance_button_list.append(new_button_definition)
-            new_button.clicked.connect(ProjectManagementController.make_lambda(self.dynamic_button_click, self.encoding_buttons[-1]))
+            new_button.clicked.connect(ProjectManagementController.make_lambda(self.dynamic_button_click, new_button_definition))
         else:
             check = self._manager.hotkey_list.count(button_hotkey)
             if check > 0:
@@ -468,7 +467,7 @@ class WindowController:
                 self.add_coding_assistance_button_dialog.error_label.setText("")
                 self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
                 self._manager.coding_assistance_button_list.append(new_button_definition)
-                new_button.clicked.connect(ProjectManagementController.make_lambda(self.dynamic_button_click, self.encoding_buttons[-1]))
+                new_button.clicked.connect(ProjectManagementController.make_lambda(self.dynamic_button_click, new_button_definition))
 
     @Slot()
     def delete_coding_assistance_button(self):
@@ -482,14 +481,10 @@ class WindowController:
                     self._manager.hotkey_list.remove(button_definition.hotkey)
                 self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(check_button_name)
 
-    def dynamic_button_click(self, button):
+    def dynamic_button_click(self, button_definition):
         """
         Add button data to table when clicked
         """
-        for button_definition in self._manager.coding_assistance_button_list:
-            if button_definition.button == button:
-                data_button_definition = button_definition
-
         video_timestamp = self._window.media_panel.media_control_panel.time_stamp.text()
         for row in range(self._window.table_panel.table.rowCount()):
             column = 0
@@ -499,7 +494,7 @@ class WindowController:
                 self._window.table_panel.table.setItem(row, column, timestamp_text)
                 column = 1
                 while column < self._window.table_panel.table.columnCount():
-                    insert_text = QTableWidgetItem(data_button_definition.data[column].text())
+                    insert_text = QTableWidgetItem(button_definition.data[column])
                     self._window.table_panel.table.setItem(row, column, insert_text)
                     column += 1
                 return
