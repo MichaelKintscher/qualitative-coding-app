@@ -1,5 +1,6 @@
 import io
 import csv
+import math
 import sys
 
 from datetime import datetime
@@ -86,6 +87,8 @@ class WindowController:
         self.curr_time_secs = 0
         self.curr_time_minutes = 0
         self.curr_time_hours = 0
+        self.time_back_secs = 0
+        self.time_flag = False
         self._media_player.positionChanged.connect(self.get_video_time_total)
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
@@ -197,15 +200,31 @@ class WindowController:
         # This gets the current time in seconds.
         temp = self.total_time_in_secs
         current_time = current_time - (1000 * self.total_time_in_secs)
+        #print(self.total_time_in_secs, "seconds")
+        #print(current_time, "ms")
         if current_time > 1000:
             self.total_time_in_secs += 1
             self.curr_time_secs += 1
-        if self.curr_time_secs > 60:
-            self.curr_time_secs = 0
-            self.curr_time_minutes += 1
-        if self.curr_time_minutes > 60:
-            self.curr_time_minutes = 0
-            self.curr_time_hours += 1
+            if self.curr_time_secs > 60:
+                self.curr_time_secs = 0
+                self.curr_time_minutes += 1
+                if self.curr_time_minutes > 60:
+                    self.curr_time_minutes = 0
+                    self.curr_time_hours += 1
+        elif current_time < 0 and self.time_flag is False:
+            #temp = -1000
+            binned_time = current_time - (current_time % -temp)
+            print(binned_time, "bin_in_ms")
+            if binned_time < temp:
+                self.time_back_secs = int(binned_time/1000)
+                self.curr_time_secs += self.time_back_secs
+                self.time_flag = True
+                print(self.curr_time_secs, "secs")
+                print(int(binned_time/1000), "back")
+                """if binned_time < temp * 60:
+                    self.curr_time_minutes += int((binned_time/1000) * 60)
+                    if binned_time < temp * 360:
+                        self.curr_time_hours += int(((binned_time/1000) * 60) * 60)"""
 
         # Formats the time displaying current time/ total time
         # and then sets the text label in the media control panel.
