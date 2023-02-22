@@ -1,10 +1,14 @@
 from PySide6.QtCore import Slot
 
+
 from Controllers.project_management_controller import ProjectManagementController
 from Controllers.window_controller import WindowController
+
 from View.main_window import MainWindow
 from View.project_management_window import ProjectManagementWindow
+
 from Application.session_manager import SessionManager
+from Application.global_settings_manager import GlobalSettingsManager
 
 
 class StateController:
@@ -25,6 +29,7 @@ class StateController:
         self.window = None
         self.window_controller = None
         self.session_manager = SessionManager()
+        self.global_settings_manager = GlobalSettingsManager()
 
     def create_new_session(self, session_name, table_name="Default Title", video=None):
         """
@@ -34,7 +39,7 @@ class StateController:
             return
 
         self.window = MainWindow(session_name)
-        self.window_controller = WindowController(self.window)
+        self.window_controller = WindowController(self.window, self.global_settings_manager)
         self.window.show()
 
         # Connect to the closing signal to call the function that writes all the data to entity and QSettings.
@@ -55,11 +60,12 @@ class StateController:
         """
         if not self.program_running:
             self.window = MainWindow(session_id)
-            self.window_controller = WindowController(self.window)
+            self.window_controller = WindowController(self.window, self.global_settings_manager)
             self.window.show()
 
             # Given this session id go through all data and put in session entity.
             self.session_manager.load_existing_session(session_id)
+            self.global_settings_manager.load_global_settings()
 
             # Call setters to set the values in the view with the values from our session entity.
             self.window.table_panel.set_table_name(self.session_manager.session_entity.table_name)

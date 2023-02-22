@@ -90,8 +90,9 @@ class SessionManagerPage(QDialog):
         # Get access to stored session data
         settings = QSettings()
         for session_id in settings.childGroups():
-            session_option = SessionOption(session_id.title())
-            vertical_layout.addWidget(session_option)
+            if session_id != "global-settings":
+                session_option = SessionOption(session_id.title())
+                vertical_layout.addWidget(session_option)
 
         vertical_layout.addStretch()
         container_widget.setLayout(vertical_layout)

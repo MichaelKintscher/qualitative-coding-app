@@ -19,5 +19,3 @@ class SessionEntity:
         self.table_col_count = 0
         self.table_headers = []
         self.table_data = []
-
-
