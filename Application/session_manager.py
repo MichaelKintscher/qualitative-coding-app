@@ -16,6 +16,15 @@ class SessionManager:
         """
         self.session_entity = SessionEntity()
 
+    def set_button_definitions(self, button_definitions):
+        """
+        Sets the button definition list.
+
+        Parameters:
+            List of Button Definitions
+        """
+        self.session_entity.button_definitions = button_definitions
+
     def set_table_name(self, table_name):
         """
         Sets the session entity table name.
