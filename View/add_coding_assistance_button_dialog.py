@@ -3,11 +3,13 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QPushBu
 
 class AddCodingAssistanceButtonDialog(QDialog):
 
-    def __init__(self):
+    def __init__(self, table):
         """
         Constructor: Initializes the layout of the Add Coding Assistance Button dialog
         """
         super().__init__()
+
+        self.table = table
 
         # Creates a vertical layout for the dialog box.
         dialog_layout = QVBoxLayout()
@@ -32,6 +34,21 @@ class AddCodingAssistanceButtonDialog(QDialog):
         dialog_layout.addSpacing(50)
         dialog_layout.addLayout(hotkey_hbox)
         dialog_layout.addSpacing(50)
+
+        self.dynamic_line_edits = []
+        headers = [self.table.horizontalHeaderItem(c) for c in range(self.table.columnCount())]
+        labels = [x.text() for x in headers]
+        for i in range(len(labels)):
+            dynamic_input_hbox = QHBoxLayout()
+            dynamic_input_label = QLabel(labels[i])
+            dynamic_input_field = QLineEdit()
+            self.dynamic_line_edits.append(dynamic_input_field)
+
+            dynamic_input_hbox.addWidget(dynamic_input_label)
+            dynamic_input_hbox.addWidget(dynamic_input_field)
+            dialog_layout.addLayout(dynamic_input_hbox)
+            dialog_layout.addSpacing(50)
+
         dialog_layout.addWidget(self.error_label)
         dialog_layout.addWidget(self.create_button)
 

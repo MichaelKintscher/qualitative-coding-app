@@ -74,10 +74,9 @@ class ButtonPanel(QWidget):
         """Adds a new_button to the Coding Assistance Panel"""
         self.button_layout.addWidget(button_definition.button)
 
-
     def delete_coding_assistance_button(self, button_name):
         """Deletes a button in the Coding Assistance Panel"""
         for i in range(self.button_layout.count()):
             button = self.button_layout.itemAt(i).widget()
-            if button.objectName() == button_name:
+            if button.text() == button_name:
                 button.setParent(None)

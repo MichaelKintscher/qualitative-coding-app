@@ -4,10 +4,11 @@ import sys
 
 from datetime import datetime
 
-from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
+from PySide6.QtCore import Slot, QMimeDatabase, QByteArray, QObject
 from PySide6.QtGui import QFontMetrics, QKeySequence
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox, QPushButton, QTableWidgetItem
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QMessageBox, QPushButton, \
+    QTableWidgetItem, QWidget
 
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
@@ -15,6 +16,8 @@ from View.delete_coding_assistance_button_dialog import DeleteCodingAssistanceBu
 
 from Application.manager import Manager
 from Application.button_definition import ButtonDefinition
+
+from Controllers.project_management_controller import ProjectManagementController
 
 
 def get_supported_mime_types():
@@ -49,6 +52,7 @@ class WindowController:
         self._window = window
 
         self._manager = Manager()
+        self.encoding_buttons = []
 
         self._media_player = QMediaPlayer()
         self._media_player.setVideoOutput(
@@ -427,7 +431,7 @@ class WindowController:
 
     def open_add_coding_assistance_button_dialog(self):
         """Open a dialog to create a new Coding Assistance Button"""
-        self.add_coding_assistance_button_dialog = AddCodingAssistanceButtonDialog()
+        self.add_coding_assistance_button_dialog = AddCodingAssistanceButtonDialog(self._window.table_panel.table)
         self.add_coding_assistance_button_dialog.connect_create_button_to_slot(self.create_coding_assistance_button)
         self.add_coding_assistance_button_dialog.exec()
 
@@ -443,17 +447,18 @@ class WindowController:
 
         button_name = self.add_coding_assistance_button_dialog.apply_text_field.text()
         button_hotkey = self.add_coding_assistance_button_dialog.hotkey_field.text()
+        data = self.add_coding_assistance_button_dialog.dynamic_line_edits
         new_button = QPushButton(button_name)
-        new_button.setObjectName(button_name)
         new_button.setShortcut(QKeySequence(button_hotkey))
-        new_button_definition = ButtonDefinition(new_button, button_name, button_hotkey)
+        self.encoding_buttons.append(new_button)
+        new_button_definition = ButtonDefinition(new_button, button_name, button_hotkey, data)
 
         if not self._manager.hotkey_list:
             self._manager.hotkey_list.append(button_hotkey)
             self.add_coding_assistance_button_dialog.error_label.setText("")
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
             self._manager.coding_assistance_button_list.append(new_button_definition)
-            new_button.clicked.connect(self.dynamic_button_click)
+            new_button.clicked.connect(ProjectManagementController.make_lambda(self.dynamic_button_click, self.encoding_buttons[-1]))
         else:
             check = self._manager.hotkey_list.count(button_hotkey)
             if check > 0:
@@ -463,10 +468,13 @@ class WindowController:
                 self.add_coding_assistance_button_dialog.error_label.setText("")
                 self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
                 self._manager.coding_assistance_button_list.append(new_button_definition)
+                new_button.clicked.connect(ProjectManagementController.make_lambda(self.dynamic_button_click, self.encoding_buttons[-1]))
 
     @Slot()
     def delete_coding_assistance_button(self):
-        """Delete a button from the Coding Assistance Panel"""
+        """
+        Delete a button from the Coding Assistance Panel
+        """
         check_button_name = self.delete_coding_assistance_button_dialog.button_name_textbox.text()
         for button_definition in self._manager.coding_assistance_button_list:
             if check_button_name == button_definition.button_id:
@@ -474,15 +482,24 @@ class WindowController:
                     self._manager.hotkey_list.remove(button_definition.hotkey)
                 self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(check_button_name)
 
-    def dynamic_button_click(self):
-        """Add dummy data to table"""
-        date_time = datetime.now()
-        dt_string = date_time.strftime("%d/%m/%Y %H:%M:%S")
+    def dynamic_button_click(self, button):
+        """
+        Add button data to table when clicked
+        """
+        for button_definition in self._manager.coding_assistance_button_list:
+            if button_definition.button == button:
+                data_button_definition = button_definition
 
-        column = 0
+        video_timestamp = self._window.media_panel.media_control_panel.time_stamp.text()
         for row in range(self._window.table_panel.table.rowCount()):
+            column = 0
             cell = self._window.table_panel.table.item(row, column)
             if not cell:
-                text = QTableWidgetItem(dt_string)
-                self._window.table_panel.table.setItem(row, column, text)
+                timestamp_text = QTableWidgetItem(video_timestamp)
+                self._window.table_panel.table.setItem(row, column, timestamp_text)
+                column = 1
+                while column < self._window.table_panel.table.columnCount():
+                    insert_text = QTableWidgetItem(data_button_definition.data[column].text())
+                    self._window.table_panel.table.setItem(row, column, insert_text)
+                    column += 1
                 return
