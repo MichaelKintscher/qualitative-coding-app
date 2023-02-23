@@ -71,11 +71,21 @@ class ButtonPanel(QWidget):
         self.delete_button.clicked.connect(slot)
 
     def create_coding_assistance_button(self, button_definition):
-        """Adds a new_button to the Coding Assistance Panel"""
+        """
+        Adds a new_button to the Coding Assistance Panel
+
+        Parameters:
+            button_definition - An instance of ButtonDefinitionEntity
+        """
         self.button_layout.addWidget(button_definition.button)
 
     def delete_coding_assistance_button(self, button_name):
-        """Deletes a button in the Coding Assistance Panel"""
+        """
+        Deletes a button in the Coding Assistance Panel
+
+        Parameters:
+            button_name - A string containing the name of a button
+        """
         for i in range(self.button_layout.count()):
             button = self.button_layout.itemAt(i).widget()
             if button.text() == button_name:
