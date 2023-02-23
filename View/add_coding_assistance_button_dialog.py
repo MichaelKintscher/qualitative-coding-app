@@ -6,6 +6,9 @@ class AddCodingAssistanceButtonDialog(QDialog):
     def __init__(self, table):
         """
         Constructor: Initializes the layout of the Add Coding Assistance Button dialog
+
+        Parameters:
+            table - An instance of EncodingTable
         """
         super().__init__()
 

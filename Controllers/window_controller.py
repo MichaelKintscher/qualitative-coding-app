@@ -49,7 +49,6 @@ class WindowController:
         self._window = window
 
         self._manager = Manager()
-        self.encoding_buttons = []
 
         self._media_player = QMediaPlayer()
         self._media_player.setVideoOutput(
@@ -446,7 +445,6 @@ class WindowController:
             data.append(text.text())
         new_button = QPushButton(button_name)
         new_button.setShortcut(QKeySequence(button_hotkey))
-        self.encoding_buttons.append(new_button)
         new_button_definition = ButtonDefinition(new_button, button_name, button_hotkey, data)
 
         if not self._manager.hotkey_list:
@@ -481,6 +479,9 @@ class WindowController:
     def dynamic_button_click(self, button_definition):
         """
         Add button data to table when clicked
+
+        Parameters:
+            button_definition - An instance of ButtonDefinition
         """
         video_timestamp = self._window.media_panel.media_control_panel.time_stamp.text()
         for row in range(self._window.table_panel.table.rowCount()):
