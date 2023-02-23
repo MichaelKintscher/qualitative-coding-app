@@ -7,6 +7,7 @@ from PySide6.QtGui import QFontMetrics, QKeySequence
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem
 
+from View.load_coding_assistance_button_dialog import LoadCodingAssistanceButtonDialog
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
 from View.delete_coding_assistance_button_dialog import DeleteCodingAssistanceButtonDialog
@@ -48,6 +49,7 @@ class WindowController:
         self._window = window
 
         self.global_settings_manager = global_settings_manager
+        self.load_button_definitions = []
 
         self._media_player = QMediaPlayer()
         self._media_player.setVideoOutput(
@@ -434,16 +436,34 @@ class WindowController:
         self._window.media_panel.progress_bar_slider.setMaximum(int_end_time)
 
     def open_add_coding_assistance_button_dialog(self):
-        """Open a dialog to create a new Coding Assistance Button"""
+        """
+        Open a dialog to create a new Coding Assistance Button
+        """
         self.add_coding_assistance_button_dialog = AddCodingAssistanceButtonDialog(self._window.table_panel.table)
         self.add_coding_assistance_button_dialog.connect_create_button_to_slot(self.create_coding_assistance_button)
+        self.add_coding_assistance_button_dialog.connect_load_button_to_slot(
+            self.open_load_coding_assistance_button_dialog)
         self.add_coding_assistance_button_dialog.exec()
 
     def open_delete_coding_assistance_button_dialog(self):
-        """Open a dialog to create a new Coding Assistance Button"""
+        """
+        Open a dialog to create a new Coding Assistance Button
+        """
         self.delete_coding_assistance_button_dialog = DeleteCodingAssistanceButtonDialog()
         self.delete_coding_assistance_button_dialog.connect_delete_button_to_slot(self.delete_coding_assistance_button)
         self.delete_coding_assistance_button_dialog.exec()
+
+    def open_load_coding_assistance_button_dialog(self):
+        """
+        Open a dialog to load a Coding Assistance Button
+        """
+        self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(
+            self.global_settings_manager.global_settings_entity.button_definitions)
+        for button_definition in self.load_coding_assistance_button_dialog.selected_button_definitions:
+            self.load_button_definitions.append(button_definition)
+        self.load_coding_assistance_button_dialog.connect_load_button_to_slot(
+            self.load_coding_assistance_button)
+        self.load_coding_assistance_button_dialog.exec()
 
     @Slot()
     def create_coding_assistance_button(self):
@@ -467,7 +487,8 @@ class WindowController:
 
             self.add_coding_assistance_button_dialog.error_label.setText("")
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
-            new_button.clicked.connect(ProjectManagementController.make_lambda(self.dynamic_button_click, new_button_definition))
+            new_button.clicked.connect(ProjectManagementController.make_lambda(
+                self.dynamic_button_click, new_button_definition))
         else:
             if button_hotkey in hotkeys:
                 self.add_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
@@ -476,17 +497,20 @@ class WindowController:
 
                 self.add_coding_assistance_button_dialog.error_label.setText("")
                 self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
-                new_button.clicked.connect(ProjectManagementController.make_lambda(self.dynamic_button_click, new_button_definition))
+                new_button.clicked.connect(ProjectManagementController.make_lambda(
+                    self.dynamic_button_click, new_button_definition))
 
-    def load_coding_assistance_button(self, button_definition):
+    def load_coding_assistance_button(self):
         """
         Load a button to the Coding Assistance Panel
         """
-        new_button = QPushButton(button_definition.button_id)
-        new_button.setShortcut(QKeySequence(button_definition.hotkey))
-        self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_definition)
-        new_button.clicked.connect(
-            ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
+        for button_definition in self.load_button_definitions:
+            new_button = QPushButton(button_definition.button_id)
+            new_button.setShortcut(QKeySequence(button_definition.hotkey))
+            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_definition)
+            new_button.clicked.connect(
+                ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
+        self.load_button_definitions.clear()
 
 
     @Slot()
