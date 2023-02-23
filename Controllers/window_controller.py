@@ -492,6 +492,9 @@ class WindowController:
     def load_coding_assistance_button(self, checkboxes):
         """
         Load selected buttons to the Coding Assistance Panel
+
+        Parameters:
+            checkboxes - A list of checkboxes created in the Load Button Dialog
         """
         selected_button_definitions = []
         for i, checkbox in enumerate(checkboxes):
