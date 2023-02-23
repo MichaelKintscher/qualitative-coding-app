@@ -89,6 +89,7 @@ class WindowController:
         self.curr_time_hours = 0
         self.time_back_secs = 0
         self.time_flag = False
+        self.max_time_back = 0
         self._media_player.positionChanged.connect(self.get_video_time_total)
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
@@ -211,21 +212,41 @@ class WindowController:
                 if self.curr_time_minutes > 60:
                     self.curr_time_minutes = 0
                     self.curr_time_hours += 1
-        elif current_time < 0 and self.time_flag is False:
-            #temp = -1000
+        elif current_time < 0:
             binned_time = current_time - (current_time % -temp)
-            print(binned_time, "bin_in_ms")
-            if binned_time < temp:
-                self.time_back_secs = int(binned_time/1000)
-                self.curr_time_secs += self.time_back_secs
-                self.time_flag = True
-                print(self.curr_time_secs, "secs")
-                print(int(binned_time/1000), "back")
-                """if binned_time < temp * 60:
-                    self.curr_time_minutes += int((binned_time/1000) * 60)
-                    if binned_time < temp * 360:
-                        self.curr_time_hours += int(((binned_time/1000) * 60) * 60)"""
+            self.time_back_secs = int(binned_time / 1000)
+            print(self.time_back_secs)
+            print(self.max_time_back)
+            if self.time_back_secs < self.max_time_back:
+                self.curr_time_secs -= self.max_time_back
+                self.max_time_back = self.time_back_secs
+                self.curr_time_secs += self.max_time_back
+                print("inside")
+            else:
+                """
+                if current_time < 1000:
+                    self.total_time_in_secs += 1
+                    self.curr_time_secs += 1
+                    if self.curr_time_secs > 60:
+                        self.curr_time_secs = 0
+                        self.curr_time_minutes += 1
+                        if self.curr_time_minutes > 60:
+                            self.curr_time_minutes = 0
+                            self.curr_time_hours += 1
+                """
+                print("outside")
 
+            """
+            self.time_back_secs = int(binned_time/1000)
+            self.curr_time_secs += self.time_back_secs
+            #self.time_flag = True
+            print(self.curr_time_secs, "secs")
+            print(int(binned_time/1000), "back")
+            if binned_time < temp * 60:
+                self.curr_time_minutes += int((binned_time/1000) * 60)
+                if binned_time < temp * 360:
+                    self.curr_time_hours += int(((binned_time/1000) * 60) * 60)
+            """
         # Formats the time displaying current time/ total time
         # and then sets the text label in the media control panel.
         time_str_formatted = f"Time: {self.curr_time_hours:02d}:{self.curr_time_minutes:02d}:{self.curr_time_secs:02d}" \
