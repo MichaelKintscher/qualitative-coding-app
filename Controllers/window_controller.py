@@ -49,7 +49,6 @@ class WindowController:
         self._window = window
 
         self.global_settings_manager = global_settings_manager
-        self.load_button_definitions = []
 
         self._media_player = QMediaPlayer()
         self._media_player.setVideoOutput(
@@ -459,10 +458,8 @@ class WindowController:
         """
         self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(
             self.global_settings_manager.global_settings_entity.button_definitions)
-        for button_definition in self.load_coding_assistance_button_dialog.selected_button_definitions:
-            self.load_button_definitions.append(button_definition)
-        self.load_coding_assistance_button_dialog.connect_load_button_to_slot(
-            self.load_coding_assistance_button)
+        self.load_coding_assistance_button_dialog.connect_load_button_to_slot(ProjectManagementController.make_lambda(
+            self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.checkboxes))
         self.load_coding_assistance_button_dialog.exec()
 
     @Slot()
@@ -500,17 +497,22 @@ class WindowController:
                 new_button.clicked.connect(ProjectManagementController.make_lambda(
                     self.dynamic_button_click, new_button_definition))
 
-    def load_coding_assistance_button(self):
+    @Slot()
+    def load_coding_assistance_button(self, checkboxes):
         """
-        Load a button to the Coding Assistance Panel
+        Load selected buttons to the Coding Assistance Panel
         """
-        for button_definition in self.load_button_definitions:
+        selected_button_definitions = []
+        for i, checkbox in enumerate(checkboxes):
+            if checkbox.isChecked():
+                selected_button_definitions.append(
+                    self.global_settings_manager.global_settings_entity.button_definitions[i])
+        for button_definition in selected_button_definitions:
             new_button = QPushButton(button_definition.button_id)
             new_button.setShortcut(QKeySequence(button_definition.hotkey))
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_definition)
             new_button.clicked.connect(
                 ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
-        self.load_button_definitions.clear()
 
 
     @Slot()
