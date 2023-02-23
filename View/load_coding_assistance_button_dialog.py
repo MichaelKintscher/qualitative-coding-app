@@ -12,26 +12,20 @@ class LoadCodingAssistanceButtonDialog(QDialog):
         super().__init__()
 
         dialog_layout = QVBoxLayout()
-        self.selected_button_definitions = []
+        self.checkboxes = []
 
         for button_definition in button_definitions:
             checkbox = QCheckBox("Button Name: " +
                                  button_definition.button_id +
                                  " Button Hotkey: " +
                                  button_definition.hotkey)
+            self.checkboxes.append(checkbox)
             dialog_layout.addWidget(checkbox)
-            checkbox.stateChanged.connect(self.checked_button_definition(button_definition))
 
         self.load_button = QPushButton("Load Buttons Selected")
 
         dialog_layout.addWidget(self.load_button)
         self.setLayout(dialog_layout)
-
-    def checked_button_definition(self, button_definition):
-        """
-        Adds the checked button definitions to a list
-        """
-        self.selected_button_definitions.append(button_definition)
 
     def connect_load_button_to_slot(self, slot):
         """
