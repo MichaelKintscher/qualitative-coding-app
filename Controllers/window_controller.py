@@ -479,6 +479,7 @@ class WindowController:
                     self._manager.hotkey_list.remove(button_definition.hotkey)
                 self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(check_button_name)
 
+    @Slot(ButtonDefinition)
     def dynamic_button_click(self, button_definition):
         """
         Add button data to table when clicked
