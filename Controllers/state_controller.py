@@ -1,4 +1,5 @@
 from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QDialogButtonBox
 
 from Controllers.project_management_controller import ProjectManagementController
 from Controllers.window_controller import WindowController
@@ -20,56 +21,80 @@ class StateController:
         the state appropriate for an unstarted project.
         """
         self.program_running = False
-        self.project_management_window = ProjectManagementWindow()
-        self.project_management_controller = ProjectManagementController(self.project_management_window, self)
         self.window = None
+        self.project_management_window = self.project_management_controller = None
         self.window_controller = None
         self.session_manager = SessionManager()
 
-    def create_new_session(self, session_name, table_name="Default Title", video=None):
+    def create_new_window(self, session_name, table_name="Default Title", video=None):
         """
-        Creates a new window, assigning it a window controller.
-        """
-        if self.window:
-            return
+        Closes any existing window, and creates a new window associated to a new
+        window controller and connected to the relevant state controller slots.
 
-        self.window = MainWindow(session_name)
+        Parameters:
+            session_name - identifier of the current session
+            table_name - name of the encoding table at startup, defaults to "Default Title"
+            video - video file to load at startup, defaults to None
+        """
+        if self.program_running:
+            self.window.close()
+
+        self.window = MainWindow()
         self.window_controller = WindowController(self.window)
-        self.window.show()
 
-        # Connect to the closing signal to call the function that writes all the data to entity and QSettings.
         self.window.closing.connect(lambda: self.write_session_slot(session_name))
+        self.window.connect_create_session_to_slot(self.open_session_creator_page)
+        self.window.connect_load_session_to_slot(self.open_session_management_page)
+
+        self.program_running = True
+        self.window.show()
 
     def exec_start(self):
         """
         Starts the application, displaying the session management window.
         """
-        if self.program_running:
-            return
-
+        self.project_management_window = ProjectManagementWindow()
+        self.project_management_controller = ProjectManagementController(self.project_management_window, self)
         self.project_management_window.show()
 
     def load_session(self, session_id):
         """
-        Loads the session with the session id.
+        Loads the session with the session id, creating a window and loading its data
+        into the window.
+
+        Parameters:
+            session_id - identifier of session to load
         """
-        if not self.program_running:
-            self.window = MainWindow(session_id)
-            self.window_controller = WindowController(self.window)
-            self.window.show()
+        self.create_new_window(session_id)
+        self.session_manager.load_existing_session(session_id)
 
-            # Given this session id go through all data and put in session entity.
-            self.session_manager.load_existing_session(session_id)
+        # Call setters to set the values in the view with the values from our session entity.
+        self.window.table_panel.set_table_name(self.session_manager.session_entity.table_name)
+        self.window.table_panel.table.set_col_count(self.session_manager.session_entity.table_col_count)
+        self.window.table_panel.table.set_row_count(self.session_manager.session_entity.table_row_count)
+        self.window.table_panel.table.set_headers(self.session_manager.session_entity.table_headers)
+        self.window.table_panel.table.set_table_data(self.session_manager.session_entity.table_data)
 
-            # Call setters to set the values in the view with the values from our session entity.
-            self.window.table_panel.set_table_name(self.session_manager.session_entity.table_name)
-            self.window.table_panel.table.set_col_count(self.session_manager.session_entity.table_col_count)
-            self.window.table_panel.table.set_row_count(self.session_manager.session_entity.table_row_count)
-            self.window.table_panel.table.set_headers(self.session_manager.session_entity.table_headers)
-            self.window.table_panel.table.set_table_data(self.session_manager.session_entity.table_data)
+    @Slot()
+    def open_session_creator_page(self):
+        """
+        Creates a project management window, and displays the session creation page.
+        """
+        self.project_management_window = ProjectManagementWindow()
+        self.project_management_controller = ProjectManagementController(self.project_management_window, self)
+        self.project_management_window.set_current_widget(1)
+        self.project_management_window.get_widget(1).remove_back_button()
+        self.project_management_window.show()
 
-            # Connect to the closing signal to call the function that writes all the data to entity and QSettings.
-            self.window.closing.connect(lambda: self.write_session_slot(session_id))
+    @Slot()
+    def open_session_management_page(self):
+        """
+        Creates a project management window, and displays the session management page.
+        """
+        self.project_management_window = ProjectManagementWindow()
+        self.project_management_controller = ProjectManagementController(self.project_management_window, self)
+        self.project_management_window.get_widget(0).hide_session_creation_elements()
+        self.project_management_window.show()
 
     @Slot()
     def write_session_slot(self, session_id):

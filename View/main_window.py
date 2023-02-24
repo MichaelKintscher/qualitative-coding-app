@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     # Create signal for the main window is closed.
     closing = Signal()
 
-    def __init__(self, session_id):
+    def __init__(self):
         """
         Constructor - Initializes the properties of the main window and all
         containing widgets.
@@ -31,8 +31,6 @@ class MainWindow(QMainWindow):
 
         self.set_layout()
 
-        self.session_id = session_id
-
     def closeEvent(self, event):
         """
         Event handler for the user closing the window.
@@ -40,6 +38,24 @@ class MainWindow(QMainWindow):
         # Emits the signal once closeEvent() is called.
         self.closing.emit()
         event.accept()
+
+    def connect_create_session_to_slot(self, slot):
+        """
+        Connects the "create session" toolbar action to the given slot method.
+
+        Parameters:
+            slot: the handler function that is called when the signal is emitted.
+        """
+        self._create_session_action.triggered.connect(slot)
+
+    def connect_load_session_to_slot(self, slot):
+        """
+        Connects the "load session" toolbar action to the given slot method.
+
+        Parameters:
+            slot: the handler function that is called when the signal is emitted.
+        """
+        self._load_session_action.triggered.connect(slot)
 
     def connect_load_video_to_slot(self, slot):
         """
@@ -80,11 +96,17 @@ class MainWindow(QMainWindow):
         settings_menu = self.menuBar().addMenu("Settings")
         # Accesses image from the resource qrc file.
         file_dialog_icon = self.style().standardIcon(QStyle.SP_FileDialogStart)
+        new_file_dialog_icon = self.style().standardIcon(QStyle.SP_FileDialogNewFolder)
+        load_file_dialog_icon = self.style().standardIcon(QStyle.SP_DialogOpenButton)
         settings_dialog_icon = self.style().standardIcon(QStyle.SP_FileDialogDetailedView)
         # Adds a load video button with an action.
         self._open_file_dialog_action = QAction(file_dialog_icon, "Load video file", self)
+        self._create_session_action = QAction(new_file_dialog_icon, "Create New Session", self)
+        self._load_session_action = QAction(load_file_dialog_icon, "Load Saved Session", self)
         self._open_settings_dialog_action = QAction(settings_dialog_icon, "Settings", self)
         file_menu.addAction(self._open_file_dialog_action)
+        file_menu.addAction(self._create_session_action)
+        file_menu.addAction(self._load_session_action)
         settings_menu.addAction(self._open_settings_dialog_action)
         # This adds a new sub-menu for exporting a file.
         export_menu = self.menuBar().addMenu("Export")
@@ -93,20 +115,6 @@ class MainWindow(QMainWindow):
         # Adds a Save table data button with an action.
         self._save_action = QAction(export_dialog_icon, "Save table data", self)
         export_menu.addAction(self._save_action)
-
-    @staticmethod
-    def session_exists(session_id):
-        """
-        Determines whether the session_id has been previously stored.
-
-        Return:
-            True if the session_id has been previously stored, False otherwise.
-        """
-        settings = QSettings()
-        for session in settings.childGroups():
-            if session == session_id:
-                return True
-        return False
 
     def set_layout(self):
         """

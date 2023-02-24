@@ -67,7 +67,7 @@ class ProjectManagementController:
         if session_name == "" or not self.is_unique_session_name(session_name):
             return
 
-        self.state_controller.create_new_session(session_name)
+        self.state_controller.create_new_window(session_name)
         self.session_creator_page.parent().close()
 
     @Slot(SessionOption)
