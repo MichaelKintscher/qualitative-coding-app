@@ -90,7 +90,7 @@ class SessionManagerPage(QDialog):
         # Get access to stored session data
         settings = QSettings()
         for session_id in settings.childGroups():
-            session_option = SessionOption(session_id.title())
+            session_option = SessionOption(session_id)
             vertical_layout.addWidget(session_option)
 
         vertical_layout.addStretch()
