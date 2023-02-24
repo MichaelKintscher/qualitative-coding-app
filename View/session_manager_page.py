@@ -60,14 +60,14 @@ class SessionManagerPage(QDialog):
         start_vertical_layout = QVBoxLayout()
 
         # Create a label for the "starting" section
-        start_label = QLabel("Getting Started")
-        start_label.setStyleSheet("font-size: 16px; padding-right: 10px; padding-bottom: 10px")
+        self.start_label = QLabel("Getting Started")
+        self.start_label.setStyleSheet("font-size: 16px; padding-right: 10px; padding-bottom: 10px")
 
         # Button to create a new session
         self.create_session_button = QPushButton("Create New Session")
 
         # Add "getting started" widgets to its widget component
-        start_vertical_layout.addWidget(start_label)
+        start_vertical_layout.addWidget(self.start_label)
         start_vertical_layout.addWidget(self.create_session_button)
         start_vertical_layout.addStretch()
         start_component.setLayout(start_vertical_layout)
@@ -96,3 +96,12 @@ class SessionManagerPage(QDialog):
         vertical_layout.addStretch()
         container_widget.setLayout(vertical_layout)
         return container_widget
+
+    def hide_session_creation_elements(self):
+        """
+        Hides the session creation related elements from the window. This method
+        may be useful if we want to only want to display the session manager page.
+        """
+        self.create_session_button.hide()
+        self.start_label.hide()
+

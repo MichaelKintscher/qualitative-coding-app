@@ -50,3 +50,10 @@ class SessionCreatorPage(QDialog):
         vertical_layout.addStretch()
         vertical_layout.addWidget(self.dialog_buttons)
         self.setLayout(vertical_layout)
+
+    def remove_back_button(self):
+        """
+        Removes the back button. This method may be useful if we want to display
+        only the session creator page.
+        """
+        self.dialog_buttons.removeButton(self.dialog_buttons.buttons()[1])
