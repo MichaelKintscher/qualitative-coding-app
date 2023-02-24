@@ -72,24 +72,21 @@ class EncodingTable(QTableWidget):
         """
         Deletes current selected column
         """
-        if self.columnCount() > 1:
-            current_col = self.currentColumn()
-            item_list = self.selectedIndexes()
-            if current_col != 0 and len(item_list) > 0:
-                self.removeColumn(current_col)
+        current_col = self.currentColumn()
+        item_list = self.selectedIndexes()
+        if current_col != 0 and len(item_list) > 0:
+            self.removeColumn(current_col)
 
     def del_row(self):
         """
         Deletes current selected row
         """
-
         if self.rowCount() > 1:
             current_row = self.currentRow()
             item_list = self.selectedIndexes()
             num_columns = self.columnCount()
             num_rows = self.rowCount()
-            row = False
-            col = False
+            row = col = False
 
             # This logic determines whether a column or a row is selected
             if num_columns == 1:
