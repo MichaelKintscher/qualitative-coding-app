@@ -174,6 +174,10 @@ class WindowController:
         # Get the total time of the video in milliseconds.
         total_in_ms = self._media_player.duration()
         current_time = self._media_player.position()
+        print(current_time, "before conversion")
+        """
+        move this stuff to an entity, use the current time conversion below
+        """
 
         # This convert to seconds, minutes, hours, and frames
         # and rounds down to the nearest value.
@@ -201,6 +205,7 @@ class WindowController:
         # This gets the current time in seconds.
         temp = self.total_time_in_secs
         current_time = current_time - (1000 * self.total_time_in_secs)
+        print(current_time, "after conversion")
         #print(self.total_time_in_secs, "seconds")
         #print(current_time, "ms")
         if current_time > 1000:
@@ -215,13 +220,13 @@ class WindowController:
         elif current_time < 0:
             binned_time = current_time - (current_time % -temp)
             self.time_back_secs = int(binned_time / 1000)
-            print(self.time_back_secs)
-            print(self.max_time_back)
+            #print(self.time_back_secs)
+            #print(self.max_time_back)
             if self.time_back_secs < self.max_time_back:
                 self.curr_time_secs -= self.max_time_back
                 self.max_time_back = self.time_back_secs
                 self.curr_time_secs += self.max_time_back
-                print("inside")
+                #print("inside")
             else:
                 """
                 if current_time < 1000:
@@ -234,7 +239,7 @@ class WindowController:
                             self.curr_time_minutes = 0
                             self.curr_time_hours += 1
                 """
-                print("outside")
+                #print("outside")
 
             """
             self.time_back_secs = int(binned_time/1000)
