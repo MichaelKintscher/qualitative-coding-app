@@ -104,7 +104,7 @@ class MainWindow(QMainWindow):
         """
         settings = QSettings()
         for session in settings.childGroups():
-            if session.title() == session_id:
+            if session == session_id:
                 return True
         return False
 

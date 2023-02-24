@@ -93,14 +93,15 @@ class ProjectManagementController:
     @staticmethod
     def is_unique_session_name(session_name):
         """
-        Determines whether the session_id has been previously stored.
+        Determines whether the session_id has been previously stored (case-insensitive).
 
         Return:
             True if the session_id has been previously stored, False otherwise.
         """
         settings = QSettings()
+        session_name = session_name.lower()
         for session in settings.childGroups():
-            if session.title() == session_name:
+            if session.lower() == session_name:
                 return False
         return True
 
