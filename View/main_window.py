@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QCoreApplication, QSettings, Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QMessageBox
 

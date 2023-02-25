@@ -49,7 +49,7 @@ class ProjectManagementController:
     def clear_sessions(self):
         """ Clears all saved sessions. """
         settings = QSettings()
-        settings.clear()
+        settings.remove("sessions")
 
         # Delete sessions from graphical session list.
         session_list_layout = self.session_manager_page.session_list.layout()
@@ -81,8 +81,8 @@ class ProjectManagementController:
 
         # Remove the session from storage.
         settings = QSettings()
-        settings.beginGroup(session_name)
-        settings.remove("")
+        settings.beginGroup("sessions")
+        settings.remove(session_name)
         settings.endGroup()
 
         # Remove the session from the session list
@@ -99,6 +99,7 @@ class ProjectManagementController:
             True if the session_id has been previously stored, False otherwise.
         """
         settings = QSettings()
+        settings.beginGroup("sessions")
         session_name = session_name.lower()
         for session in settings.childGroups():
             if session.lower() == session_name:
