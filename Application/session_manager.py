@@ -76,6 +76,7 @@ class SessionManager:
         saved under a key of the session id name.
         """
         settings = QSettings()
+        settings.beginGroup("sessions")
 
         settings.beginGroup(self.session_entity.session_id)
         settings.beginGroup("encoding-table-panel")  # creates bin within session_id bin
@@ -113,6 +114,7 @@ class SessionManager:
                     settings.setValue("cell", None)
             settings.endArray()
 
+        settings.endGroup()  # sessions
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
@@ -127,6 +129,7 @@ class SessionManager:
         """
         self.session_entity.session_id = session_id
         settings = QSettings()
+        settings.beginGroup("sessions")
 
         settings.beginGroup(session_id)
         settings.beginGroup("encoding-table-panel")
@@ -166,6 +169,7 @@ class SessionManager:
             settings.endArray()
         self.session_entity.table_data = row_data
 
+        settings.endGroup()  # sessions
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
         settings.endGroup()  # session-id
