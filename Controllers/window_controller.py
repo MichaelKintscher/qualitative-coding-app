@@ -483,7 +483,7 @@ class WindowController:
             self.global_settings_manager.add_button_definition(new_button_definition)
 
             self.add_coding_assistance_button_dialog.error_label.setText("")
-            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
+            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
             new_button.clicked.connect(ProjectManagementController.make_lambda(
                 self.dynamic_button_click, new_button_definition))
         else:
@@ -493,7 +493,7 @@ class WindowController:
                 self.global_settings_manager.add_button_definition(new_button_definition)
 
                 self.add_coding_assistance_button_dialog.error_label.setText("")
-                self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button_definition)
+                self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
                 new_button.clicked.connect(ProjectManagementController.make_lambda(
                     self.dynamic_button_click, new_button_definition))
 
@@ -513,7 +513,7 @@ class WindowController:
         for button_definition in selected_button_definitions:
             new_button = QPushButton(button_definition.button_id)
             new_button.setShortcut(QKeySequence(button_definition.hotkey))
-            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button_definition)
+            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
             new_button.clicked.connect(
                 ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
 

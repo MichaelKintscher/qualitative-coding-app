@@ -86,14 +86,13 @@ class ButtonPanel(QWidget):
         """
         self.delete_button.clicked.connect(slot)
 
-    def create_coding_assistance_button(self, button_definition):
+    def create_coding_assistance_button(self, button):
         """
         Adds a new_button to the Coding Assistance Panel
 
         Parameters:
             button_definition - definition of button to create.
         """
-        button = button_definition.button
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.grid_layout.addWidget(button)
 

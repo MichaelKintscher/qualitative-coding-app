@@ -42,9 +42,11 @@ class StateController:
         if self.program_running:
             self.window.close()
 
-        self.window = MainWindow(session_name)
+        self.window = MainWindow()
         self.window_controller = WindowController(self.window, self.global_settings_manager)
         self.window.show()
+
+        self.global_settings_manager.load_global_settings()
 
         self.window.closing.connect(lambda: self.write_session_slot(session_name))
         self.window.connect_create_session_to_slot(self.open_session_creator_page)
