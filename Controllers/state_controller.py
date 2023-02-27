@@ -1,11 +1,13 @@
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QDialogButtonBox
 
 from Controllers.project_management_controller import ProjectManagementController
 from Controllers.window_controller import WindowController
+
 from View.main_window import MainWindow
 from View.project_management_window import ProjectManagementWindow
+
 from Application.session_manager import SessionManager
+from Application.global_settings_manager import GlobalSettingsManager
 
 
 class StateController:
@@ -25,6 +27,7 @@ class StateController:
         self.project_management_window = self.project_management_controller = None
         self.window_controller = None
         self.session_manager = SessionManager()
+        self.global_settings_manager = GlobalSettingsManager()
 
     def create_new_window(self, session_name, table_name="Default Title", video=None):
         """
@@ -40,7 +43,10 @@ class StateController:
             self.window.close()
 
         self.window = MainWindow()
-        self.window_controller = WindowController(self.window)
+        self.window_controller = WindowController(self.window, self.global_settings_manager)
+        self.window.show()
+
+        self.global_settings_manager.load_global_settings()
 
         self.window.closing.connect(lambda: self.write_session_slot(session_name))
         self.window.connect_create_session_to_slot(self.open_session_creator_page)

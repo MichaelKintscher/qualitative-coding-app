@@ -2,6 +2,9 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QPushBu
 
 
 class AddCodingAssistanceButtonDialog(QDialog):
+    """
+    A Dialog to create a new coding assistance button
+    """
 
     def __init__(self, table):
         """
@@ -31,7 +34,8 @@ class AddCodingAssistanceButtonDialog(QDialog):
 
         self.error_label = QLabel()
 
-        self.create_button = QPushButton("Create")
+        self.create_button = QPushButton("Create Button")
+        self.load_button = QPushButton("Load Button")
 
         dialog_layout.addLayout(apply_text_hbox)
         dialog_layout.addSpacing(50)
@@ -54,6 +58,7 @@ class AddCodingAssistanceButtonDialog(QDialog):
 
         dialog_layout.addWidget(self.error_label)
         dialog_layout.addWidget(self.create_button)
+        dialog_layout.addWidget(self.load_button)
 
         self.setLayout(dialog_layout)
 
@@ -62,3 +67,9 @@ class AddCodingAssistanceButtonDialog(QDialog):
         Connect a create_button event to a slot function in the controller.
         """
         self.create_button.clicked.connect(slot)
+
+    def connect_load_button_to_slot(self, slot):
+        """
+        Connect a load_button event to a slot function in the controller.
+        """
+        self.load_button.clicked.connect(slot)
