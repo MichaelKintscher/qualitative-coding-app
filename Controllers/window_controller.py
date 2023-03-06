@@ -5,7 +5,8 @@ import sys
 from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics, QKeySequence
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
-from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem
+from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem, \
+    QMessageBox
 
 from View.load_coding_assistance_button_dialog import LoadCodingAssistanceButtonDialog
 from View.user_settings_dialog import UserSettingsDialog
@@ -439,7 +440,8 @@ class WindowController:
         Open a dialog to create a new Coding Assistance Button
         """
         self.add_coding_assistance_button_dialog = AddCodingAssistanceButtonDialog(self._window.table_panel.table)
-        self.add_coding_assistance_button_dialog.connect_create_button_to_slot(self.create_coding_assistance_button)
+        self.add_coding_assistance_button_dialog.connect_create_button_to_slot(
+            self.open_save_coding_assistance_button_dialog)
         self.add_coding_assistance_button_dialog.connect_load_button_to_slot(
             self.open_load_coding_assistance_button_dialog)
         self.add_coding_assistance_button_dialog.exec()
@@ -463,9 +465,26 @@ class WindowController:
         self.load_coding_assistance_button_dialog.exec()
 
     @Slot()
-    def create_coding_assistance_button(self):
+    def open_save_coding_assistance_button_dialog(self):
         """
-        Add a button to the Coding Assistance Panel
+        Open a dialog to ask the user if they want to save the encoding button definition
+        (to global settings)
+        """
+        msg_box = QMessageBox()
+        msg_box.setText("Do you want to save this button definition?")
+        msg_box.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+        ret = msg_box.exec()
+        self.create_coding_assistance_button(ret == QMessageBox.Yes)
+
+    @Slot(bool)
+    def create_coding_assistance_button(self, save_button):
+        """
+        Add a button to the Coding Assistance Panel. This method may also save
+        the created button definition to global storage.
+
+        Parameters:
+            save_button - Flag indicating whether the created button definition
+            is saved to global storage.
         """
         button_name = self.add_coding_assistance_button_dialog.apply_text_field.text()
         button_hotkey = self.add_coding_assistance_button_dialog.hotkey_field.text()
@@ -480,7 +499,8 @@ class WindowController:
         new_button_definition = ButtonDefinitionEntity(button_name, button_hotkey, data)
 
         if not hotkeys:
-            self.global_settings_manager.add_button_definition(new_button_definition)
+            if save_button:
+                self.global_settings_manager.add_button_definition(new_button_definition)
 
             self.add_coding_assistance_button_dialog.error_label.setText("")
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
@@ -490,7 +510,8 @@ class WindowController:
             if button_hotkey in hotkeys:
                 self.add_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
             else:
-                self.global_settings_manager.add_button_definition(new_button_definition)
+                if save_button:
+                    self.global_settings_manager.add_button_definition(new_button_definition)
 
                 self.add_coding_assistance_button_dialog.error_label.setText("")
                 self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
@@ -528,7 +549,7 @@ class WindowController:
         if button_definition:
             self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(
                 button_definition.button_id)
-            self.global_settings_manager.remove_button_definition(button_definition)
+
 
     @Slot(ButtonDefinitionEntity)
     def dynamic_button_click(self, button_definition):
