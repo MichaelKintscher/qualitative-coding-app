@@ -8,6 +8,7 @@ from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem, \
     QMessageBox
 
+from Application.button_manager import ButtonManager
 from View.load_coding_assistance_button_dialog import LoadCodingAssistanceButtonDialog
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
@@ -50,6 +51,7 @@ class WindowController:
         self._window = window
 
         self.global_settings_manager = global_settings_manager
+        self.button_manager = ButtonManager()
 
         self._media_player = QMediaPlayer()
         self._media_player.setVideoOutput(
@@ -492,11 +494,11 @@ class WindowController:
         data = []
         for text in self.add_coding_assistance_button_dialog.dynamic_line_edits:
             data.append(text.text())
-        hotkeys = self.global_settings_manager.get_button_hotkeys()
 
+        hotkeys = []
         new_button = QPushButton(button_name)
         new_button.setShortcut(QKeySequence(button_hotkey))
-        new_button_definition = ButtonDefinitionEntity(button_name, button_hotkey, data)
+        new_button_definition = ButtonDefinitionEntity(button_name, data)
 
         if not hotkeys:
             if save_button:
@@ -506,6 +508,9 @@ class WindowController:
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
             new_button.clicked.connect(ProjectManagementController.make_lambda(
                 self.dynamic_button_click, new_button_definition))
+
+            self.button_manager.add_button_definition(button_name, new_button_definition)
+            self.button_manager.add_button_hotkey(button_name, button_hotkey)
         else:
             if button_hotkey in hotkeys:
                 self.add_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
@@ -517,6 +522,27 @@ class WindowController:
                 self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
                 new_button.clicked.connect(ProjectManagementController.make_lambda(
                     self.dynamic_button_click, new_button_definition))
+
+                self.button_manager.add_button_definition(button_name, new_button_definition)
+                self.button_manager.add_button_hotkey(button_name, button_hotkey)
+
+    def create_button(self, hotkey, button_definition):
+        """
+        Creates and establishes an encoding button. This method adds the button
+        to the button panel.
+
+        Parameters:
+            hotkey - hotkey of button
+            button_definition - definition of button
+        """
+        button_name = button_definition.button_id
+        button = QPushButton(button_name)
+        button.setShortcut(QKeySequence(hotkey))
+        self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button)
+        button.clicked.connect(ProjectManagementController.make_lambda(
+            self.dynamic_button_click, button_definition))
+        self.button_manager.add_button_definition(button_name, button_definition)
+        self.button_manager.add_button_hotkey(button_name, hotkey)
 
     @Slot()
     def load_coding_assistance_button(self, checkboxes):
@@ -532,12 +558,14 @@ class WindowController:
                 selected_button_definitions.append(
                     self.global_settings_manager.global_settings_entity.button_definitions[i])
         for button_definition in selected_button_definitions:
-            new_button = QPushButton(button_definition.button_id)
-            new_button.setShortcut(QKeySequence(button_definition.hotkey))
+            button_id = button_definition.button_id
+            new_button = QPushButton(button_id)
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
             new_button.clicked.connect(
                 ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
 
+            self.button_manager.add_button_definition(button_id, button_definition)
+            self.button_manager.add_button_hotkey(button_id, "Placeholder")
 
     @Slot()
     def delete_coding_assistance_button(self):
@@ -545,11 +573,9 @@ class WindowController:
         Delete a button from the Coding Assistance Panel
         """
         button_id = self.delete_coding_assistance_button_dialog.button_name_textbox.text()
-        button_definition = self.global_settings_manager.get_button_definition(button_id)
-        if button_definition:
-            self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(
-                button_definition.button_id)
-
+        self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(button_id)
+        self.button_manager.remove_button_definition(button_id)
+        self.button_manager.remove_button_hotkey(button_id)
 
     @Slot(ButtonDefinitionEntity)
     def dynamic_button_click(self, button_definition):

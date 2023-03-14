@@ -73,6 +73,27 @@ class GridLayout(QGridLayout):
             super().removeItem(self.itemAtPosition(current_row, current_col))
             self._shift_widgets_left(current_row, current_col)
 
+    def widgets(self):
+        """
+        Returns a list of all widgets in the grid layout.
+
+        Returns:
+            List of all widgets in the grid layout.
+        """
+        widgets = []
+        current_row = current_col = 0
+
+        while self.itemAtPosition(current_row, current_col):
+            widget = self.itemAtPosition(current_row, current_col).widget()
+            widgets.append(widget)
+            if current_col == (self.col_count - 1):
+                current_col = 0
+                current_row += 1
+            else:
+                current_col += 1
+
+        return widgets
+
     def _shift_widgets_left(self, row, col):
         """
         Shifts all widgets following slot at given (row, col) over to the left one spot.
