@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QCoreApplication, QSettings
 from PySide6.QtWidgets import QApplication
 
 from Controllers.state_controller import StateController
