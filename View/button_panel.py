@@ -96,15 +96,15 @@ class ButtonPanel(QWidget):
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.grid_layout.addWidget(button)
 
-    """def delete_coding_assistance_button(self, button_definition):
-        
+    def delete_coding_assistance_button(self, button_id):
+        """
         Deletes a button in the Coding Assistance Panel
 
         Parameters:
-            button_definition - definition of button to delete
-        
-        for i in range(self.button_layout.count()):
-            button = self.grid_layout.itemAt(i).widget()
-            if button.text() == button_definition.button_id:
-                self.grid_layout.removeItem(button)
-                return"""
+            button_id - identifier of button to delete
+        """
+        button_widgets = self.grid_layout.widgets()
+        for button_widget in button_widgets:
+            if button_widget.text() == button_id:
+                self.grid_layout.removeItem(button_widget)
+                break

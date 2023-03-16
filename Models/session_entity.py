@@ -14,6 +14,7 @@ class SessionEntity:
         table rows, table columns, table headers, and table data.
         """
         self.session_id = ""
+        self.button_definitions = []
         self.table_name = ""
         self.table_row_count = 0
         self.table_col_count = 0
