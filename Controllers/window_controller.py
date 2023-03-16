@@ -147,16 +147,16 @@ class WindowController:
         """
         self._window.table_panel.table.edit_header(section)
 
-    def establish_table_title(self):
+    def establish_table_title(self, table_title):
         """
         Opens an input dialog box to request an initial title for the encoding
         table of the session. Then, sets the initial title to the user-response.
         """
-        text, ok = QInputDialog.getText(self._window, "Encoding Table Title Name",
-                                        "Encoding Table Title:", QLineEdit.Normal, "")
-        if ok and text:
-            self._window.table_panel.title.setText(text)
-            self.resize_to_content()
+        # text, ok = QInputDialog.getText(self._window, "Encoding Table Title Name",
+        #                                 "Encoding Table Title:", QLineEdit.Normal, "")
+        # if ok and text:
+        self._window.table_panel.title.setText(table_title)
+        self.resize_to_content()
 
     @Slot()
     def done_editing(self):
