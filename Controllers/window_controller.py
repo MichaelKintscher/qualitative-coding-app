@@ -83,13 +83,8 @@ class WindowController:
             playback_speed_combo_box.currentIndexChanged.connect(
                 self.set_playback_speed)
 
-        self.total_time_in_secs = 0
-        self.curr_time_secs = 0
-        self.curr_time_minutes = 0
-        self.curr_time_hours = 0
-        self.time_back_secs = 0
-        self.time_count = 0
-        self.max_time_back = 0
+        # Holds the time for the loaded video in ms.
+        self.current_time = 0
         self._media_player.positionChanged.connect(self.get_video_time_total)
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
@@ -173,8 +168,7 @@ class WindowController:
         """
         # Get the total time of the video in milliseconds.
         total_in_ms = self._media_player.duration()
-        current_time = self._media_player.position()
-        #print(current_time, "before conversion")
+        self.current_time = self._media_player.position()
 
         # This convert to seconds, minutes, hours, and frames
         # and rounds down to the nearest value.
@@ -200,52 +194,16 @@ class WindowController:
         total_time_str = f"{hours_rounded_down:02d}:{minutes_rounded_down:02d}:{sec_rounded_down:02d}"
 
         # This gets the current time in seconds.
-        temp = self.total_time_in_secs
-        current_time = current_time - (1000 * self.total_time_in_secs)
-        #print(temp, "total time in sec")
-        #print(current_time, "after conversion")
-        if current_time > 1000:
-            self.total_time_in_secs += 1
-            self.curr_time_secs += 1
-            if self.curr_time_secs > 60:
-                self.curr_time_secs = 0
-                self.curr_time_minutes += 1
-                if self.curr_time_minutes > 60:
-                    self.curr_time_minutes = 0
-                    self.curr_time_hours += 1
-        elif current_time < 0:
-            binned_time = current_time - (current_time % -temp)
-            self.time_back_secs = int(binned_time / 1000)
-            print(self.time_back_secs, "time back")
-            if self.time_back_secs < self.max_time_back:
-                self.curr_time_secs -= self.max_time_back
-                self.max_time_back = self.time_back_secs
-                self.curr_time_secs += self.max_time_back
-                #print(self.curr_time_secs, "curr time secs")
-                #print(self.max_time_back, "max time back")
-                #print("")
-            else:
-                self.time_count += 1
-                print(self.time_count, "count")
-                print(binned_time, "binned time")
-                if self.time_count == 10:
-                    print("increment")
-                    self.time_count = 0
+        current_seconds = (self.current_time / 1000) % 60
+        current_seconds = int(current_seconds)
+        current_minutes = (self.current_time / (1000 * 60)) % 60
+        current_minutes = int(current_minutes)
+        current_hours = (self.current_time / (1000 * 60 * 60)) % 24
+        current_hours = int(current_hours)
 
-            """
-            self.time_back_secs = int(binned_time/1000)
-            self.curr_time_secs += self.time_back_secs
-            #self.time_flag = True
-            print(self.curr_time_secs, "secs")
-            print(int(binned_time/1000), "back")
-            if binned_time < temp * 60:
-                self.curr_time_minutes += int((binned_time/1000) * 60)
-                if binned_time < temp * 360:
-                    self.curr_time_hours += int(((binned_time/1000) * 60) * 60)
-            """
         # Formats the time displaying current time/ total time
         # and then sets the text label in the media control panel.
-        time_str_formatted = f"Time: {self.curr_time_hours:02d}:{self.curr_time_minutes:02d}:{self.curr_time_secs:02d}" \
+        time_str_formatted = f"Time: {current_hours:02d}:{current_minutes:02d}:{current_seconds:02d}" \
                              f"/{total_time_str}"
         self._window.media_panel.media_control_panel.time_stamp.setText(time_str_formatted)
 
