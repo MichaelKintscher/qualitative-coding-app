@@ -88,7 +88,7 @@ class WindowController:
         self.curr_time_minutes = 0
         self.curr_time_hours = 0
         self.time_back_secs = 0
-        self.time_flag = False
+        self.time_count = 0
         self.max_time_back = 0
         self._media_player.positionChanged.connect(self.get_video_time_total)
 
@@ -174,10 +174,7 @@ class WindowController:
         # Get the total time of the video in milliseconds.
         total_in_ms = self._media_player.duration()
         current_time = self._media_player.position()
-        print(current_time, "before conversion")
-        """
-        move this stuff to an entity, use the current time conversion below
-        """
+        #print(current_time, "before conversion")
 
         # This convert to seconds, minutes, hours, and frames
         # and rounds down to the nearest value.
@@ -205,9 +202,8 @@ class WindowController:
         # This gets the current time in seconds.
         temp = self.total_time_in_secs
         current_time = current_time - (1000 * self.total_time_in_secs)
-        print(current_time, "after conversion")
-        #print(self.total_time_in_secs, "seconds")
-        #print(current_time, "ms")
+        #print(temp, "total time in sec")
+        #print(current_time, "after conversion")
         if current_time > 1000:
             self.total_time_in_secs += 1
             self.curr_time_secs += 1
@@ -220,26 +216,21 @@ class WindowController:
         elif current_time < 0:
             binned_time = current_time - (current_time % -temp)
             self.time_back_secs = int(binned_time / 1000)
-            #print(self.time_back_secs)
-            #print(self.max_time_back)
+            print(self.time_back_secs, "time back")
             if self.time_back_secs < self.max_time_back:
                 self.curr_time_secs -= self.max_time_back
                 self.max_time_back = self.time_back_secs
                 self.curr_time_secs += self.max_time_back
-                #print("inside")
+                #print(self.curr_time_secs, "curr time secs")
+                #print(self.max_time_back, "max time back")
+                #print("")
             else:
-                """
-                if current_time < 1000:
-                    self.total_time_in_secs += 1
-                    self.curr_time_secs += 1
-                    if self.curr_time_secs > 60:
-                        self.curr_time_secs = 0
-                        self.curr_time_minutes += 1
-                        if self.curr_time_minutes > 60:
-                            self.curr_time_minutes = 0
-                            self.curr_time_hours += 1
-                """
-                #print("outside")
+                self.time_count += 1
+                print(self.time_count, "count")
+                print(binned_time, "binned time")
+                if self.time_count == 10:
+                    print("increment")
+                    self.time_count = 0
 
             """
             self.time_back_secs = int(binned_time/1000)
