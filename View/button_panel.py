@@ -33,11 +33,6 @@ class ButtonPanel(QWidget):
             QSizePolicy.Preferred,
             QSizePolicy.Expanding)
 
-        self.add_delete_layout.addWidget(self.add_button)
-        self.add_delete_layout.addWidget(self.delete_button)
-
-        add_delete_container.setLayout(self.add_delete_layout)
-
         # Add css styling to the container to give it a background color.
         button_container.setProperty("class", "button-container")
         add_delete_container.setProperty("class", "add_delete_container")
@@ -58,11 +53,6 @@ class ButtonPanel(QWidget):
         self.grid_layout = GridLayout(self.parent(), 3, 3)
         grid_container.setLayout(self.grid_layout)
         grid_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        self.add_button = QPushButton("+")
-        self.add_button.setSizePolicy(
-            QSizePolicy.Preferred,
-            QSizePolicy.Expanding)
 
         self.horizontal_layout.addWidget(self.add_button)
         self.horizontal_layout.addWidget(self.delete_button)
@@ -85,6 +75,12 @@ class ButtonPanel(QWidget):
         Connects a delete_button event to a slot function in the controller.
         """
         self.delete_button.clicked.connect(slot)
+
+    def connect_edit_button_to_slot(self, slot):
+        """
+        Connects an edit_button event to a slot function in the controller.
+        """
+        self.edit_button.clicked.connect(slot)
 
     def create_coding_assistance_button(self, button):
         """

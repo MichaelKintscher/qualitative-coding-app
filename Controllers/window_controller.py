@@ -8,7 +8,9 @@ from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem, \
     QMessageBox
 
+from View.edit_coding_assistance_button_dialog import EditCodingAssistanceButtonDialog
 from View.load_coding_assistance_button_dialog import LoadCodingAssistanceButtonDialog
+from View.select_edit_button_dialog import SelectEditButtonDialog
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
 from View.delete_coding_assistance_button_dialog import DeleteCodingAssistanceButtonDialog
@@ -435,6 +437,7 @@ class WindowController:
         int_end_time = int(str_end_time) * 1000
         self._window.media_panel.progress_bar_slider.setMaximum(int_end_time)
 
+    @Slot()
     def open_add_coding_assistance_button_dialog(self):
         """
         Open a dialog to create a new Coding Assistance Button
@@ -444,8 +447,11 @@ class WindowController:
             self.open_save_coding_assistance_button_dialog)
         self.add_coding_assistance_button_dialog.connect_load_button_to_slot(
             self.open_load_coding_assistance_button_dialog)
+        self.add_coding_assistance_button_dialog.connect_edit_button_to_slot(
+            self.open_select_edit_button_dialog)
         self.add_coding_assistance_button_dialog.exec()
 
+    @Slot()
     def open_delete_coding_assistance_button_dialog(self):
         """
         Open a dialog to create a new Coding Assistance Button
@@ -454,6 +460,26 @@ class WindowController:
         self.delete_coding_assistance_button_dialog.connect_delete_button_to_slot(self.delete_coding_assistance_button)
         self.delete_coding_assistance_button_dialog.exec()
 
+    @Slot()
+    def open_select_edit_button_dialog(self):
+        """
+        Open a dialog to select a Coding Assistance Button to edit
+        """
+        self.select_edit_button_dialog = SelectEditButtonDialog()
+        self.select_edit_button_dialog.connect_edit_button_to_slot(
+            self.open_edit_coding_assistance_button_dialog)
+        self.select_edit_button_dialog.exec()
+
+    @Slot()
+    def open_edit_coding_assistance_button_dialog(self):
+        """
+        Open a dialog to edit a Coding Assistance Button
+        """
+        self.edit_button_dialog = EditCodingAssistanceButtonDialog(self._window.table_panel.table)
+        self.edit_button_dialog.connect_edit_button_to_slot(self.edit_coding_assistance_button)
+        self.edit_button_dialog.exec()
+
+    @Slot()
     def open_load_coding_assistance_button_dialog(self):
         """
         Open a dialog to load a Coding Assistance Button
@@ -550,6 +576,35 @@ class WindowController:
             self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(
                 button_definition.button_id)
 
+    @Slot()
+    def edit_coding_assistance_button(self):
+        """
+        Edit a button definition in Global Settings
+        """
+        button_id = self.select_edit_button_dialog.button_name_textbox.text()
+        for button_definition in self.global_settings_manager.global_settings_entity.button_definitions:
+            if button_id == button_definition.button_id:
+                button_name = self.edit_button_dialog.button_id_textbox.text()
+                hotkey = self.edit_button_dialog.hotkey_textbox.text()
+
+                data = []
+                for text in self.add_coding_assistance_button_dialog.dynamic_line_edits:
+                    data.append(text.text())
+                hotkeys = self.global_settings_manager.get_button_hotkeys()
+
+                new_button_definition = ButtonDefinitionEntity(button_name, hotkey, data)
+
+                if hotkey in hotkeys:
+                    self.edit_button_dialog.error_label.setText("This hotkey is already being used!")
+                else:
+                    for i in range(len(self.global_settings_manager.global_settings_entity.button_definitions)):
+                        if button_definition == self.global_settings_manager.global_settings_entity.button_definitions[i]:
+                            self.global_settings_manager.global_settings_entity.button_definitions[i] = new_button_definition
+                            self.edit_button_dialog.error_label.setText("")
+                return
+
+        self.edit_button_dialog.error_label.setText("Button Definition to be edited does not exist")
+        return
 
     @Slot(ButtonDefinitionEntity)
     def dynamic_button_click(self, button_definition):
