@@ -15,10 +15,7 @@ class LoadCodingAssistanceButtonDialog(QDialog):
         self.checkboxes = []
 
         for button_definition in button_definitions:
-            checkbox = QCheckBox("Button Name: " +
-                                 button_definition.button_id +
-                                 " Button Hotkey: " +
-                                 button_definition.hotkey)
+            checkbox = QCheckBox("Button Name: " + button_definition.button_id)
             self.checkboxes.append(checkbox)
             dialog_layout.addWidget(checkbox)
 

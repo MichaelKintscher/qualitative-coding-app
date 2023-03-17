@@ -1,5 +1,6 @@
 import io
 import csv
+import math
 import sys
 
 from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
@@ -8,6 +9,7 @@ from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem, \
     QMessageBox
 
+from Application.button_manager import ButtonManager
 from View.load_coding_assistance_button_dialog import LoadCodingAssistanceButtonDialog
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
@@ -50,6 +52,7 @@ class WindowController:
         self._window = window
 
         self.global_settings_manager = global_settings_manager
+        self.button_manager = ButtonManager()
 
         self._media_player = QMediaPlayer()
         self._media_player.setVideoOutput(
@@ -83,10 +86,8 @@ class WindowController:
             playback_speed_combo_box.currentIndexChanged.connect(
                 self.set_playback_speed)
 
-        self.total_time_in_secs = 0
-        self.curr_time_secs = 0
-        self.curr_time_minutes = 0
-        self.curr_time_hours = 0
+        # Holds the time for the loaded video in ms.
+        self.current_time = 0
         self._media_player.positionChanged.connect(self.get_video_time_total)
 
         self._window.table_panel.add_col_button.clicked.connect(self.add_col_to_encoding_table)
@@ -179,7 +180,7 @@ class WindowController:
         """
         # Get the total time of the video in milliseconds.
         total_in_ms = self._media_player.duration()
-        current_time = self._media_player.position()
+        self.current_time = self._media_player.position()
 
         # This convert to seconds, minutes, hours, and frames
         # and rounds down to the nearest value.
@@ -205,21 +206,16 @@ class WindowController:
         total_time_str = f"{hours_rounded_down:02d}:{minutes_rounded_down:02d}:{sec_rounded_down:02d}"
 
         # This gets the current time in seconds.
-        temp = self.total_time_in_secs
-        current_time = current_time - (1000 * self.total_time_in_secs)
-        if current_time > 1000:
-            self.total_time_in_secs += 1
-            self.curr_time_secs += 1
-        if self.curr_time_secs > 60:
-            self.curr_time_secs = 0
-            self.curr_time_minutes += 1
-        if self.curr_time_minutes > 60:
-            self.curr_time_minutes = 0
-            self.curr_time_hours += 1
+        current_seconds = (self.current_time / 1000) % 60
+        current_seconds = int(current_seconds)
+        current_minutes = (self.current_time / (1000 * 60)) % 60
+        current_minutes = int(current_minutes)
+        current_hours = (self.current_time / (1000 * 60 * 60)) % 24
+        current_hours = int(current_hours)
 
         # Formats the time displaying current time/ total time
         # and then sets the text label in the media control panel.
-        time_str_formatted = f"Time: {self.curr_time_hours:02d}:{self.curr_time_minutes:02d}:{self.curr_time_secs:02d}" \
+        time_str_formatted = f"Time: {current_hours:02d}:{current_minutes:02d}:{current_seconds:02d}" \
                              f"/{total_time_str}"
         self._window.media_panel.media_control_panel.time_stamp.setText(time_str_formatted)
 
@@ -505,11 +501,11 @@ class WindowController:
         data = []
         for text in self.add_coding_assistance_button_dialog.dynamic_line_edits:
             data.append(text.text())
-        hotkeys = self.global_settings_manager.get_button_hotkeys()
 
+        hotkeys = []
         new_button = QPushButton(button_name)
         new_button.setShortcut(QKeySequence(button_hotkey))
-        new_button_definition = ButtonDefinitionEntity(button_name, button_hotkey, data)
+        new_button_definition = ButtonDefinitionEntity(button_name, data)
 
         if not hotkeys:
             if save_button:
@@ -519,6 +515,9 @@ class WindowController:
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
             new_button.clicked.connect(ProjectManagementController.make_lambda(
                 self.dynamic_button_click, new_button_definition))
+
+            self.button_manager.add_button_definition(button_name, new_button_definition)
+            self.button_manager.add_button_hotkey(button_name, button_hotkey)
         else:
             if button_hotkey in hotkeys:
                 self.add_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
@@ -530,6 +529,27 @@ class WindowController:
                 self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
                 new_button.clicked.connect(ProjectManagementController.make_lambda(
                     self.dynamic_button_click, new_button_definition))
+
+                self.button_manager.add_button_definition(button_name, new_button_definition)
+                self.button_manager.add_button_hotkey(button_name, button_hotkey)
+
+    def create_button(self, hotkey, button_definition):
+        """
+        Creates and establishes an encoding button. This method adds the button
+        to the button panel.
+
+        Parameters:
+            hotkey - hotkey of button
+            button_definition - definition of button
+        """
+        button_name = button_definition.button_id
+        button = QPushButton(button_name)
+        button.setShortcut(QKeySequence(hotkey))
+        self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(button)
+        button.clicked.connect(ProjectManagementController.make_lambda(
+            self.dynamic_button_click, button_definition))
+        self.button_manager.add_button_definition(button_name, button_definition)
+        self.button_manager.add_button_hotkey(button_name, hotkey)
 
     @Slot()
     def load_coding_assistance_button(self, checkboxes):
@@ -545,12 +565,14 @@ class WindowController:
                 selected_button_definitions.append(
                     self.global_settings_manager.global_settings_entity.button_definitions[i])
         for button_definition in selected_button_definitions:
-            new_button = QPushButton(button_definition.button_id)
-            new_button.setShortcut(QKeySequence(button_definition.hotkey))
+            button_id = button_definition.button_id
+            new_button = QPushButton(button_id)
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
             new_button.clicked.connect(
                 ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
 
+            self.button_manager.add_button_definition(button_id, button_definition)
+            self.button_manager.add_button_hotkey(button_id, "Placeholder")
 
     @Slot()
     def delete_coding_assistance_button(self):
@@ -558,11 +580,9 @@ class WindowController:
         Delete a button from the Coding Assistance Panel
         """
         button_id = self.delete_coding_assistance_button_dialog.button_name_textbox.text()
-        button_definition = self.global_settings_manager.get_button_definition(button_id)
-        if button_definition:
-            self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(
-                button_definition.button_id)
-
+        self._window.coding_assistance_panel.button_panel.delete_coding_assistance_button(button_id)
+        self.button_manager.remove_button_definition(button_id)
+        self.button_manager.remove_button_hotkey(button_id)
 
     @Slot(ButtonDefinitionEntity)
     def dynamic_button_click(self, button_definition):

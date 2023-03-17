@@ -29,12 +29,6 @@ class GlobalSettingsManager:
         self.global_settings_entity.button_definitions.remove(button_definition)
         self.update_saved_settings()
 
-    def get_button_hotkeys(self):
-        """
-        Return the list of button hotkeys from the button definition list
-        """
-        return [button_definition.hotkey for button_definition in self.global_settings_entity.button_definitions]
-
     def get_button_definition(self, button_id):
         """
         Return a button definition from the button definition list
@@ -57,7 +51,6 @@ class GlobalSettingsManager:
         for index, button_definition in enumerate(self.global_settings_entity.button_definitions):
             settings.setArrayIndex(index)
             settings.setValue("button-id", button_definition.button_id)
-            settings.setValue("hotkey", button_definition.hotkey)
             settings.beginWriteArray("data", len(button_definition.data))
             for data_index, data_item in enumerate(button_definition.data):
                 settings.setArrayIndex(data_index)
@@ -92,14 +85,13 @@ class GlobalSettingsManager:
         for index in range(button_definitions_length):
             settings.setArrayIndex(index)
             button_id = settings.value("button-id")
-            hotkey = settings.value("hotkey")
             data = []
             data_length = settings.beginReadArray("data")
             for data_index in range(data_length):
                 settings.setArrayIndex(data_index)
                 data.append(settings.value("data-item"))
             settings.endArray()
-            button_definition = ButtonDefinitionEntity(button_id, hotkey, data)
+            button_definition = ButtonDefinitionEntity(button_id, data)
             self.global_settings_entity.button_definitions.append(button_definition)
         settings.endArray()
 
@@ -154,3 +146,4 @@ class GlobalSettingsManager:
             Int
         """
         self.global_settings_entity.table_maximum_width = table_maximum_width
+

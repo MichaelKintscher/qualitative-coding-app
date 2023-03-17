@@ -1,5 +1,6 @@
 from PySide6.QtCore import QSettings
 
+from Models.button_definition_entity import ButtonDefinitionEntity
 from Models.session_entity import SessionEntity
 
 
@@ -86,12 +87,10 @@ class SessionManager:
         """
         settings = QSettings()
         settings.beginGroup("sessions")
-
         settings.beginGroup(self.session_entity.session_id)
+
         settings.beginGroup("encoding-table-panel")  # creates bin within session_id bin
-
         settings.setValue("title", self.session_entity.table_name)
-
         settings.endGroup()  # need to leave encoding-table-panel bin
 
         settings.beginGroup("encoding-table")  # creates encoding table bin
@@ -111,7 +110,6 @@ class SessionManager:
         settings.endArray()
 
         settings.beginGroup("table-data")  # creates table-data bin
-
         for rowIx in range(self.session_entity.table_row_count):
             settings.beginWriteArray(str(rowIx))
             for colIx in range(self.session_entity.table_col_count):
@@ -122,11 +120,32 @@ class SessionManager:
                 else:
                     settings.setValue("cell", None)
             settings.endArray()
-
-        settings.endGroup()  # sessions
         settings.endGroup()  # table-data
+
         settings.endGroup()  # encoding-table
+
+        settings.beginGroup("encoding-buttons")
+        settings.remove("")  # Removes all pre-existing encoding buttons
+
+        buttons = self.session_entity.button_definitions
+        settings.beginWriteArray("buttons", len(buttons))
+        for button_ix, (hotkey, button_definition) in enumerate(buttons):
+            settings.setArrayIndex(button_ix)
+            settings.setValue("id", button_definition.button_id)
+            settings.setValue("hotkey", hotkey)
+
+            button_data = button_definition.data
+            settings.beginWriteArray("data", len(button_data))
+            for data_ix, data in enumerate(button_data):
+                settings.setArrayIndex(data_ix)
+                settings.setValue("data-item", data)
+            settings.endArray()
+        settings.endArray()
+
+        settings.endGroup()  # encoding-buttons
+
         settings.endGroup()  # session-id
+        settings.endGroup()  # sessions
 
     def load_existing_session(self, session_id):
         """
@@ -177,8 +196,30 @@ class SessionManager:
             row_data.append(col_data)
             settings.endArray()
         self.session_entity.table_data = row_data
-
-        settings.endGroup()  # sessions
         settings.endGroup()  # table-data
         settings.endGroup()  # encoding-table
+
+        settings.beginGroup("encoding-buttons")
+        num_buttons = settings.beginReadArray("buttons")
+        buttons = []
+        for button_ix in range(num_buttons):
+            settings.setArrayIndex(button_ix)
+            identifier = settings.value("id")
+            hotkey = settings.value("hotkey")
+
+            num_button_data = settings.beginReadArray("data")
+            button_data = []
+            for data_ix in range(num_button_data):
+                settings.setArrayIndex(data_ix)
+                button_data.append(settings.value("data-item"))
+            settings.endArray()
+
+            button_definition = ButtonDefinitionEntity(identifier, button_data)
+            buttons.append((hotkey, button_definition))
+        settings.endArray()
+        self.session_entity.button_definitions = buttons
+
+        settings.endGroup()  # encoding-buttons
+
         settings.endGroup()  # session-id
+        settings.endGroup()  # sessions

@@ -90,6 +90,10 @@ class StateController:
         self.window.table_panel.table.set_headers(self.session_manager.session_entity.table_headers)
         self.window.table_panel.table.set_table_data(self.session_manager.session_entity.table_data)
 
+        button_data = self.session_manager.session_entity.button_definitions
+        for hotkey, definition in button_data:
+            self.window_controller.create_button(hotkey, definition)
+
     @Slot()
     def open_session_creator_page(self):
         """
@@ -132,6 +136,9 @@ class StateController:
 
         table_data = self.window.table_panel.table.get_table_data()
         self.session_manager.set_table_data(table_data)
+
+        button_definitions = self.window_controller.button_manager.get_button_data()
+        self.session_manager.set_button_definitions(button_definitions)
 
         # Call function to write everything to QSettings.
         self.session_manager.write_to_settings()
