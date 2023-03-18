@@ -181,7 +181,7 @@ class EncodingTable(QTableWidget):
         Getter method to get cell size.
 
         Returns:
-            list
+            List of ints with index 0 holding the width and index 1 holding the height.
         """
         min_width = self.horizontalHeader().minimumSectionSize()
         min_height = self.verticalHeader().minimumSectionSize()
@@ -192,7 +192,7 @@ class EncodingTable(QTableWidget):
         Getter method to get cell max width.
 
         Returns:
-            int
+            Int representing the max width of each table cell.
         """
         max_width = self.horizontalHeader().maximumSectionSize()
         return max_width
@@ -202,7 +202,7 @@ class EncodingTable(QTableWidget):
         Getter method to get cell padding.
 
         Returns:
-            int
+            Int representing the padding in each table cell.
         """
         return self.padding
 

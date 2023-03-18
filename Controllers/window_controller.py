@@ -326,8 +326,8 @@ class WindowController:
         table_padding = self._window.table_panel.table.get_padding()
         self.global_settings_manager.set_table_padding(table_padding)
 
-        # Saves the data do QSettings bin call user_settings.
-        self.global_settings_manager.set_to_user_settings()
+        # Saves the data to file.
+        self.global_settings_manager.save_user_settings()
 
     @Slot()
     def play_video(self):

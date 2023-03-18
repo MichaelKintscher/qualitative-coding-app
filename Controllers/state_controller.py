@@ -48,7 +48,7 @@ class StateController:
 
         self.global_settings_manager.load_global_settings()
 
-        # After loading the values from QSettings, adjusts the table format.
+        # After loading the values from QSettings, adjusts the table format according to the global user settings.
         self.window.table_panel.table.set_cell_size(
             self.global_settings_manager.global_settings_entity.table_cell_size[0],
             self.global_settings_manager.global_settings_entity.table_cell_size[1])
