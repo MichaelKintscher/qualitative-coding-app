@@ -76,11 +76,13 @@ class WindowController:
         self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(
             self.play_video)
 
-        self._window.media_panel.progress_bar_slider.sliderMoved.connect(
-            self.set_position)
+        self._window.media_panel.scrubber_bar.get_progress_bar().sliderMoved.connect(
+            self.update_video_on_progres_bar_movement)
+        self._window.media_panel.scrubber_bar.scaling_bar.valueChanged.connect(
+            self.update_progress_bar_range)
 
-        self._media_player.positionChanged.connect(self.position_changed)
-        self._media_player.durationChanged.connect(self.duration_changed)
+        self._media_player.positionChanged.connect(self.update_progress_bar_on_video_position_changed)
+        self._media_player.durationChanged.connect(self.on_video_duration_changed)
 
         self._window.media_panel.media_control_panel. \
             playback_speed_combo_box.currentIndexChanged.connect(
@@ -164,13 +166,16 @@ class WindowController:
         """Commands the table widget to update header label to the text entered in the QLineEdit item"""
         self._window.table_panel.table.done_editing()
 
-    def duration_changed(self):
+    @Slot(int)
+    def on_video_duration_changed(self, new_duration):
         """
-        Sets the range of the progress bar when the
-        duration of the media player changes.
+        Initialize the scrubbing bars according to the new duration of the
+        media player. Triggered when a new video is loaded.
+
+        Parameters:
+            new_duration - current duration of the video.
         """
-        duration = self._media_player.duration()
-        self._window.media_panel.progress_bar_slider.setRange(0, duration)
+        self._window.media_panel.scrubber_bar.initialize(new_duration)
 
     @Slot()
     def get_video_time_total(self):
@@ -344,14 +349,28 @@ class WindowController:
         current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
         self._media_player.setPlaybackRate(current_playback_speed)
 
-    @Slot()
-    def position_changed(self):
+    @Slot(int)
+    def update_progress_bar_on_video_position_changed(self, position):
         """
-        Sets the value of the progress bar slider based
-        on the position of the media player.
+        Sets the value of the progress bar sliders based on the new position of
+        the media player. Triggered as the video progresses.
+
+        Parameters:
+            position - current position of the video
         """
-        position = self._media_player.position()
-        self._window.media_panel.progress_bar_slider.setValue(position)
+        self._window.media_panel.scrubber_bar.get_progress_bar().setValue(position)
+        self._window.media_panel.scrubber_bar.scaling_progress_view.setValue(position)
+
+    # Slot annotation is not present as range_bounds is a tuple, and that is not
+    # recognized by QT. However, the slot function still connects and executes
+    # regardless.
+    def update_progress_bar_range(self, range_bounds):
+        """
+        Updates the range of the progress bar based on the new values
+        of the scalable scrubbing bar.
+        """
+        lower_range, upper_range = range_bounds
+        self._window.media_panel.scrubber_bar.set_progress_zoom(lower_range, upper_range)
 
     @Slot()
     def set_cell_size(self):
@@ -396,13 +415,19 @@ class WindowController:
         current_playback_speed = self._window.media_panel.media_control_panel.playback_speed_combo_box.currentData()
         self._media_player.setPlaybackRate(current_playback_speed)
 
-    @Slot()
-    def set_position(self, position):
+    @Slot(int)
+    def update_video_on_progres_bar_movement(self, new_position):
         """
-        Commands the video player to set the position state
-        based on the value of the progress bar slider.
+        Commands the video player to set the position state based on the new
+        value of the progress bar slider. Triggered when the user slides
+        the progress bar.
+
+        Parameters:
+            new_position - current position of progress bar
         """
-        self._media_player.setPosition(position)
+        # Only set the position of the media player if a video has been loaded.
+        if self._media_player.source().url():
+            self._media_player.setPosition(new_position)
 
     @Slot()
     def toggle_play_pause_icon(self):
@@ -420,7 +445,7 @@ class WindowController:
         """
         str_start_time = self._window.media_panel.media_control_panel.input_start_time.text()
         int_start_time = int(str_start_time) * 1000
-        self._window.media_panel.progress_bar_slider.setMinimum(int_start_time)
+        self._window.media_panel.progress_bar.setMinimum(int_start_time)
 
     @Slot()
     def change_scrub_end(self):
@@ -429,7 +454,7 @@ class WindowController:
         """
         str_end_time = self._window.media_panel.media_control_panel.input_end_time.text()
         int_end_time = int(str_end_time) * 1000
-        self._window.media_panel.progress_bar_slider.setMaximum(int_end_time)
+        self._window.media_panel.progress_bar.setMaximum(int_end_time)
 
     def open_add_coding_assistance_button_dialog(self):
         """
