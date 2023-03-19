@@ -321,6 +321,19 @@ class WindowController:
         self.user_settings.connect_padding_to_slot(self.set_padding)
         self.user_settings.exec()
 
+        # Gets each value from the table and passes to global_settings_manager.
+        table_cell_size = self._window.table_panel.table.get_cell_size()
+        self.global_settings_manager.set_table_cell_size(table_cell_size)
+
+        table_maximum_width = self._window.table_panel.table.get_maximum_width()
+        self.global_settings_manager.set_table_maximum_width(table_maximum_width)
+
+        table_padding = self._window.table_panel.table.get_padding()
+        self.global_settings_manager.set_table_padding(table_padding)
+
+        # Saves the data to file.
+        self.global_settings_manager.save_user_settings()
+
     @Slot()
     def play_video(self):
         """ Command a video to change the state to play and pause when clicked. """

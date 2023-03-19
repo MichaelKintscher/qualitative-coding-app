@@ -20,14 +20,14 @@ class GlobalSettingsManager:
         Add a button definition to the button definition list
         """
         self.global_settings_entity.button_definitions.append(button_definition)
-        self.update_saved_settings()
+        self.save_encoding_button_definitions()
 
     def remove_button_definition(self, button_definition):
         """
         Remove a button definition from the button definition list
         """
         self.global_settings_entity.button_definitions.remove(button_definition)
-        self.update_saved_settings()
+        self.save_encoding_button_definitions()
 
     def get_button_definition(self, button_id):
         """
@@ -38,7 +38,7 @@ class GlobalSettingsManager:
                 return button_definition
         return None
 
-    def update_saved_settings(self):
+    def save_encoding_button_definitions(self):
         """
         Update the global settings
         """
@@ -58,8 +58,8 @@ class GlobalSettingsManager:
             settings.endArray()
         settings.endArray()
 
-        settings.endGroup() # global-settings
-        settings.endGroup() # encoding-buttons
+        settings.endGroup()  # encoding-buttons
+        settings.endGroup()  # global-settings
 
     def load_global_settings(self):
         """
@@ -68,6 +68,19 @@ class GlobalSettingsManager:
         settings = QSettings()
 
         settings.beginGroup("global-settings")
+
+        settings.beginGroup("user-settings")
+
+        # Sets the padding and the max width to global settings entity
+        self.global_settings_entity.table_padding = int(settings.value("table_padding"))
+        self.global_settings_entity.table_maximum_width = int(settings.value("table_maximum_width"))
+
+        # Sets the cell size with width, index 0, and height, index 1 to global settings entity
+        self.global_settings_entity.table_cell_size.append(int(settings.value("table_cell_size_width")))
+        self.global_settings_entity.table_cell_size.append(int(settings.value("table_cell_size_height")))
+
+        settings.endGroup()  # user-settings
+
         settings.beginGroup("encoding-buttons")
 
         button_definitions_length = settings.beginReadArray("button-definitions")
@@ -84,5 +97,54 @@ class GlobalSettingsManager:
             self.global_settings_entity.button_definitions.append(button_definition)
         settings.endArray()
 
+        settings.endGroup()  # encoding-buttons
+        settings.endGroup()  # global-settings
+
+    def save_user_settings(self):
+        """
+        Saves the values in the global settings entity to Qsettings
+        """
+        settings = QSettings()
+
+        settings.beginGroup("global-settings")
+
+        settings.beginGroup("user-settings")
+
+        # Sets the padding and the max width.
+        settings.setValue("table_padding", self.global_settings_entity.table_padding)
+        settings.setValue("table_maximum_width", self.global_settings_entity.table_maximum_width)
+
+        # Sets the cell size with width, index 0, and height, index 1.
+        settings.setValue("table_cell_size_width", self.global_settings_entity.table_cell_size[0])
+        settings.setValue("table_cell_size_height", self.global_settings_entity.table_cell_size[1])
+
         settings.endGroup()
         settings.endGroup()
+
+    def set_table_padding(self, table_padding):
+        """
+        Setter method to set the cell padding to the global settings entity.
+
+        Parameter:
+            Int representing the padding in each table cell.
+        """
+        self.global_settings_entity.table_padding = table_padding
+
+    def set_table_cell_size(self, table_cell_size):
+        """
+        Setter method to set the cell size to the global settings entity.
+
+        Parameter:
+            List of ints with index 0 holding the width and index 1 holding the height.
+        """
+        self.global_settings_entity.table_cell_size = table_cell_size
+
+    def set_table_maximum_width(self, table_maximum_width):
+        """
+        Setter method to set the cell max width to the global settings entity.
+
+        Parameter:
+            Int representing the max width of each table cell.
+        """
+        self.global_settings_entity.table_maximum_width = table_maximum_width
+

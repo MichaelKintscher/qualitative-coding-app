@@ -17,6 +17,9 @@ class EncodingTable(QTableWidget):
         self.setRowCount(10)
         self.setColumnCount(4)
 
+        # Holds the padding in non stylesheet format
+        self.padding = 0
+
         self.horizontalHeader().setStretchLastSection(True)
         self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
         self.horizontalHeader().setDefaultSectionSize(100)
@@ -173,6 +176,36 @@ class EncodingTable(QTableWidget):
         """
         return self.columnCount()
 
+    def get_cell_size(self):
+        """
+        Getter method to get cell size.
+
+        Returns:
+            List of ints with index 0 holding the width and index 1 holding the height.
+        """
+        min_width = self.horizontalHeader().minimumSectionSize()
+        min_height = self.verticalHeader().minimumSectionSize()
+        return [min_width, min_height]
+
+    def get_maximum_width(self):
+        """
+        Getter method to get cell max width.
+
+        Returns:
+            Int representing the max width of each table cell.
+        """
+        max_width = self.horizontalHeader().maximumSectionSize()
+        return max_width
+
+    def get_padding(self):
+        """
+        Getter method to get cell padding.
+
+        Returns:
+            Int representing the padding in each table cell.
+        """
+        return self.padding
+
     def get_headers(self):
         """
         Getter method to get table headers.
@@ -224,6 +257,7 @@ class EncodingTable(QTableWidget):
         """
         Changes default padding.
         """
+        self.padding = padding
         self.setStyleSheet("QTableWidget::item { padding: " + padding + "px }")
 
     def set_row_count(self, table_row):
