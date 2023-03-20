@@ -25,10 +25,14 @@ class ScrubberBar(QWidget):
         self.scaling_bar.setBarMovesAllHandles(True)
         self.scaling_bar.setRange(self.DEFAULT_RANGE_BOUNDS[0], self.DEFAULT_RANGE_BOUNDS[1])
         self.scaling_bar.setValue((self.DEFAULT_RANGE_BOUNDS[0], self.DEFAULT_RANGE_BOUNDS[1]))
+        self.scaling_bar.setTickInterval(100)
+        self.scaling_bar.setTickPosition(QSlider.TicksBelow)
 
         # This slider will be read-only, represents the progress for the scaling bar.
         self.scaling_progress_view = QSlider(Qt.Orientation.Horizontal)
         self.scaling_progress_view.setEnabled(False)
+        self.scaling_progress_view.setTickInterval(100)
+        self.scaling_progress_view.setTickPosition(QSlider.TicksBelow)
 
         self.progress_bar_view = ProgressBarView()
 
