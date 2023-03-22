@@ -44,8 +44,9 @@ class AddCodingAssistanceButtonDialog(QDialog):
 
         self.dynamic_line_edits = []
         headers = [self.table.horizontalHeaderItem(c) for c in range(self.table.columnCount())]
-        labels = [x.text() for x in headers]
-        for i in range(len(labels)):
+        labels = [x.text() for x in headers if x]
+        i = 1
+        while i in range(len(labels)):
             dynamic_input_hbox = QHBoxLayout()
             dynamic_input_label = QLabel(labels[i])
             dynamic_input_field = QLineEdit()
@@ -55,6 +56,8 @@ class AddCodingAssistanceButtonDialog(QDialog):
             dynamic_input_hbox.addWidget(dynamic_input_field)
             dialog_layout.addLayout(dynamic_input_hbox)
             dialog_layout.addSpacing(50)
+
+            i += 1
 
         dialog_layout.addWidget(self.error_label)
         dialog_layout.addWidget(self.create_button)

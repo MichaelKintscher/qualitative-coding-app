@@ -618,6 +618,9 @@ class WindowController:
             button_definition - An instance of ButtonDefinition
         """
         video_timestamp = self._window.media_panel.media_control_panel.time_stamp.text()
+        split_one = video_timestamp.split("Time: ")
+        split_two = split_one[1].split("/")
+        video_timestamp = split_two[0]
         for row in range(self._window.table_panel.table.rowCount()):
             column = 0
             cell = self._window.table_panel.table.item(row, column)
