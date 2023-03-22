@@ -25,19 +25,13 @@ class EditCodingAssistanceButtonDialog(QDialog):
         button_id_hbox.addWidget(button_id_label)
         button_id_hbox.addWidget(self.button_id_textbox)
 
-        hotkey_hbox = QHBoxLayout()
-        hotkey_label = QLabel("Hotkey: ")
-        self.hotkey_textbox = QLineEdit()
-        hotkey_hbox.addWidget(hotkey_label)
-        hotkey_hbox.addWidget(self.hotkey_textbox)
-
         dialog_layout.addLayout(button_id_hbox)
-        dialog_layout.addLayout(hotkey_hbox)
 
         self.dynamic_line_edits = []
         headers = [self.table.horizontalHeaderItem(c) for c in range(self.table.columnCount())]
-        labels = [x.text() for x in headers]
-        for i in range(len(labels)):
+        labels = [x.text() for x in headers if x]
+        i = 1
+        while i in range(len(labels)):
             dynamic_input_hbox = QHBoxLayout()
             dynamic_input_label = QLabel(labels[i])
             dynamic_input_field = QLineEdit()
@@ -47,6 +41,8 @@ class EditCodingAssistanceButtonDialog(QDialog):
             dynamic_input_hbox.addWidget(dynamic_input_field)
             dialog_layout.addLayout(dynamic_input_hbox)
             dialog_layout.addSpacing(50)
+
+            i += 1
 
         self.edit_button = QPushButton("Edit")
         dialog_layout.addWidget(self.edit_button)

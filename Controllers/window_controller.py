@@ -518,8 +518,7 @@ class WindowController:
         """
         Open a dialog to load a Coding Assistance Button
         """
-        self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(
-            self.global_settings_manager.global_settings_entity.button_definitions)
+        self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(self.button_manager.definition_map)
         self.load_coding_assistance_button_dialog.connect_load_button_to_slot(ProjectManagementController.make_lambda(
             self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.checkboxes))
         self.load_coding_assistance_button_dialog.exec()
@@ -640,30 +639,16 @@ class WindowController:
         """
         Edit a button definition in Global Settings
         """
-        button_id = self.select_edit_button_dialog.button_name_textbox.text()
+        edit_button_id = self.select_edit_button_dialog.button_name_textbox.text()
         for button_definition in self.global_settings_manager.global_settings_entity.button_definitions:
-            if button_id == button_definition.button_id:
-                button_name = self.edit_button_dialog.button_id_textbox.text()
-                hotkey = self.edit_button_dialog.hotkey_textbox.text()
-
+            if edit_button_id == button_definition.button_id:
+                button_id = self.edit_button_dialog.button_id_textbox.text()
                 data = []
-                for text in self.add_coding_assistance_button_dialog.dynamic_line_edits:
-                    data.append(text.text())
-                hotkeys = self.global_settings_manager.get_button_hotkeys()
-
-                new_button_definition = ButtonDefinitionEntity(button_name, hotkey, data)
-
-                if hotkey in hotkeys:
-                    self.edit_button_dialog.error_label.setText("This hotkey is already being used!")
-                else:
-                    for i in range(len(self.global_settings_manager.global_settings_entity.button_definitions)):
-                        if button_definition == self.global_settings_manager.global_settings_entity.button_definitions[i]:
-                            self.global_settings_manager.global_settings_entity.button_definitions[i] = new_button_definition
-                            self.edit_button_dialog.error_label.setText("")
-                return
-
-        self.edit_button_dialog.error_label.setText("Button Definition to be edited does not exist")
-        return
+                for line_edit in self.edit_button_dialog.dynamic_line_edits:
+                    data.append(line_edit.text())
+                new_button_definition = ButtonDefinitionEntity(button_id, data)
+                self.global_settings_manager.global_settings_entity.button_definitions.remove(button_definition)
+                self.global_settings_manager.global_settings_entity.button_definitions.append(new_button_definition)
 
     @Slot(ButtonDefinitionEntity)
     def dynamic_button_click(self, button_definition):
@@ -677,15 +662,17 @@ class WindowController:
         split_one = video_timestamp.split("Time: ")
         split_two = split_one[1].split("/")
         video_timestamp = split_two[0]
+        timestamp_text = QTableWidgetItem(video_timestamp)
         for row in range(self._window.table_panel.table.rowCount()):
             column = 0
             cell = self._window.table_panel.table.item(row, column)
             if not cell:
-                timestamp_text = QTableWidgetItem(video_timestamp)
                 self._window.table_panel.table.setItem(row, column, timestamp_text)
                 column = 1
-                while column < self._window.table_panel.table.columnCount():
-                    insert_text = QTableWidgetItem(button_definition.data[column])
+                data = 0
+                while column <= self._window.table_panel.table.columnCount():
+                    insert_text = QTableWidgetItem(button_definition.data[data])
                     self._window.table_panel.table.setItem(row, column, insert_text)
                     column += 1
+                    data += 1
                 return
