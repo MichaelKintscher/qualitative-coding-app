@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineE
 from Application.button_manager import ButtonManager
 from View.edit_coding_assistance_button_dialog import EditCodingAssistanceButtonDialog
 from View.load_coding_assistance_button_dialog import LoadCodingAssistanceButtonDialog
+from View.remove_button_definition_dialog import RemoveButtonDefinitionDialog
 from View.select_edit_button_dialog import SelectEditButtonDialog
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
@@ -317,7 +318,9 @@ class WindowController:
         """
         Creates the layout for the settings dialog in header menu and allows for settings to be changed
         """
-        self.user_settings = UserSettingsDialog()
+        self.user_settings = UserSettingsDialog(self.global_settings_manager.global_settings_entity.button_definitions)
+        self.user_settings.connect_edit_button_to_slot(self.open_select_edit_button_dialog)
+        self.user_settings.connect_remove_button_to_slot(self.open_remove_button_definition_dialog)
         self.user_settings.connect_cell_size_to_slot(self.set_cell_size)
         self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
         self.user_settings.connect_padding_to_slot(self.set_padding)
@@ -481,8 +484,6 @@ class WindowController:
             self.open_save_coding_assistance_button_dialog)
         self.add_coding_assistance_button_dialog.connect_load_button_to_slot(
             self.open_load_coding_assistance_button_dialog)
-        self.add_coding_assistance_button_dialog.connect_edit_button_to_slot(
-            self.open_select_edit_button_dialog)
         self.add_coding_assistance_button_dialog.exec()
 
     @Slot()
@@ -518,7 +519,8 @@ class WindowController:
         """
         Open a dialog to load a Coding Assistance Button
         """
-        self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(self.button_manager.definition_map)
+        self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(
+            self.global_settings_manager.global_settings_entity.button_definitions)
         self.load_coding_assistance_button_dialog.connect_load_button_to_slot(ProjectManagementController.make_lambda(
             self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.checkboxes))
         self.load_coding_assistance_button_dialog.exec()
@@ -534,6 +536,29 @@ class WindowController:
         msg_box.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
         ret = msg_box.exec()
         self.create_coding_assistance_button(ret == QMessageBox.Yes)
+
+    @Slot()
+    def open_remove_button_definition_dialog(self):
+        """
+        Open a dialog to remove a button definition from global settings
+        """
+        self.remove_button_definition_dialog = RemoveButtonDefinitionDialog()
+        self.remove_button_definition_dialog.connect_remove_button_to_slot(self.remove_button_definition)
+        self.remove_button_definition_dialog.connect_clear_button_to_slot(
+            self.open_confirm_clear_all_button_definitions_dialog)
+        self.remove_button_definition_dialog.exec()
+
+    @Slot()
+    def open_confirm_clear_all_button_definitions_dialog(self):
+        """
+        Open a dialog to ask the user if they want to clear all the encoding button definitions
+        (from global settings)
+        """
+        msg_box = QMessageBox()
+        msg_box.setText("Are you sure you want to clear all button definitions?")
+        msg_box.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+        ret = msg_box.exec()
+        self.clear_all_button_definitions(ret == QMessageBox.Yes)
 
     @Slot(bool)
     def create_coding_assistance_button(self, save_button):
@@ -635,6 +660,26 @@ class WindowController:
         self.button_manager.remove_button_hotkey(button_id)
 
     @Slot()
+    def remove_button_definition(self):
+        """
+        Remove a button definition from Global Settings
+        """
+        button_id = self.remove_button_definition_dialog.remove_definition_text.text()
+        for button_definition in self.global_settings_manager.global_settings_entity.button_definitions:
+            if button_id == button_definition.button_id:
+                self.global_settings_manager.remove_button_definition(button_definition)
+                self.global_settings_manager.save_encoding_button_definitions()
+
+    @Slot(bool)
+    def clear_all_button_definitions(self, clear_definitions):
+        """
+        Clear all saved button definitions from global settings
+        """
+        if clear_definitions:
+            self.global_settings_manager.global_settings_entity.button_definitions.clear()
+            self.global_settings_manager.save_encoding_button_definitions()
+
+    @Slot()
     def edit_coding_assistance_button(self):
         """
         Edit a button definition in Global Settings
@@ -647,8 +692,8 @@ class WindowController:
                 for line_edit in self.edit_button_dialog.dynamic_line_edits:
                     data.append(line_edit.text())
                 new_button_definition = ButtonDefinitionEntity(button_id, data)
-                self.global_settings_manager.global_settings_entity.button_definitions.remove(button_definition)
-                self.global_settings_manager.global_settings_entity.button_definitions.append(new_button_definition)
+                self.global_settings_manager.remove_button_definition(button_definition)
+                self.global_settings_manager.add_button_definition(new_button_definition)
 
     @Slot(ButtonDefinitionEntity)
     def dynamic_button_click(self, button_definition):
