@@ -26,6 +26,7 @@ class EditCodingAssistanceButtonDialog(QDialog):
         button_id_hbox.addWidget(self.button_id_textbox)
 
         dialog_layout.addLayout(button_id_hbox)
+        dialog_layout.addSpacing(50)
 
         self.dynamic_line_edits = []
         headers = [self.table.horizontalHeaderItem(c) for c in range(self.table.columnCount())]

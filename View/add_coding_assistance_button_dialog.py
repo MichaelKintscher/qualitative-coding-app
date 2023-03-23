@@ -36,7 +36,6 @@ class AddCodingAssistanceButtonDialog(QDialog):
 
         self.create_button = QPushButton("Create Button")
         self.load_button = QPushButton("Load Button")
-        self.edit_button = QPushButton("Edit Button")
 
         dialog_layout.addLayout(apply_text_hbox)
         dialog_layout.addSpacing(50)
@@ -63,7 +62,6 @@ class AddCodingAssistanceButtonDialog(QDialog):
         dialog_layout.addWidget(self.error_label)
         dialog_layout.addWidget(self.create_button)
         dialog_layout.addWidget(self.load_button)
-        dialog_layout.addWidget(self.edit_button)
 
         self.setLayout(dialog_layout)
 
@@ -79,8 +77,3 @@ class AddCodingAssistanceButtonDialog(QDialog):
         """
         self.load_button.clicked.connect(slot)
 
-    def connect_edit_button_to_slot(self, slot):
-        """
-        Connect an edit_button event to a slot function in the controller.
-        """
-        self.edit_button.clicked.connect(slot)
