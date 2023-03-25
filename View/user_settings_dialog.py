@@ -29,6 +29,7 @@ class UserSettingsDialog(QDialog):
         padding_label = QLabel("Set cell padding")
         self.padding_text_box = QLineEdit()
         self.padding_button = QPushButton("Set Padding")
+        self.restore_default_user_settings_button = QPushButton("Restore Default Settings")
 
         # Adds the widgets to the internal layouts.
         minimum_size_hbox.addWidget(self.minimum_size_width_box)
@@ -52,6 +53,8 @@ class UserSettingsDialog(QDialog):
         dialog_layout.addSpacing(50)
         dialog_layout.addWidget(padding_label)
         dialog_layout.addLayout(padding_hbox)
+        dialog_layout.addSpacing(50)
+        dialog_layout.addWidget(self.restore_default_user_settings_button)
 
         # Sets the layout of the dialog.
         self.setLayout(dialog_layout)
@@ -73,4 +76,9 @@ class UserSettingsDialog(QDialog):
         Connects a padding_button event to a slot function in the controller.
         """
         self.padding_button.clicked.connect(slot)
-    
+
+    def connect_restore_default_user_settings_to_slot(self, slot):
+        """
+        Connect a restore_default_user_settings_button event to a slot function in the controller
+        """
+        self.restore_default_user_settings_button.clicked.connect(slot)

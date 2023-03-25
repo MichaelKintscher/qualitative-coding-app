@@ -319,6 +319,7 @@ class WindowController:
         self.user_settings.connect_cell_size_to_slot(self.set_cell_size)
         self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
         self.user_settings.connect_padding_to_slot(self.set_padding)
+        self.user_settings.connect_restore_default_user_settings_to_slot(self.set_default_user_settings)
         self.user_settings.exec()
 
         # Gets each value from the table and passes to global_settings_manager.
@@ -398,6 +399,16 @@ class WindowController:
             self._window.table_panel.table.set_cell_size(width, height)
         except ValueError:
             pass
+
+    @Slot()
+    def set_default_user_settings(self):
+        """
+        Takes input from the settings dialog and restores the cell size, cell max width, and cell padding to default
+        values in the encoding table.
+        """
+        self._window.table_panel.table.set_padding("0")
+        self._window.table_panel.table.horizontalHeader().setDefaultSectionSize(100)
+        self._window.table_panel.table.verticalHeader().setDefaultSectionSize(70)
 
     @Slot()
     def set_maximum_width(self):
