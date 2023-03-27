@@ -495,7 +495,7 @@ class WindowController:
         self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(
             self.global_settings_manager.global_settings_entity.button_definitions)
         self.load_coding_assistance_button_dialog.connect_load_button_to_slot(ProjectManagementController.make_lambda(
-            self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.checkboxes))
+            self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.radio_buttons))
         self.load_coding_assistance_button_dialog.exec()
 
     @Slot()
@@ -577,27 +577,26 @@ class WindowController:
         self.button_manager.add_button_hotkey(button_name, hotkey)
 
     @Slot()
-    def load_coding_assistance_button(self, checkboxes):
+    def load_coding_assistance_button(self, radio_buttons):
         """
         Load selected buttons to the Coding Assistance Panel
 
         Parameters:
-            checkboxes - A list of checkboxes created in the Load Button Dialog
+            radio_buttons - A list of radio buttons created in the Load Button Dialog
         """
-        selected_button_definitions = []
-        for i, checkbox in enumerate(checkboxes):
-            if checkbox.isChecked():
-                selected_button_definitions.append(
-                    self.global_settings_manager.global_settings_entity.button_definitions[i])
-        for button_definition in selected_button_definitions:
-            button_id = button_definition.button_id
-            new_button = QPushButton(button_id)
-            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
-            new_button.clicked.connect(
-                ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
+        hotkey = self.load_coding_assistance_button_dialog.hotkey_textfield.text()
+        for i, radio_button in enumerate(radio_buttons):
+            if radio_button.isChecked():
+                button_definition = self.global_settings_manager.global_settings_entity.button_definitions[i]
+        button_id = button_definition.button_id
+        new_button = QPushButton(button_id)
+        new_button.setShortcut(QKeySequence(hotkey))
+        self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
+        new_button.clicked.connect(
+            ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
 
-            self.button_manager.add_button_definition(button_id, button_definition)
-            self.button_manager.add_button_hotkey(button_id, "Placeholder")
+        self.button_manager.add_button_definition(button_id, button_definition)
+        self.button_manager.add_button_hotkey(button_id, hotkey)
 
     @Slot()
     def delete_coding_assistance_button(self):
