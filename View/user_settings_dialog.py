@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QLineEdit
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QLineEdit, QComboBox
 
 
 class UserSettingsDialog(QDialog):
@@ -16,6 +16,7 @@ class UserSettingsDialog(QDialog):
         minimum_size_hbox = QHBoxLayout()
         maximum_width_hbox = QHBoxLayout()
         padding_hbox = QHBoxLayout()
+        font_hbox = QHBoxLayout()
 
         # Initializes the widgets of the dialog.
         encoding_table_label = QLabel("Encoding Table Settings:")
@@ -29,6 +30,12 @@ class UserSettingsDialog(QDialog):
         padding_label = QLabel("Set cell padding")
         self.padding_text_box = QLineEdit()
         self.padding_button = QPushButton("Set Padding")
+        """Creates font changing label and dropdown"""
+        font_options = ["8", "9", "10", "11", "12", "14", "16",
+                        "18", "20", "22", "24", "26", "28", "36", "48", "72"]
+        self.change_font_label = QLabel("Change font: ")
+        self.change_font_dropDown = QComboBox()
+        self.change_font_dropDown.addItems(font_options)
 
         # Adds the widgets to the internal layouts.
         minimum_size_hbox.addWidget(self.minimum_size_width_box)
@@ -38,6 +45,8 @@ class UserSettingsDialog(QDialog):
         maximum_width_hbox.addWidget(self.maximum_width_button)
         padding_hbox.addWidget(self.padding_text_box)
         padding_hbox.addWidget(self.padding_button)
+        font_hbox.addWidget(self.change_font_label)
+        font_hbox.addWidget(self.change_font_dropDown)
 
         # Adds a title for the encoding table settings to the dialog.
         dialog_layout.addWidget(encoding_table_label)
@@ -52,6 +61,8 @@ class UserSettingsDialog(QDialog):
         dialog_layout.addSpacing(50)
         dialog_layout.addWidget(padding_label)
         dialog_layout.addLayout(padding_hbox)
+        dialog_layout.addSpacing(50)
+        dialog_layout.addLayout(font_hbox)
 
         # Sets the layout of the dialog.
         self.setLayout(dialog_layout)
@@ -73,4 +84,6 @@ class UserSettingsDialog(QDialog):
         Connects a padding_button event to a slot function in the controller.
         """
         self.padding_button.clicked.connect(slot)
-    
+
+    def connect_font_to_slot(self, slot):
+        self.change_font_dropDown.activated.connect(slot)

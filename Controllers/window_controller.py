@@ -137,7 +137,7 @@ class WindowController:
         Command table cells font to update to selected font size.
         """
         selected_font = int(
-            self._window.table_panel.change_font_dropDown.currentText())
+            self.user_settings.change_font_dropDown.currentText())
         self._window.table_panel.table.change_font(selected_font)
 
     @Slot()
@@ -319,6 +319,7 @@ class WindowController:
         self.user_settings.connect_cell_size_to_slot(self.set_cell_size)
         self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
         self.user_settings.connect_padding_to_slot(self.set_padding)
+        self.user_settings.connect_font_to_slot(self.change_font_of_encoding_table)
         self.user_settings.exec()
 
         # Gets each value from the table and passes to global_settings_manager.
