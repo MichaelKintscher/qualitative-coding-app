@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QSlider, QStackedLayout, QGr
 from superqt import QRangeSlider, QLabeledRangeSlider
 
 from View.progress_bar_view import ProgressBarView
+from View.scaling_bar import ScalingBar
 
 
 class ScrubberBar(QWidget):
@@ -27,6 +28,7 @@ class ScrubberBar(QWidget):
 
         self.scaling_bar = QLabeledRangeSlider(Qt.Orientation.Horizontal)
         self.scaling_bar.setEdgeLabelMode(QLabeledRangeSlider.LabelPosition.NoLabel)
+        self.scaling_bar = ScalingBar()
         self.scaling_bar.setBarMovesAllHandles(True)
         self.scaling_bar.setRange(self.DEFAULT_RANGE_BOUNDS[0], self.DEFAULT_RANGE_BOUNDS[1])
         self.scaling_bar.setValue((self.DEFAULT_RANGE_BOUNDS[0], self.DEFAULT_RANGE_BOUNDS[1]))
