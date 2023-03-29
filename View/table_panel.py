@@ -31,19 +31,19 @@ class TablePanel(QWidget):
             QSizePolicy.Expanding)
 
         """Creates font changing label and dropdown"""
-        font_options = ["8", "9", "10", "11", "12", "14", "16",
+        """font_options = ["8", "9", "10", "11", "12", "14", "16",
                         "18", "20", "22", "24", "26", "28", "36", "48", "72"]
         self.change_font_label = QLabel("Change font: ")
         self.change_font_dropDown = QComboBox()
-        self.change_font_dropDown.addItems(font_options)
+        self.change_font_dropDown.addItems(font_options)"""
 
         grid_layout = QGridLayout()
         grid_layout.addWidget(self.title, 0, 0, QtCore.Qt.AlignCenter)
         grid_layout.addWidget(self.table, 1, 0)
         grid_layout.addWidget(self.add_col_button, 1, 1, alignment=Qt.AlignCenter)
         grid_layout.addWidget(self.add_row_button, 1, 1, alignment=Qt.AlignBottom)
-        grid_layout.addWidget(self.change_font_label, 1, 1, alignment=Qt.AlignTop)
-        grid_layout.addWidget(self.change_font_dropDown, 1, 2, alignment=Qt.AlignTop|Qt.AlignLeft)
+        #grid_layout.addWidget(self.change_font_label, 1, 1, alignment=Qt.AlignTop)
+        #grid_layout.addWidget(self.change_font_dropDown, 1, 2, alignment=Qt.AlignTop|Qt.AlignLeft)
         grid_layout.addWidget(self.delete_col_button, 1, 2, alignment=Qt.AlignCenter)
         grid_layout.addWidget(self.delete_row_button, 1, 2, alignment=Qt.AlignBottom)
         self.setLayout(grid_layout)

@@ -79,6 +79,10 @@ class GlobalSettingsManager:
         self.global_settings_entity.table_cell_size.append(int(settings.value("table_cell_size_width")))
         self.global_settings_entity.table_cell_size.append(int(settings.value("table_cell_size_height")))
 
+        # Sets the font size to global settings entity.
+        print(settings.value(("table_font_size")))
+        # self.global_settings_entity.table_font_size = int(settings.value("table_font_size"))
+
         settings.endGroup()  # user-settings
 
         settings.beginGroup("encoding-buttons")
@@ -118,6 +122,9 @@ class GlobalSettingsManager:
         settings.setValue("table_cell_size_width", self.global_settings_entity.table_cell_size[0])
         settings.setValue("table_cell_size_height", self.global_settings_entity.table_cell_size[1])
 
+        # Sets the table font size.
+        settings.setValue("table_font_size", self.global_settings_entity.table_font_size)
+
         settings.endGroup()
         settings.endGroup()
 
@@ -147,4 +154,13 @@ class GlobalSettingsManager:
             Int representing the max width of each table cell.
         """
         self.global_settings_entity.table_maximum_width = table_maximum_width
+
+    def set_table_font_size(self, table_font_size):
+        """
+        Setter method to set the table font size to the global settings entity.
+
+        Parameter:
+            Int representing the table font size.
+        """
+        self.global_settings_entity.table_font_size = table_font_size
 

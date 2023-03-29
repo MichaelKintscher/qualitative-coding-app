@@ -56,6 +56,8 @@ class StateController:
             self.global_settings_manager.global_settings_entity.table_maximum_width)
         self.window.table_panel.table.set_padding(
             str(self.global_settings_manager.global_settings_entity.table_padding))
+        self.window.table_panel.table.change_font(
+            self.global_settings_manager.global_settings_entity.table_font_size)
 
         self.window.closing.connect(lambda: self.write_session_slot(session_name))
         self.window.connect_create_session_to_slot(self.open_session_creator_page)

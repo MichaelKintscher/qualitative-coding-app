@@ -10,3 +10,4 @@ class GlobalSettingsEntity:
         self.table_padding = 0
         self.table_cell_size = []
         self.table_maximum_width = 0
+        self.table_font_size = 0

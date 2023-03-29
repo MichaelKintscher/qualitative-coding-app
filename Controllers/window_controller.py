@@ -63,8 +63,8 @@ class WindowController:
         self._window.connect_load_video_to_slot(self.open_file_dialog)
         self._window.connect_settings_to_slot(self.open_settings_dialog)
 
-        self._window.table_panel.change_font_dropDown.activated.connect(
-            self.change_font_of_encoding_table)
+        """self._window.table_panel.change_font_dropDown.activated.connect(
+            self.change_font_of_encoding_table)"""
 
         self._window.table_panel.table.horizontalHeader(
         ).sectionDoubleClicked.connect(self.edit_header)
@@ -331,6 +331,9 @@ class WindowController:
 
         table_padding = self._window.table_panel.table.get_padding()
         self.global_settings_manager.set_table_padding(table_padding)
+
+        table_font_size = self._window.table_panel.table.get_table_font_size()
+        self.global_settings_manager.set_table_font_size(table_font_size)
 
         # Saves the data to file.
         self.global_settings_manager.save_user_settings()

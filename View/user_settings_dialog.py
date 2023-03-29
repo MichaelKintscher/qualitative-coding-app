@@ -86,4 +86,7 @@ class UserSettingsDialog(QDialog):
         self.padding_button.clicked.connect(slot)
 
     def connect_font_to_slot(self, slot):
+        """
+        Connects a change_font event to a slot function in the controller.
+        """
         self.change_font_dropDown.activated.connect(slot)
