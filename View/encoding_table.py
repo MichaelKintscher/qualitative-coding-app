@@ -245,10 +245,10 @@ class EncodingTable(QTableWidget):
         Getter method to get table font size.
 
         Returns:
-            Int representing the table font sizw.
+            Int representing the table font size.
         """
-        value = self.font()
-        return value.pointSize()
+        table_font_size = self.font()
+        return table_font_size.pointSize()
 
     def set_cell_size(self, width, height):
         """

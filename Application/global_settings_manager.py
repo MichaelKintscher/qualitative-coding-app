@@ -80,8 +80,7 @@ class GlobalSettingsManager:
         self.global_settings_entity.table_cell_size.append(int(settings.value("table_cell_size_height")))
 
         # Sets the font size to global settings entity.
-        print(settings.value(("table_font_size")))
-        # self.global_settings_entity.table_font_size = int(settings.value("table_font_size"))
+        self.global_settings_entity.table_font_size = int(settings.value("table_font_size"))
 
         settings.endGroup()  # user-settings
 
