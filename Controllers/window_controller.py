@@ -704,7 +704,6 @@ class WindowController:
                 self.global_settings_manager.remove_button_definition(button_definition)
                 self.global_settings_manager.save_encoding_button_definitions()
 
-
     @Slot(bool)
     def clear_all_button_definitions(self, clear_definitions):
         """
@@ -744,21 +743,24 @@ class WindowController:
         Parameters:
             button_definition - An instance of ButtonDefinition
         """
-        video_timestamp = self._window.media_panel.media_control_panel.time_stamp.text()
-        split_one = video_timestamp.split("Time: ")
-        split_two = split_one[1].split("/")
-        video_timestamp = split_two[0]
-        timestamp_text = QTableWidgetItem(video_timestamp)
-        for row in range(self._window.table_panel.table.rowCount()):
-            column = 0
-            cell = self._window.table_panel.table.item(row, column)
-            if not cell:
-                self._window.table_panel.table.setItem(row, column, timestamp_text)
-                column = 1
-                data = 0
-                while column <= self._window.table_panel.table.columnCount():
-                    insert_text = QTableWidgetItem(button_definition.data[data])
-                    self._window.table_panel.table.setItem(row, column, insert_text)
-                    column += 1
-                    data += 1
-                return
+        if self._media_player.hasVideo():
+            video_timestamp = self._window.media_panel.media_control_panel.time_stamp.text()
+            split_one = video_timestamp.split("Time: ")
+            split_two = split_one[1].split("/")
+            video_timestamp = split_two[0]
+            timestamp_text = QTableWidgetItem(video_timestamp)
+            for row in range(self._window.table_panel.table.rowCount()):
+                column = 0
+                cell = self._window.table_panel.table.item(row, column)
+                if not cell:
+                    self._window.table_panel.table.setItem(row, column, timestamp_text)
+                    column = 1
+                    data = 0
+                    while column <= self._window.table_panel.table.columnCount():
+                        insert_text = QTableWidgetItem(button_definition.data[data])
+                        self._window.table_panel.table.setItem(row, column, insert_text)
+                        column += 1
+                        data += 1
+                    return
+        else:
+            return

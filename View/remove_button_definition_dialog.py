@@ -5,12 +5,10 @@ class RemoveButtonDefinitionDialog(QDialog):
     """
     A dialog to remove or clear button definitions
     """
-
     def __init__(self):
         """
         Constructor: Initializes the layout of the Remove Button Definition Dialog
         """
-
         super().__init__()
 
         dialog_layout = QVBoxLayout()

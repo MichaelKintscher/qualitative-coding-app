@@ -7,12 +7,10 @@ class EditCodingAssistanceButtonDialog(QDialog):
     """
     A Dialog to edit a button definition
     """
-
     def __init__(self, table):
         """
         Constructor: Initializes the layout of the Edit Coding Assistance Button Dialog
         """
-
         super().__init__()
 
         dialog_layout = QVBoxLayout()

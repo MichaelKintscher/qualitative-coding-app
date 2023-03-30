@@ -5,12 +5,10 @@ class SelectEditButtonDialog(QDialog):
     """
     A Dialog to select a button definition to be edited
     """
-
     def __init__(self):
         """
         Constructor: Initializes the layout of the Select Edit Button dialog
         """
-
         super().__init__()
 
         dialog_layout = QVBoxLayout()
