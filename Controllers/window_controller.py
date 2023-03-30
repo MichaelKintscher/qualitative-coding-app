@@ -7,9 +7,10 @@ from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics, QKeySequence
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem, \
-    QMessageBox
+    QMessageBox, QWidget
 
 from Application.button_manager import ButtonManager
+from View.button_definition_list_element import ButtonDefinitionListElement
 from View.edit_coding_assistance_button_dialog import EditCodingAssistanceButtonDialog
 from View.load_coding_assistance_button_dialog import LoadCodingAssistanceButtonDialog
 from View.remove_button_definition_dialog import RemoveButtonDefinitionDialog
@@ -572,18 +573,24 @@ class WindowController:
         """
         button_name = self.add_coding_assistance_button_dialog.apply_text_field.text()
         button_hotkey = self.add_coding_assistance_button_dialog.hotkey_field.text()
+        button_exists = False
 
         data = []
         for text in self.add_coding_assistance_button_dialog.dynamic_line_edits:
             data.append(text.text())
 
-        hotkeys = []
+        saved_button_definitions = self.global_settings_manager.global_settings_entity.button_definitions
+        hotkeys = self.button_manager.get_hotkeys()
         new_button = QPushButton(button_name)
         new_button.setShortcut(QKeySequence(button_hotkey))
         new_button_definition = ButtonDefinitionEntity(button_name, data)
 
         if not hotkeys:
-            if save_button:
+            for button_definition in saved_button_definitions:
+                if button_definition.button_id == button_name:
+                    button_exists = True
+                    break
+            if save_button and not button_exists:
                 self.global_settings_manager.add_button_definition(new_button_definition)
 
             self.add_coding_assistance_button_dialog.error_label.setText("")
@@ -597,7 +604,11 @@ class WindowController:
             if button_hotkey in hotkeys:
                 self.add_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
             else:
-                if save_button:
+                for button_definition in saved_button_definitions:
+                    if button_definition.button_id == button_name:
+                        button_exists = True
+                        break
+                if save_button and not button_exists:
                     self.global_settings_manager.add_button_definition(new_button_definition)
 
                 self.add_coding_assistance_button_dialog.error_label.setText("")
@@ -662,20 +673,37 @@ class WindowController:
     @Slot()
     def remove_button_definition(self):
         """
-        Remove a button definition from Global Settings
+        Remove a button definition from Global Settings and the
+        button definition list inside the User Settings Dialog
         """
         button_id = self.remove_button_definition_dialog.remove_definition_text.text()
+        button_definition_list = self.user_settings.button_definition_list.layout()
+
+        for i in range(button_definition_list.count()):
+            element = button_definition_list.itemAt(i)
+            if element and element.widget():
+                if element.widget().element_id == button_id:
+                    element.widget().deleteLater()
+
+        # Remove button definition from global settings
         for button_definition in self.global_settings_manager.global_settings_entity.button_definitions:
             if button_id == button_definition.button_id:
                 self.global_settings_manager.remove_button_definition(button_definition)
                 self.global_settings_manager.save_encoding_button_definitions()
+
 
     @Slot(bool)
     def clear_all_button_definitions(self, clear_definitions):
         """
         Clear all saved button definitions from global settings
         """
+        button_definition_list = self.user_settings.button_definition_list.layout()
+
         if clear_definitions:
+            while button_definition_list.count():
+                element = button_definition_list.takeAt(0)
+                if element and element.widget():
+                    element.widget().deleteLater()
             self.global_settings_manager.global_settings_entity.button_definitions.clear()
             self.global_settings_manager.save_encoding_button_definitions()
 

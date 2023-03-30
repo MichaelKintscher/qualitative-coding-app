@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QLineEdit, QScrollArea, QWidget
 
+from View.button_definition_list_element import ButtonDefinitionListElement
+
 
 class UserSettingsDialog(QDialog):
   
@@ -11,23 +13,30 @@ class UserSettingsDialog(QDialog):
 
         # Creates a vertical layout for the dialog box.
         dialog_layout = QVBoxLayout()
+        self.element_list = []
+
+        # Creates a basic title for the button definition settings
+        button_definition_label = QLabel("Button Definition Settings")
+        dialog_layout.addWidget(button_definition_label)
 
         # Initializes button definition settings widgets and inserts them in the dialog
-        dialog_layout.addWidget(QLabel("Encoding Button Definitions"))
-        dialog_layout.addSpacing(5)
-        for button_definition in button_definitions:
-            dialog_layout.addWidget(QLabel("Button: " + button_definition.button_id))
-            for data_index, data in enumerate(button_definition.data):
-                column_number = data_index + 1
-                dialog_layout.addWidget(QLabel("Column " + str(column_number) + " Data: " + data))
-            dialog_layout.addSpacing(10)
-        edit_remove_button_hbox = QHBoxLayout()
         self.edit_button = QPushButton("Edit Definition")
         self.remove_button = QPushButton("Remove Definition")
+        self.button_definition_list = self.create_button_definition_list(button_definitions)
+
+        # Creates a scroll area widget and adds the button definition widget to it
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(self.button_definition_list)
+
+        # Adds the scroll area widget to the main layout of the dialog
+        dialog_layout.addWidget(scroll_area)
+
+        # Adds the edit and remove buttons to the main layout of the dialog
+        edit_remove_button_hbox = QHBoxLayout()
         edit_remove_button_hbox.addWidget(self.edit_button)
         edit_remove_button_hbox.addWidget(self.remove_button)
         dialog_layout.addLayout(edit_remove_button_hbox)
-        dialog_layout.addSpacing(20)
 
         # Creates horizontal layouts to group common encoding table settings widgets in the dialog.
         minimum_size_hbox = QHBoxLayout()
@@ -70,17 +79,24 @@ class UserSettingsDialog(QDialog):
         dialog_layout.addWidget(padding_label)
         dialog_layout.addLayout(padding_hbox)
 
-        # Sets the layout of the dialog using a QScrollArea.
-        scroll_area = QScrollArea(self)
-        scroll_area.setWidgetResizable(True)
-        scroll_area_widget = QWidget()
-        scroll_area.setWidget(scroll_area_widget)
-        scroll_area_layout = QVBoxLayout(scroll_area_widget)
-        scroll_area_layout.addLayout(dialog_layout)
-        self.setLayout(QVBoxLayout(self))
-        self.layout().addWidget(scroll_area)
-        scroll_area_widget.adjustSize()
-        scroll_area_widget.setMinimumHeight(scroll_area_widget.sizeHint().height())
+        self.setLayout(dialog_layout)
+
+    @staticmethod
+    def create_button_definition_list(button_definitions):
+        """
+        Creates a widget containing a vertical layout of the list of button definitions
+        """
+        container_widget = QWidget()
+        button_definition_layout = QVBoxLayout()
+
+        for button_definition in button_definitions:
+            button_definition_list_element = ButtonDefinitionListElement(button_definition)
+            button_definition_layout.addWidget(button_definition_list_element)
+            button_definition_layout.addSpacing(10)
+        button_definition_layout.addSpacing(20)
+
+        container_widget.setLayout(button_definition_layout)
+        return container_widget
 
     def connect_edit_button_to_slot(self, slot):
         """
