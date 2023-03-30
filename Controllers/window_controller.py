@@ -3,6 +3,7 @@ import csv
 import math
 import sys
 
+import cv2
 from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics, QKeySequence
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
@@ -45,6 +46,7 @@ class WindowController:
     The WindowController responds to input events from the Window. The Controller
     handles the main logic of the application.
     """
+    DEFAULT_FRAMES_PER_SECOND = 30
 
     def __init__(self, window, global_settings_manager):
         """
@@ -63,6 +65,7 @@ class WindowController:
             self._window.media_panel.video_widget)
         self._media_player.setAudioOutput(
             self._window.media_panel.audio_widget)
+        self.fps = None
 
         self._window.connect_load_video_to_slot(self.open_file_dialog)
         self._window.connect_settings_to_slot(self.open_settings_dialog)
@@ -179,7 +182,9 @@ class WindowController:
         Parameters:
             new_duration - current duration of the video.
         """
-        self._window.media_panel.scrubber_bar.initialize(new_duration)
+        if not self.fps:
+            self.fps = self.DEFAULT_FRAMES_PER_SECOND
+        self._window.media_panel.scrubber_bar.initialize(new_duration, self.fps)
 
     @Slot()
     def get_video_time_total(self):
@@ -279,6 +284,9 @@ class WindowController:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
+
+            video = cv2.VideoCapture(url.url())
+            self.fps = video.get(cv2.CAP_PROP_FPS)
 
     @Slot()
     def save_to_file(self):
