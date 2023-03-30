@@ -7,10 +7,14 @@ from PySide6.QtCore import Slot, QMimeDatabase, QByteArray
 from PySide6.QtGui import QFontMetrics, QKeySequence
 from PySide6.QtMultimedia import QMediaFormat, QMediaPlayer
 from PySide6.QtWidgets import QFileDialog, QDialog, QStyle, QInputDialog, QLineEdit, QPushButton, QTableWidgetItem, \
-    QMessageBox
+    QMessageBox, QWidget
 
 from Application.button_manager import ButtonManager
+from View.button_definition_list_element import ButtonDefinitionListElement
+from View.edit_coding_assistance_button_dialog import EditCodingAssistanceButtonDialog
 from View.load_coding_assistance_button_dialog import LoadCodingAssistanceButtonDialog
+from View.remove_button_definition_dialog import RemoveButtonDefinitionDialog
+from View.select_edit_button_dialog import SelectEditButtonDialog
 from View.user_settings_dialog import UserSettingsDialog
 from View.add_coding_assistance_button_dialog import AddCodingAssistanceButtonDialog
 from View.delete_coding_assistance_button_dialog import DeleteCodingAssistanceButtonDialog
@@ -315,7 +319,9 @@ class WindowController:
         """
         Creates the layout for the settings dialog in header menu and allows for settings to be changed
         """
-        self.user_settings = UserSettingsDialog()
+        self.user_settings = UserSettingsDialog(self.global_settings_manager.global_settings_entity.button_definitions)
+        self.user_settings.connect_edit_button_to_slot(self.open_select_edit_button_dialog)
+        self.user_settings.connect_remove_button_to_slot(self.open_remove_button_definition_dialog)
         self.user_settings.connect_cell_size_to_slot(self.set_cell_size)
         self.user_settings.connect_maximum_size_to_slot(self.set_maximum_width)
         self.user_settings.connect_padding_to_slot(self.set_padding)
@@ -469,6 +475,7 @@ class WindowController:
         int_end_time = int(str_end_time) * 1000
         self._window.media_panel.progress_bar.setMaximum(int_end_time)
 
+    @Slot()
     def open_add_coding_assistance_button_dialog(self):
         """
         Open a dialog to create a new Coding Assistance Button
@@ -480,6 +487,7 @@ class WindowController:
             self.open_load_coding_assistance_button_dialog)
         self.add_coding_assistance_button_dialog.exec()
 
+    @Slot()
     def open_delete_coding_assistance_button_dialog(self):
         """
         Open a dialog to create a new Coding Assistance Button
@@ -488,6 +496,26 @@ class WindowController:
         self.delete_coding_assistance_button_dialog.connect_delete_button_to_slot(self.delete_coding_assistance_button)
         self.delete_coding_assistance_button_dialog.exec()
 
+    @Slot()
+    def open_select_edit_button_dialog(self):
+        """
+        Open a dialog to select a Coding Assistance Button to edit
+        """
+        self.select_edit_button_dialog = SelectEditButtonDialog()
+        self.select_edit_button_dialog.connect_edit_button_to_slot(
+            self.open_edit_coding_assistance_button_dialog)
+        self.select_edit_button_dialog.exec()
+
+    @Slot()
+    def open_edit_coding_assistance_button_dialog(self):
+        """
+        Open a dialog to edit a Coding Assistance Button
+        """
+        self.edit_button_dialog = EditCodingAssistanceButtonDialog(self._window.table_panel.table)
+        self.edit_button_dialog.connect_edit_button_to_slot(self.edit_coding_assistance_button)
+        self.edit_button_dialog.exec()
+
+    @Slot()
     def open_load_coding_assistance_button_dialog(self):
         """
         Open a dialog to load a Coding Assistance Button
@@ -495,7 +523,7 @@ class WindowController:
         self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(
             self.global_settings_manager.global_settings_entity.button_definitions)
         self.load_coding_assistance_button_dialog.connect_load_button_to_slot(ProjectManagementController.make_lambda(
-            self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.checkboxes))
+            self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.radio_buttons))
         self.load_coding_assistance_button_dialog.exec()
 
     @Slot()
@@ -510,6 +538,29 @@ class WindowController:
         ret = msg_box.exec()
         self.create_coding_assistance_button(ret == QMessageBox.Yes)
 
+    @Slot()
+    def open_remove_button_definition_dialog(self):
+        """
+        Open a dialog to remove a button definition from global settings
+        """
+        self.remove_button_definition_dialog = RemoveButtonDefinitionDialog()
+        self.remove_button_definition_dialog.connect_remove_button_to_slot(self.remove_button_definition)
+        self.remove_button_definition_dialog.connect_clear_button_to_slot(
+            self.open_confirm_clear_all_button_definitions_dialog)
+        self.remove_button_definition_dialog.exec()
+
+    @Slot()
+    def open_confirm_clear_all_button_definitions_dialog(self):
+        """
+        Open a dialog to ask the user if they want to clear all the encoding button definitions
+        (from global settings)
+        """
+        msg_box = QMessageBox()
+        msg_box.setText("Are you sure you want to clear all button definitions?")
+        msg_box.setStandardButtons(QMessageBox.No | QMessageBox.Yes)
+        ret = msg_box.exec()
+        self.clear_all_button_definitions(ret == QMessageBox.Yes)
+
     @Slot(bool)
     def create_coding_assistance_button(self, save_button):
         """
@@ -522,18 +573,24 @@ class WindowController:
         """
         button_name = self.add_coding_assistance_button_dialog.apply_text_field.text()
         button_hotkey = self.add_coding_assistance_button_dialog.hotkey_field.text()
+        button_exists = False
 
         data = []
         for text in self.add_coding_assistance_button_dialog.dynamic_line_edits:
             data.append(text.text())
 
-        hotkeys = []
+        saved_button_definitions = self.global_settings_manager.global_settings_entity.button_definitions
+        hotkeys = self.button_manager.get_hotkeys()
         new_button = QPushButton(button_name)
         new_button.setShortcut(QKeySequence(button_hotkey))
         new_button_definition = ButtonDefinitionEntity(button_name, data)
 
         if not hotkeys:
-            if save_button:
+            for button_definition in saved_button_definitions:
+                if button_definition.button_id == button_name:
+                    button_exists = True
+                    break
+            if save_button and not button_exists:
                 self.global_settings_manager.add_button_definition(new_button_definition)
 
             self.add_coding_assistance_button_dialog.error_label.setText("")
@@ -547,7 +604,11 @@ class WindowController:
             if button_hotkey in hotkeys:
                 self.add_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
             else:
-                if save_button:
+                for button_definition in saved_button_definitions:
+                    if button_definition.button_id == button_name:
+                        button_exists = True
+                        break
+                if save_button and not button_exists:
                     self.global_settings_manager.add_button_definition(new_button_definition)
 
                 self.add_coding_assistance_button_dialog.error_label.setText("")
@@ -577,27 +638,40 @@ class WindowController:
         self.button_manager.add_button_hotkey(button_name, hotkey)
 
     @Slot()
-    def load_coding_assistance_button(self, checkboxes):
+    def load_coding_assistance_button(self, radio_buttons):
         """
         Load selected buttons to the Coding Assistance Panel
 
         Parameters:
-            checkboxes - A list of checkboxes created in the Load Button Dialog
+            radio_buttons - A list of radio buttons created in the Load Button Dialog
         """
-        selected_button_definitions = []
-        for i, checkbox in enumerate(checkboxes):
-            if checkbox.isChecked():
-                selected_button_definitions.append(
-                    self.global_settings_manager.global_settings_entity.button_definitions[i])
-        for button_definition in selected_button_definitions:
-            button_id = button_definition.button_id
-            new_button = QPushButton(button_id)
+        hotkeys = self.button_manager.get_hotkeys()
+
+        hotkey = self.load_coding_assistance_button_dialog.hotkey_textfield.text()
+        for i, radio_button in enumerate(radio_buttons):
+            if radio_button.isChecked():
+                button_definition = self.global_settings_manager.global_settings_entity.button_definitions[i]
+        button_id = button_definition.button_id
+        new_button = QPushButton(button_id)
+        new_button.setShortcut(QKeySequence(hotkey))
+
+        if not hotkeys:
             self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
             new_button.clicked.connect(
                 ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
 
             self.button_manager.add_button_definition(button_id, button_definition)
-            self.button_manager.add_button_hotkey(button_id, "Placeholder")
+            self.button_manager.add_button_hotkey(button_id, hotkey)
+        else:
+            if hotkey in hotkeys:
+                self.load_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
+            else:
+                self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
+                new_button.clicked.connect(
+                    ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
+
+                self.button_manager.add_button_definition(button_id, button_definition)
+                self.button_manager.add_button_hotkey(button_id, hotkey)
 
     @Slot()
     def delete_coding_assistance_button(self):
@@ -609,6 +683,58 @@ class WindowController:
         self.button_manager.remove_button_definition(button_id)
         self.button_manager.remove_button_hotkey(button_id)
 
+    @Slot()
+    def remove_button_definition(self):
+        """
+        Remove a button definition from Global Settings and the
+        button definition list inside the User Settings Dialog
+        """
+        button_id = self.remove_button_definition_dialog.remove_definition_text.text()
+        button_definition_list = self.user_settings.button_definition_list.layout()
+
+        for i in range(button_definition_list.count()):
+            element = button_definition_list.itemAt(i)
+            if element and element.widget():
+                if element.widget().element_id == button_id:
+                    element.widget().deleteLater()
+
+        # Remove button definition from global settings
+        for button_definition in self.global_settings_manager.global_settings_entity.button_definitions:
+            if button_id == button_definition.button_id:
+                self.global_settings_manager.remove_button_definition(button_definition)
+                self.global_settings_manager.save_encoding_button_definitions()
+
+    @Slot(bool)
+    def clear_all_button_definitions(self, clear_definitions):
+        """
+        Clear all saved button definitions from global settings
+        """
+        button_definition_list = self.user_settings.button_definition_list.layout()
+
+        if clear_definitions:
+            while button_definition_list.count():
+                element = button_definition_list.takeAt(0)
+                if element and element.widget():
+                    element.widget().deleteLater()
+            self.global_settings_manager.global_settings_entity.button_definitions.clear()
+            self.global_settings_manager.save_encoding_button_definitions()
+
+    @Slot()
+    def edit_coding_assistance_button(self):
+        """
+        Edit a button definition in Global Settings
+        """
+        edit_button_id = self.select_edit_button_dialog.button_name_textbox.text()
+        for button_definition in self.global_settings_manager.global_settings_entity.button_definitions:
+            if edit_button_id == button_definition.button_id:
+                button_id = self.edit_button_dialog.button_id_textbox.text()
+                data = []
+                for line_edit in self.edit_button_dialog.dynamic_line_edits:
+                    data.append(line_edit.text())
+                new_button_definition = ButtonDefinitionEntity(button_id, data)
+                self.global_settings_manager.remove_button_definition(button_definition)
+                self.global_settings_manager.add_button_definition(new_button_definition)
+
     @Slot(ButtonDefinitionEntity)
     def dynamic_button_click(self, button_definition):
         """
@@ -617,19 +743,24 @@ class WindowController:
         Parameters:
             button_definition - An instance of ButtonDefinition
         """
+        if not self._media_player.hasVideo():
+            return
+
         video_timestamp = self._window.media_panel.media_control_panel.time_stamp.text()
         split_one = video_timestamp.split("Time: ")
         split_two = split_one[1].split("/")
         video_timestamp = split_two[0]
+        timestamp_text = QTableWidgetItem(video_timestamp)
         for row in range(self._window.table_panel.table.rowCount()):
             column = 0
             cell = self._window.table_panel.table.item(row, column)
             if not cell:
-                timestamp_text = QTableWidgetItem(video_timestamp)
                 self._window.table_panel.table.setItem(row, column, timestamp_text)
                 column = 1
-                while column < self._window.table_panel.table.columnCount():
-                    insert_text = QTableWidgetItem(button_definition.data[column])
+                data = 0
+                while column <= self._window.table_panel.table.columnCount():
+                    insert_text = QTableWidgetItem(button_definition.data[data])
                     self._window.table_panel.table.setItem(row, column, insert_text)
                     column += 1
+                    data += 1
                 return

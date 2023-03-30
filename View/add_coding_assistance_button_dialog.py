@@ -76,3 +76,4 @@ class AddCodingAssistanceButtonDialog(QDialog):
         Connect a load_button event to a slot function in the controller.
         """
         self.load_button.clicked.connect(slot)
+
