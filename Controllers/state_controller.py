@@ -1,4 +1,4 @@
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QSettings
 
 from Controllers.project_management_controller import ProjectManagementController
 from Controllers.window_controller import WindowController
@@ -46,16 +46,18 @@ class StateController:
         self.window_controller = WindowController(self.window, self.global_settings_manager)
         self.window.show()
 
-        self.global_settings_manager.load_global_settings()
+        settings = QSettings()
+        if "global-settings" in settings.childGroups():
+            self.global_settings_manager.load_global_settings()
 
-        # After loading the values from QSettings, adjusts the table format according to the global user settings.
-        self.window.table_panel.table.set_cell_size(
-            self.global_settings_manager.global_settings_entity.table_cell_size[0],
-            self.global_settings_manager.global_settings_entity.table_cell_size[1])
-        self.window.table_panel.table.set_maximum_width(
-            self.global_settings_manager.global_settings_entity.table_maximum_width)
-        self.window.table_panel.table.set_padding(
-            str(self.global_settings_manager.global_settings_entity.table_padding))
+            # After loading the values from QSettings, adjusts the table format according to the global user settings.
+            self.window.table_panel.table.set_cell_size(
+                self.global_settings_manager.global_settings_entity.table_cell_size[0],
+                self.global_settings_manager.global_settings_entity.table_cell_size[1])
+            self.window.table_panel.table.set_maximum_width(
+                self.global_settings_manager.global_settings_entity.table_maximum_width)
+            self.window.table_panel.table.set_padding(
+                str(self.global_settings_manager.global_settings_entity.table_padding))
 
         self.window.closing.connect(lambda: self.write_session_slot(session_name))
         self.window.connect_create_session_to_slot(self.open_session_creator_page)
