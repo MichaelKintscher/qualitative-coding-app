@@ -25,7 +25,10 @@ class LoadCodingAssistanceButtonDialog(QDialog):
         hotkey_hbox.addWidget(hotkey_label)
         hotkey_hbox.addWidget(self.hotkey_textfield)
 
+        self.error_label = QLabel()
+
         dialog_layout.addLayout(hotkey_hbox)
+        dialog_layout.addWidget(self.error_label)
         dialog_layout.addWidget(self.load_button)
         self.setLayout(dialog_layout)
 

@@ -584,6 +584,8 @@ class WindowController:
         Parameters:
             radio_buttons - A list of radio buttons created in the Load Button Dialog
         """
+        hotkeys = self.button_manager.get_hotkeys()
+
         hotkey = self.load_coding_assistance_button_dialog.hotkey_textfield.text()
         for i, radio_button in enumerate(radio_buttons):
             if radio_button.isChecked():
@@ -591,12 +593,24 @@ class WindowController:
         button_id = button_definition.button_id
         new_button = QPushButton(button_id)
         new_button.setShortcut(QKeySequence(hotkey))
-        self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
-        new_button.clicked.connect(
-            ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
 
-        self.button_manager.add_button_definition(button_id, button_definition)
-        self.button_manager.add_button_hotkey(button_id, hotkey)
+        if not hotkeys:
+            self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
+            new_button.clicked.connect(
+                ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
+
+            self.button_manager.add_button_definition(button_id, button_definition)
+            self.button_manager.add_button_hotkey(button_id, hotkey)
+        else:
+            if hotkey in hotkeys:
+                self.load_coding_assistance_button_dialog.error_label.setText("This hotkey is already being used!")
+            else:
+                self._window.coding_assistance_panel.button_panel.create_coding_assistance_button(new_button)
+                new_button.clicked.connect(
+                    ProjectManagementController.make_lambda(self.dynamic_button_click, button_definition))
+
+                self.button_manager.add_button_definition(button_id, button_definition)
+                self.button_manager.add_button_hotkey(button_id, hotkey)
 
     @Slot()
     def delete_coding_assistance_button(self):
