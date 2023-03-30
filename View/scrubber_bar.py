@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import QTransform
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QSlider, QStackedLayout, QGridLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QSlider, QStackedLayout, QGridLayout, QHBoxLayout, QLabel
 from superqt import QRangeSlider, QLabeledRangeSlider
 
 from View.progress_bar_view import ProgressBarView
@@ -38,10 +38,28 @@ class ScrubberBar(QWidget):
 
         self.slider_max = self.DEFAULT_RANGE_BOUNDS[1]
 
+        scaling_bar_horizontal_layout = QHBoxLayout()
+        scaling_bar_label = QLabel("Scaling Bar")
+        scaling_bar_label.setFixedWidth(90)
+        scaling_bar_horizontal_layout.addWidget(scaling_bar_label)
+        scaling_bar_horizontal_layout.addWidget(self.scaling_bar)
+
+        scaling_progress_view_horizontal_layout = QHBoxLayout()
+        scaling_progress_view_label = QLabel("Progress Bar")
+        scaling_progress_view_label.setFixedWidth(90)
+        scaling_progress_view_horizontal_layout.addWidget(scaling_progress_view_label)
+        scaling_progress_view_horizontal_layout.addWidget(self.scaling_progress_view)
+
+        progress_bar_horizontal_layout = QHBoxLayout()
+        progress_bar_label = QLabel("Scrubber Bar")
+        progress_bar_label.setFixedWidth(90)
+        progress_bar_horizontal_layout.addWidget(progress_bar_label)
+        progress_bar_horizontal_layout.addWidget(self.progress_bar_view)
+
         vertical_layout = QVBoxLayout()
-        vertical_layout.addWidget(self.scaling_bar)
-        vertical_layout.addWidget(self.scaling_progress_view)
-        vertical_layout.addWidget(self.progress_bar_view)
+        vertical_layout.addLayout(scaling_bar_horizontal_layout)
+        vertical_layout.addLayout(scaling_progress_view_horizontal_layout)
+        vertical_layout.addLayout(progress_bar_horizontal_layout)
 
         self.setLayout(vertical_layout)
 
