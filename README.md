@@ -13,12 +13,12 @@ If python needs to be updated or installed, the following guide can be followed:
 `git clone https://github.com/MichaelKintscher/qualitative-coding-app.git && cd qualitative-coding-app`
 
 3. We recommend setting up a virtual environment.  
-Unix/macOS: `python3 -m venv env` 
+Unix/macOS: `python3 -m venv env`  
 Windows: `py -m venv env`  
 
 4. Activate the virtual environment.  
 Unix/macOS: `source env/bin/activate`  
-Windows: `.\env\Scripts\activate`  
+Windows: `.\env\Scripts\activate.bat`  
 
 5. Install PySide6 to your virtual environment using the pip package manager.  
 Unix/macOS: `python3 -m pip install PySide6`  
