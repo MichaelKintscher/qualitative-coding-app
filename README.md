@@ -28,8 +28,12 @@ Windows: `py -m pip install PySide6`
 Unix/macOS: `python3 -m pip install superqt`    
 Windows: `py -m pip install superqt`  
 
-7. Run the application  
-Unix/macOS: `python3 main.py`
+7. Install opencv to your virtual environment using the pip package manager.   
+Unix/macOS: `python3 -m pip install opencv-python`    
+Windows: `py -m pip install opencv-python`  
+
+8. Run the application  
+Unix/macOS: `python3 main.py`  
 Windows: `py main.py`
 
 ## Development Set up
