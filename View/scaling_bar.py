@@ -1,35 +1,52 @@
-from PySide6.QtCore import Qt, Slot, QPoint, QSize
-from PySide6.QtGui import QFontMetrics
-from PySide6.QtWidgets import QLabel
+from PySide6.QtCore import Qt, Slot, QPoint
+from PySide6.QtWidgets import QWidget, QSizePolicy, QApplication, QLineEdit, QGridLayout
 from superqt import QRangeSlider
 
 
-class ScalingBar(QRangeSlider):
+class ScalingBar(QWidget):
     """
     The ScalingBar is a custom QRangeSlider, providing timestamp labels
     above each handle. The Scaling Bar is a slider which allows the user
     to scale the zoom level of the scrubber bar.
     """
 
-    def __init__(self):
+    def __init__(self, timestamp_width):
         """
         Constructs an instance of the scaling bar.
-        """
-        super().__init__(Qt.Orientation.Horizontal)
 
-        self._min_label = TimestampLabel(self, self)
-        self._max_label = TimestampLabel(self, self)
+        Parameters:
+            timestamp_width - width of the timestamp labels to use.
+        """
+        super().__init__()
+
+        self._timestamp_width = timestamp_width
+        self._slider = QRangeSlider(Qt.Orientation.Horizontal)
+        self._slider.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+
+        self._min_label = TimestampLabel(self._slider, self._slider, self._timestamp_width)
+        self._max_label = TimestampLabel(self._slider, self._slider, self._timestamp_width)
         self._handle_labels = [self._min_label, self._max_label]
 
         # For fine-tuning label positions
         self.label_shift_x = 3
         self._label_shift_y = 0
 
-        self.valueChanged.connect(self._on_value_changed)
-        self.rangeChanged.connect(self._on_range_changed)
+        self._slider.valueChanged.connect(self._on_value_changed)
+        self._slider.rangeChanged.connect(self._on_range_changed)
 
-        self._on_value_changed(self.value())
-        self._on_range_changed(self.minimum(), self.maximum())
+        self._on_value_changed(self._slider.value())
+        self._on_range_changed(self._slider.minimum(), self._slider.maximum())
+
+        self._set_layout()
+
+    def get_slider(self):
+        """
+        Gets a reference to the slider in the Scaling Bar widget.
+
+        Returns:
+            reference to the slider in the widget.
+        """
+        return self._slider
 
     def resizeEvent(self, e):
         """
@@ -39,12 +56,8 @@ class ScalingBar(QRangeSlider):
         Parameters:
             e - resize event
         """
-        super().resizeEvent(e)
+        self._slider.resizeEvent(e)
         self._reposition_labels()
-
-    def sizeHint(self):
-        size = super().sizeHint()
-        return QSize(size.width(), size.height() + 25)
 
     @Slot(int, int)
     def _on_range_changed(self, range_min, range_max):
@@ -56,8 +69,8 @@ class ScalingBar(QRangeSlider):
             range_min - minimum value of the slider (milliseconds).
             range_max - maximum value of the slider (milliseconds).
         """
-        if (range_min, range_max) != (self.minimum(), self.maximum()):
-            self.setRange(range_min, range_max)
+        if (range_min, range_max) != (self._slider.minimum(), self._slider.maximum()):
+            self._slider.setRange(range_min, range_max)
         self._reposition_labels()
 
     @Slot(tuple)
@@ -70,6 +83,7 @@ class ScalingBar(QRangeSlider):
             value - tuple containing the min and max handle values (milliseconds).
         """
         min_val, max_val = value
+
         self._min_label.set_value(min_val)
         self._max_label.set_value(max_val)
         self._reposition_labels()
@@ -80,24 +94,44 @@ class ScalingBar(QRangeSlider):
         """
         last_edge = None
         for i, label in enumerate(self._handle_labels):
-            rect = self._handleRect(i)
+            rect = self._slider._handleRect(i)
             dx = -label.width() / 2
             dy = -label.height() / 2
             dy *= 3.5
-            pos = self.mapToParent(rect.center())
+            pos = self._slider.mapToParent(rect.center())
             pos += QPoint(int(dx + self.label_shift_x), int(dy + self._label_shift_y))
-            pos.setX(pos.x() - 108)  # Adjust for the slider label.
             if last_edge is not None:
                 # prevent label overlap
                 pos.setX(int(max(pos.x(), last_edge.x() + label.width() / 2 + 20)))
-            if i == 0 and (rect.center().x() + dx / 2) < self.contentsRect().left():
-                pos.setX(int(pos.x() - dx / 2))
-            if i == 1 and (rect.center().x() - dx / 2) > self.contentsRect().right() - 10:
-                pos.setX(int(pos.x() + dx / 2))
             label.move(pos)
             last_edge = pos
+            label.clearFocus()
             label.show()
+        self._slider.update()
         self.update()
+
+    def _set_layout(self):
+        """
+        Sets the layout of the scaling bar widget, allowing all of its
+        components to live in a layout for viewing purposes.
+        """
+        layout = QGridLayout()
+        layout.setSpacing(0)
+        self._slider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        layout.addWidget(self._min_label, 0, 0)
+        layout.addWidget(self._slider, 0, 0)
+        layout.addWidget(self._max_label, 0, 0)
+
+        old_layout = self.layout()
+        if old_layout is not None:
+            QWidget().setLayout(old_layout)
+
+        self.setLayout(layout)
+        label_size = self._timestamp_width
+        margin_side = int(label_size / 2)
+        layout.setContentsMargins(margin_side, 25, margin_side, 0)
+        QApplication.processEvents()
+        self._reposition_labels()
 
 
 def convert_ms_to_timestamp(milliseconds):
@@ -113,47 +147,41 @@ def convert_ms_to_timestamp(milliseconds):
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
-class TimestampLabel(QLabel):
+class TimestampLabel(QLineEdit):
     """
-    Custom timestamp label, which presents the timestamp in a dynamically
-    sized QLabel.
+    Custom timestamp label, which presents the timestamp in a fixed
+    sized QLineEdit.
+
+    Note: A QLabel was not used as changes to its text triggered
+    layout updates.
     """
 
-    def __init__(self, slider, parent):
+    def __init__(self, slider, parent, timestamp_width):
         """
         Constructs an instance of the timestamp label.
 
         Parameters:
             label - slider which the label acts on.
             parent - parent of the slider.
+            timestamp_width - width of a timestamp label
         """
         super().__init__(parent=parent)
         self._slider = slider
 
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet("background: transparent; border: 0")
+        self.setStyleSheet("background: transparent; border: 0; color: black")
 
-        self._slider.rangeChanged.connect(self._update_size)
-        self._update_size()
+        self.setFixedWidth(timestamp_width)
+
+        # Don't allow the user to edit the label.
+        self.setEnabled(False)
 
     def set_value(self, value):
         """
         Sets the timestamp value of the label according to the given
         microsecond value.
-
         Parameters:
             value - millisecond duration.
         """
         timestamp = convert_ms_to_timestamp(value)
         self.setText(timestamp)
-        self._update_size()
-
-    def _update_size(self):
-        """
-        Updates the size of the label according to its text content.
-        """
-        text = self.text()
-        font_metrics = QFontMetrics(self.font())
-
-        padding = 25
-        self.setFixedWidth(font_metrics.horizontalAdvance(text) + padding)
