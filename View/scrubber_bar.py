@@ -12,6 +12,7 @@ class ScrubberBar(QWidget):
     bars, that when combined, form a functional scalable scrubbing bar.
     """
     DEFAULT_RANGE_BOUNDS = (0, 100)
+    DEFAULT_FPS = 30
 
     def __init__(self):
         """
@@ -20,6 +21,9 @@ class ScrubberBar(QWidget):
         properties. It also sets the layout of the scrubbing bar widget.
         """
         super().__init__()
+
+        # Compute the default frames per millisecond.
+        self.frames_per_millisecond = 1 / (self.DEFAULT_FPS / 1000)
 
         # Since the timestamp label width will vary depending on font, we
         # compute the maximum width required to represent all timestamp labels.
@@ -32,6 +36,8 @@ class ScrubberBar(QWidget):
         self.scaling_bar.setBarMovesAllHandles(True)
         self.scaling_bar.setRange(self.DEFAULT_RANGE_BOUNDS[0], self.DEFAULT_RANGE_BOUNDS[1])
         self.scaling_bar.setValue((self.DEFAULT_RANGE_BOUNDS[0], self.DEFAULT_RANGE_BOUNDS[1]))
+        self.scaling_bar.setTickInterval(self.frames_per_millisecond)
+        self.scaling_bar.setTickPosition(QSlider.TicksBelow)
 
         # Add a label and the scaling bar to a layout.
         scaling_bar_horizontal_layout = QHBoxLayout()
@@ -45,6 +51,8 @@ class ScrubberBar(QWidget):
         # Create and configure the progress bar (read only).
         self.scaling_progress_view = QSlider(Qt.Orientation.Horizontal)
         self.scaling_progress_view.setEnabled(False)
+        self.scaling_progress_view.setTickInterval(self.frames_per_millisecond)
+        self.scaling_progress_view.setTickPosition(QSlider.TicksBelow)
 
         # Add a label and the progress bar to a layout
         scaling_progress_view_horizontal_layout = QHBoxLayout()
@@ -80,7 +88,7 @@ class ScrubberBar(QWidget):
         vertical_layout.addLayout(progress_bar_horizontal_layout)
         self.setLayout(vertical_layout)
 
-    def initialize(self, upper_bound):
+    def initialize(self, upper_bound, fps):
         """
         Sets the range and values of the scrubbing bar. The scaling bar will
         always range from [0, upper_bound]. The progress bar will only
@@ -89,6 +97,7 @@ class ScrubberBar(QWidget):
 
         Parameters:
             upper_bound - upper bound to set to the scrubbing bar.
+            fps - frames per second
         """
         self.scaling_bar.setRange(0, upper_bound)
         self.scaling_bar.setValue((0, upper_bound))
@@ -99,6 +108,11 @@ class ScrubberBar(QWidget):
         progress_bar = self.get_progress_bar()
         progress_bar.setRange(0, upper_bound)
         progress_bar.setValue(0)
+
+        self.frames_per_millisecond = 1 / (fps / 1000)
+        self.scaling_bar.setTickInterval(self.frames_per_millisecond)
+        self.scaling_progress_view.setTickInterval(self.frames_per_millisecond)
+        self.get_progress_bar().setTickInterval(self.frames_per_millisecond)
 
         self.set_progress_zoom(0, upper_bound)
 
@@ -114,7 +128,8 @@ class ScrubberBar(QWidget):
     def set_progress_zoom(self, lower_unit, upper_unit):
         """
         Scales and zooms the progress bar to reflect the range of the scaling
-        bar.
+        bar. This method also changes the tick intervals according to the zoom
+        level.
 
         Parameters:
             lower_unit - unit value (ms) of left handle of scaling bar
@@ -125,6 +140,11 @@ class ScrubberBar(QWidget):
         mid_point = (lower_unit + (upper_unit - lower_unit) / 2) / self.slider_max
         self.progress_bar_view.setTransform(QTransform.fromScale(1 / width_scale, 1))
         self.progress_bar_view.centerOn(mid_point * w, self.get_progress_bar().height() / 2)
+
+        if width_scale < 0.5:
+            self.get_progress_bar().setTickInterval(self.frames_per_millisecond)
+        else:
+            self.get_progress_bar().setTickInterval(self.frames_per_millisecond * 2)
 
     def _compute_max_timestamp_width(self):
         """
