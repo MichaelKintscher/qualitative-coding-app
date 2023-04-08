@@ -25,16 +25,12 @@ Unix/macOS: `python3 -m pip install PySide6`
 Windows: `py -m pip install PySide6`  
 
 6. Install superqt to your virtual environment using the pip package manager.  
-Unix/macOS: `python3 -m pip install superqt`    
+Unix/macOS: `python3 -m pip install superqt`  
 Windows: `py -m pip install superqt`  
 
-7. Install opencv to your virtual environment using the pip package manager.   
-Unix/macOS: `python3 -m pip install opencv-python`    
-Windows: `py -m pip install opencv-python`  
-
-8. Run the application  
+7. Run the application  
 Unix/macOS: `python3 main.py`  
-Windows: `py main.py`
+Windows: `py main.py`  
 
 ## Development Set up
 Any text-editor or IDE, preferably with python support, can be used to develop the project. The previous steps will manually set up the project,
