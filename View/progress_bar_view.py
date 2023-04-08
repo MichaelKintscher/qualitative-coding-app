@@ -23,9 +23,6 @@ class ProgressBarView(QGraphicsView):
         self.progress_bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.scene.addWidget(self.progress_bar)
 
-        self.progress_bar.setTickInterval(100)
-        self.progress_bar.setTickPosition(QSlider.TicksBelow)
-
         super().__init__(self.scene)
         self.progress_bar.setFixedWidth(self.width())
         self.setStyleSheet("border: 0px")
