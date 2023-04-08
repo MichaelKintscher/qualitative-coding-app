@@ -102,9 +102,6 @@ class WindowController:
         self._window.table_panel.delete_col_button.clicked.connect(self.del_current_column)
         self._window.table_panel.delete_row_button.clicked.connect(self.del_current_row)
 
-        self._window.media_panel.media_control_panel.input_start_time.editingFinished.connect(self.change_scrub_start)
-        self._window.media_panel.media_control_panel.input_end_time.editingFinished.connect(self.change_scrub_end)
-
         self._window.connect_export_file_to_slot(self.save_to_file)
 
         self._window.coding_assistance_panel.button_panel.connect_add_button_to_slot(self.open_add_coding_assistance_button_dialog)
@@ -225,7 +222,7 @@ class WindowController:
 
         # Formats the time displaying current time/ total time
         # and then sets the text label in the media control panel.
-        time_str_formatted = f"Time: {current_hours:02d}:{current_minutes:02d}:{current_seconds:02d}" \
+        time_str_formatted = f"{current_hours:02d}:{current_minutes:02d}:{current_seconds:02d}" \
                              f"/{total_time_str}"
         self._window.media_panel.media_control_panel.time_stamp.setText(time_str_formatted)
 
@@ -280,6 +277,7 @@ class WindowController:
             url = file_dialog.selectedUrls()[0]
             self._media_player.setSource(url)
             self._media_player.play()
+            self.toggle_play_pause_icon()
 
     @Slot()
     def save_to_file(self):
@@ -457,24 +455,6 @@ class WindowController:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPause))
         else:
             button.setIcon(button.style().standardIcon(QStyle.SP_MediaPlay))
-
-    @Slot()
-    def change_scrub_start(self):
-        """
-        Changes the start position of the scrubbing bar.
-        """
-        str_start_time = self._window.media_panel.media_control_panel.input_start_time.text()
-        int_start_time = int(str_start_time) * 1000
-        self._window.media_panel.progress_bar.setMinimum(int_start_time)
-
-    @Slot()
-    def change_scrub_end(self):
-        """
-        Changes the end position of the scrubbing bar.
-        """
-        str_end_time = self._window.media_panel.media_control_panel.input_end_time.text()
-        int_end_time = int(str_end_time) * 1000
-        self._window.media_panel.progress_bar.setMaximum(int_end_time)
 
     @Slot()
     def open_add_coding_assistance_button_dialog(self):
@@ -748,9 +728,8 @@ class WindowController:
             return
 
         video_timestamp = self._window.media_panel.media_control_panel.time_stamp.text()
-        split_one = video_timestamp.split("Time: ")
-        split_two = split_one[1].split("/")
-        video_timestamp = split_two[0]
+        split = video_timestamp.split("/")
+        video_timestamp = split[0]
         timestamp_text = QTableWidgetItem(video_timestamp)
         for row in range(self._window.table_panel.table.rowCount()):
             column = 0

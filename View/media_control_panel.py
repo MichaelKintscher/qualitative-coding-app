@@ -1,5 +1,6 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QPushButton, QStyle, \
-    QVBoxLayout, QHBoxLayout, QLabel, QLineEdit
+    QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QSizePolicy
 
 from View.playback_speed_combo_box import PlaybackSpeedComboBox
 
@@ -23,16 +24,11 @@ class MediaControlPanel(QWidget):
         # Create play pause button.
         self.play_pause_button = QPushButton()
         self.play_pause_button.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.play_pause_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         # Create the timestamp label.
         self.time_stamp = QLabel()
-        self.time_stamp.setText("")
-
-        # Create start and end time text boxes.
-        self.input_start_time = QLineEdit()
-        self.input_start_time.setPlaceholderText("Enter Start Time")
-        self.input_end_time = QLineEdit()
-        self.input_end_time.setPlaceholderText("Enter End Time")
+        self.time_stamp.setText("00:00:00/00:00:00")
 
         # Create empty widgets to fill negative space (remove later).
         empty_widget1 = QWidget()
@@ -40,13 +36,10 @@ class MediaControlPanel(QWidget):
         empty_widget3 = QWidget()
 
         # Adds the widgets to the layout.
-        horizontal_layout.addWidget(self.playback_speed_combo_box, stretch=3)
-        horizontal_layout.addWidget(empty_widget1, stretch=3)
-        horizontal_layout.addWidget(self.play_pause_button, stretch=1)
-        horizontal_layout.addWidget(empty_widget2, stretch=4)
-        horizontal_layout.addWidget(self.time_stamp, stretch=2)
-        horizontal_layout.addWidget(empty_widget3, stretch=4)
-        horizontal_layout.addWidget(self.input_start_time, stretch=4)
-        horizontal_layout.addWidget(self.input_end_time, stretch=4)
+        horizontal_layout.addWidget(self.playback_speed_combo_box)
+        horizontal_layout.addStretch()
+        horizontal_layout.addWidget(self.play_pause_button)
+        horizontal_layout.addStretch()
+        horizontal_layout.addWidget(self.time_stamp)
 
         self.setLayout(horizontal_layout)
