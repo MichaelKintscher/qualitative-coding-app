@@ -26,6 +26,8 @@ class ProjectManagementController:
         self.session_creator_page.dialog_buttons.button(QDialogButtonBox.Cancel).clicked.connect(self.back_to_mgmt_page)
         self.session_creator_page.dialog_buttons.button(QDialogButtonBox.Ok).clicked.connect(self.create_session)
 
+        self.session_manager_page.user_settings_button.clicked.connect(self._open_settings_dialog)
+
         # Iterate through all SessionOptions in the session list in the
         #   Session Manager Page and connect their signals
         session_list_layout = self.session_manager_page.session_list.layout()
@@ -131,3 +133,10 @@ class ProjectManagementController:
         session creation page.
         """
         self.project_management_window.set_current_widget(1)
+
+    @Slot()
+    def _open_settings_dialog(self):
+        """
+        Opens the settings dialog.
+        """
+        self.state_controller.user_settings_controller.open_settings_dialog()

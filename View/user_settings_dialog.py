@@ -93,7 +93,8 @@ class UserSettingsDialog(QDialog):
             button_definition_list_element = ButtonDefinitionListElement(button_definition)
             button_definition_layout.addWidget(button_definition_list_element)
             button_definition_layout.addSpacing(10)
-        button_definition_layout.addSpacing(20)
+        # button_definition_layout.addSpacing(20)
+        button_definition_layout.addStretch()
 
         container_widget.setLayout(button_definition_layout)
         return container_widget
