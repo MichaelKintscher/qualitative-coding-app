@@ -467,9 +467,11 @@ class WindowController:
         """
         self.add_coding_assistance_button_dialog = AddCodingAssistanceButtonDialog(self._window.table_panel.table)
         self.add_coding_assistance_button_dialog.connect_create_button_to_slot(
-            self.open_save_coding_assistance_button_dialog)
+            self.open_save_coding_assistance_button_dialog,
+            self.add_coding_assistance_button_dialog)
         self.add_coding_assistance_button_dialog.connect_load_button_to_slot(
-            self.open_load_coding_assistance_button_dialog)
+            self.open_load_coding_assistance_button_dialog,
+            self.add_coding_assistance_button_dialog)
         self.add_coding_assistance_button_dialog.exec()
 
     @Slot()
@@ -490,7 +492,8 @@ class WindowController:
         """
         self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(
             self.global_settings_manager.global_settings_entity.button_definitions)
-        self.load_coding_assistance_button_dialog.connect_load_button_to_slot(ProjectManagementController.make_lambda(
+        self.load_coding_assistance_button_dialog.connect_load_button_to_slot(
+            ProjectManagementController.make_lambda(
             self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.radio_buttons),
             self.load_coding_assistance_button_dialog)
         self.load_coding_assistance_button_dialog.exec()
