@@ -478,7 +478,9 @@ class WindowController:
         Open a dialog to create a new Coding Assistance Button
         """
         self.delete_coding_assistance_button_dialog = DeleteCodingAssistanceButtonDialog()
-        self.delete_coding_assistance_button_dialog.connect_delete_button_to_slot(self.delete_coding_assistance_button)
+        self.delete_coding_assistance_button_dialog.connect_delete_button_to_slot(
+            self.delete_coding_assistance_button,
+            self.delete_coding_assistance_button_dialog)
         self.delete_coding_assistance_button_dialog.exec()
 
     @Slot()
@@ -489,7 +491,8 @@ class WindowController:
         self.load_coding_assistance_button_dialog = LoadCodingAssistanceButtonDialog(
             self.global_settings_manager.global_settings_entity.button_definitions)
         self.load_coding_assistance_button_dialog.connect_load_button_to_slot(ProjectManagementController.make_lambda(
-            self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.radio_buttons))
+            self.load_coding_assistance_button, self.load_coding_assistance_button_dialog.radio_buttons),
+            self.load_coding_assistance_button_dialog)
         self.load_coding_assistance_button_dialog.exec()
 
     @Slot()

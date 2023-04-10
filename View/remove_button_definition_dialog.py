@@ -28,14 +28,16 @@ class RemoveButtonDefinitionDialog(QDialog):
 
         self.setLayout(dialog_layout)
 
-    def connect_remove_button_to_slot(self, slot):
+    def connect_remove_button_to_slot(self, slot, dialog):
         """
         Connect a remove button event to slot
         """
         self.remove_definition_button.clicked.connect(slot)
+        self.remove_definition_button.clicked.connect(dialog.close)
 
-    def connect_clear_button_to_slot(self, slot):
+    def connect_clear_button_to_slot(self, slot, dialog):
         """
         Connect a clear all button event to slot
         """
         self.clear_all_button.clicked.connect(slot)
+        self.clear_all_button.clicked.connect(dialog.close)

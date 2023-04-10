@@ -6,6 +6,7 @@ from View.edit_coding_assistance_button_dialog import EditCodingAssistanceButton
 from View.remove_button_definition_dialog import RemoveButtonDefinitionDialog
 from View.select_edit_button_dialog import SelectEditButtonDialog
 from View.user_settings_dialog import UserSettingsDialog
+from View.button_definition_list_element import ButtonDefinitionListElement
 
 
 class UserSettingsController:
@@ -33,13 +34,28 @@ class UserSettingsController:
         Edit a button definition in Global Settings
         """
         edit_button_id = self.select_edit_button_dialog.button_name_textbox.text()
+        button_definition_list = self.user_settings.button_definition_list.layout()
+
+        # Edit button definition in global settings
+        button_id = self.edit_button_dialog.button_id_textbox.text()
+        data = []
+        for line_edit in self.edit_button_dialog.dynamic_line_edits:
+            data.append(line_edit.text())
+
+        new_button_definition = ButtonDefinitionEntity(button_id, data)
+        new_button_definition_element = ButtonDefinitionListElement(new_button_definition)
+
+        # Edit button definition in dialog list
+        for i in range(button_definition_list.count()):
+            element = button_definition_list.itemAt(i)
+            if element and element.widget():
+                if element.widget().element_id == edit_button_id:
+                    element.widget().deleteLater()
+                    button_definition_list.addWidget(new_button_definition_element)
+
+        # Edit button definition in global settings
         for button_definition in self.global_settings_manager.global_settings_entity.button_definitions:
             if edit_button_id == button_definition.button_id:
-                button_id = self.edit_button_dialog.button_id_textbox.text()
-                data = []
-                for line_edit in self.edit_button_dialog.dynamic_line_edits:
-                    data.append(line_edit.text())
-                new_button_definition = ButtonDefinitionEntity(button_id, data)
                 self.global_settings_manager.remove_button_definition(button_definition)
                 self.global_settings_manager.add_button_definition(new_button_definition)
 
@@ -49,7 +65,9 @@ class UserSettingsController:
         Open a dialog to edit a Coding Assistance Button
         """
         self.edit_button_dialog = EditCodingAssistanceButtonDialog(self._window_controller._window.table_panel.table)
-        self.edit_button_dialog.connect_edit_button_to_slot(self.edit_coding_assistance_button)
+        self.edit_button_dialog.connect_edit_button_to_slot(
+            self.edit_coding_assistance_button,
+            self.edit_button_dialog)
         self.edit_button_dialog.exec()
 
     @Slot()
@@ -59,7 +77,8 @@ class UserSettingsController:
         """
         self.select_edit_button_dialog = SelectEditButtonDialog()
         self.select_edit_button_dialog.connect_edit_button_to_slot(
-            self.open_edit_coding_assistance_button_dialog)
+            self.open_edit_coding_assistance_button_dialog,
+            self.select_edit_button_dialog)
         self.select_edit_button_dialog.exec()
 
     @Slot()
@@ -71,6 +90,7 @@ class UserSettingsController:
         button_id = self.remove_button_definition_dialog.remove_definition_text.text()
         button_definition_list = self.user_settings.button_definition_list.layout()
 
+        # Remove button definition from list in the dialog
         for i in range(button_definition_list.count()):
             element = button_definition_list.itemAt(i)
             if element and element.widget():
@@ -89,9 +109,12 @@ class UserSettingsController:
         Open a dialog to remove a button definition from global settings
         """
         self.remove_button_definition_dialog = RemoveButtonDefinitionDialog()
-        self.remove_button_definition_dialog.connect_remove_button_to_slot(self.remove_button_definition)
+        self.remove_button_definition_dialog.connect_remove_button_to_slot(
+            self.remove_button_definition,
+            self.remove_button_definition_dialog)
         self.remove_button_definition_dialog.connect_clear_button_to_slot(
-            self.open_confirm_clear_all_button_definitions_dialog)
+            self.open_confirm_clear_all_button_definitions_dialog,
+            self.remove_button_definition_dialog)
         self.remove_button_definition_dialog.exec()
 
     @Slot()
