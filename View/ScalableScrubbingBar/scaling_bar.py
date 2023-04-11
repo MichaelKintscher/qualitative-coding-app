@@ -106,7 +106,7 @@ class ScalingBar(QWidget):
             pos += QPoint(int(dx + self.label_shift_x), int(dy + self._label_shift_y))
             if last_edge is not None:
                 # prevent label overlap
-                pos.setX(int(max(pos.x(), last_edge.x() + label.width() / 2 + 20)))
+                pos.setX(int(max(pos.x(), last_edge.x() + label.width() / 2 + 28)))
             label.move(pos)
             last_edge = pos
             label.clearFocus()
