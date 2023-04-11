@@ -83,10 +83,8 @@ class WindowController:
         self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(
             self.play_video)
 
-        self._window.media_panel.scrubber_bar.get_progress_bar().sliderMoved.connect(
+        self._window.media_panel.scalable_scrubber_bar.scrubber_bar.onValueChanged.connect(
             self.update_video_on_progres_bar_movement)
-        self._window.media_panel.scrubber_bar.scaling_bar.valueChanged.connect(
-            self.update_progress_bar_range)
 
         self._media_player.positionChanged.connect(self.update_progress_bar_on_video_position_changed)
         self._media_player.durationChanged.connect(self.on_video_duration_changed)
@@ -184,7 +182,7 @@ class WindowController:
         """
         if not self.fps:
             self.fps = self.DEFAULT_FRAMES_PER_SECOND
-        self._window.media_panel.scrubber_bar.initialize(new_duration, self.fps)
+        self._window.media_panel.scalable_scrubber_bar.initialize(new_duration)
 
     @Slot()
     def get_video_time_total(self):
@@ -385,19 +383,8 @@ class WindowController:
         Parameters:
             position - current position of the video
         """
-        self._window.media_panel.scrubber_bar.get_progress_bar().setValue(position)
-        self._window.media_panel.scrubber_bar.scaling_progress_view.setValue(position)
-
-    # Slot annotation is not present as range_bounds is a tuple, and that is not
-    # recognized by QT. However, the slot function still connects and executes
-    # regardless.
-    def update_progress_bar_range(self, range_bounds):
-        """
-        Updates the range of the progress bar based on the new values
-        of the scalable scrubbing bar.
-        """
-        lower_range, upper_range = range_bounds
-        self._window.media_panel.scrubber_bar.set_progress_zoom(lower_range, upper_range)
+        self._window.media_panel.scalable_scrubber_bar.progress_bar.setValue(position)
+        self._window.media_panel.scalable_scrubber_bar.scrubber_bar.setValue(position)
 
     @Slot()
     def set_cell_size(self):
