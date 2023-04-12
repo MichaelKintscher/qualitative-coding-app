@@ -45,7 +45,8 @@ class StateController:
             self.window.close()
 
         self.window = MainWindow()
-        self.window_controller = WindowController(self.window, self.global_settings_manager, self.user_settings_controller)
+        self.window_controller = WindowController(self.window, self.global_settings_manager,
+                                                  self.user_settings_controller)
         self.window.show()
 
         settings = QSettings()

@@ -17,6 +17,7 @@ class UserSettingsController:
         self.global_settings_manager = global_settings_manager
         self.user_settings = None
         self._window_controller = None
+        self.empty_user_settings_flag = True
 
     def get_dialog(self):
         """
@@ -143,21 +144,29 @@ class UserSettingsController:
 
         self.user_settings.exec()
 
+        # Gets the table cell attributes from the text boxes in user settings.
         width_text = self.user_settings.minimum_size_width_box.text()
         height_text = self.user_settings.minimum_size_height_box.text()
         if width_text != "" and height_text != "":
             table_cell_size = [int(width_text), int(height_text)]
             self.global_settings_manager.set_table_cell_size(table_cell_size)
+        else:
+            self.empty_user_settings_flag = False
 
         table_maximum_width = self.user_settings.maximum_width_text_box.text()
         if table_maximum_width != "":
             table_maximum_width = int(table_maximum_width)
             self.global_settings_manager.set_table_maximum_width(table_maximum_width)
+        else:
+            self.empty_user_settings_flag = False
 
         padding = self.user_settings.padding_text_box.text()
         if padding != "":
             padding = int(padding)
             self.global_settings_manager.set_table_padding(padding)
+        else:
+            self.empty_user_settings_flag = False
 
         # Saves the data to file.
-        self.global_settings_manager.save_user_settings()
+        if self.empty_user_settings_flag is True:
+            self.global_settings_manager.save_user_settings()
