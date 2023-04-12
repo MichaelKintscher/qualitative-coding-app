@@ -60,6 +60,7 @@ class StateController:
                 str(self.global_settings_manager.global_settings_entity.table_padding))
 
         self.window.closing.connect(lambda: self.write_session_slot(session_name))
+        self.window_controller.establish_table_title(table_name)
         self.window.connect_create_session_to_slot(self.open_session_creator_page)
         self.window.connect_load_session_to_slot(self.open_session_management_page)
 
@@ -82,6 +83,7 @@ class StateController:
         Parameters:
             session_id - identifier of session to load
         """
+        
         self.create_new_window(session_id)
         self.session_manager.load_existing_session(session_id)
 
