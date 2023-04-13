@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QMessageBox
+from PySide6.QtWidgets import QMainWindow, QStyle, QHBoxLayout, QWidget, QVBoxLayout, QMessageBox, QScrollArea
 
 from View.coding_assistance_panel import CodingAssistancePanel
 from View.media_panel import MediaPanel
@@ -135,5 +135,9 @@ class MainWindow(QMainWindow):
         vertical_container_layout.addWidget(self.table_panel)
 
         central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        self.centralWidget().setLayout(vertical_container_layout)
+        central_widget.setLayout(vertical_container_layout)
+
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(central_widget)
+        self.setCentralWidget(scroll_area)
