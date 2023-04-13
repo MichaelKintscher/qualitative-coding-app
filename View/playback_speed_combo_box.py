@@ -18,6 +18,7 @@ class PlaybackSpeedComboBox(QComboBox):
 
         # Adjust the text of the 1.0 value to "Normal" and let it be the default value.
         self.setItemText(3, "Normal")
+        self.setFixedWidth(185)
         self.setCurrentIndex(3)
 
     def paintEvent(self, e):
