@@ -28,8 +28,8 @@ class MediaPanel(QWidget):
         # Add vertical layout box to add widgets
         vertical_layout = QVBoxLayout()
 
-        vertical_layout.addWidget(self.video_widget)
-        vertical_layout.addWidget(self.scalable_scrubber_bar)
-
+        vertical_layout.setSpacing(0)
+        vertical_layout.addWidget(self.video_widget, stretch=2)
+        vertical_layout.addWidget(self.scalable_scrubber_bar, stretch=1)
         vertical_layout.addWidget(self.media_control_panel)
         self.setLayout(vertical_layout)

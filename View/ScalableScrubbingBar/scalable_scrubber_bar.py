@@ -89,6 +89,7 @@ class ScalableScrubberBar(QWidget):
 
         # Add all three bars to this widget's vertical layout
         vertical_layout = QVBoxLayout()
+        vertical_layout.setSpacing(0)
         vertical_layout.addLayout(scaling_bar_horizontal_layout)
         vertical_layout.addLayout(progress_bar_horizontal_layout)
         vertical_layout.addLayout(scrubber_bar_horizontal_layout)
