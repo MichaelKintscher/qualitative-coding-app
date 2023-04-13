@@ -1,6 +1,6 @@
 from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QWidget, QScrollArea, QPushButton, QGridLayout, \
-    QHBoxLayout, QSizePolicy
+    QHBoxLayout, QSizePolicy, QStyle, QMenuBar
 
 from View.session_option import SessionOption
 
@@ -38,10 +38,15 @@ class SessionManagerPage(QDialog):
         self.clear_sessions_button = QPushButton("Clear all sessions")
         self.clear_sessions_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
+        # Create a user settings button
+        self.user_settings_button = QPushButton("User Settings")
+        self.user_settings_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+
         # Add recent title and push button to horizontal layout
         recent_title_horizontal_layout.addWidget(recent_label)
         recent_title_horizontal_layout.addStretch()
         recent_title_horizontal_layout.addWidget(self.clear_sessions_button)
+        recent_title_horizontal_layout.addWidget(self.user_settings_button)
         recent_title.setLayout(recent_title_horizontal_layout)
 
         # Scrollable viewport for list of sessions
@@ -106,4 +111,11 @@ class SessionManagerPage(QDialog):
         """
         self.create_session_button.hide()
         self.start_label.hide()
+
+    def hide_user_setting_element(self):
+        """
+        Hides the user setting button element from the window. This method
+        may be useful if we want to only want to display the session manager page.
+        """
+        self.user_settings_button.hide()
 

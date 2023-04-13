@@ -32,8 +32,9 @@ class LoadCodingAssistanceButtonDialog(QDialog):
         dialog_layout.addWidget(self.load_button)
         self.setLayout(dialog_layout)
 
-    def connect_load_button_to_slot(self, slot):
+    def connect_load_button_to_slot(self, slot, dialog):
         """
         Connect a load_button event to a slot function in the controller.
         """
         self.load_button.clicked.connect(slot)
+        self.load_button.clicked.connect(dialog.close)

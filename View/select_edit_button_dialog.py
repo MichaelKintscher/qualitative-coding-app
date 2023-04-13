@@ -27,8 +27,9 @@ class SelectEditButtonDialog(QDialog):
 
         self.setLayout(dialog_layout)
 
-    def connect_edit_button_to_slot(self, slot):
+    def connect_edit_button_to_slot(self, slot, dialog):
         """
         Connect a edit_button event to a slot function in the controller.
         """
         self.edit_button.clicked.connect(slot)
+        self.edit_button.clicked.connect(dialog.close)

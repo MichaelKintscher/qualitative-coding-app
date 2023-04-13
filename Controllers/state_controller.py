@@ -1,6 +1,7 @@
 from PySide6.QtCore import Slot, QSettings
 
 from Controllers.project_management_controller import ProjectManagementController
+from Controllers.user_settings_controller import UserSettingsController
 from Controllers.window_controller import WindowController
 
 from View.main_window import MainWindow
@@ -28,6 +29,7 @@ class StateController:
         self.window_controller = None
         self.session_manager = SessionManager()
         self.global_settings_manager = GlobalSettingsManager()
+        self.user_settings_controller = UserSettingsController(self.global_settings_manager)
 
     def create_new_window(self, session_name, table_name="Default Title", video=None):
         """
@@ -43,7 +45,8 @@ class StateController:
             self.window.close()
 
         self.window = MainWindow()
-        self.window_controller = WindowController(self.window, self.global_settings_manager)
+        self.window_controller = WindowController(self.window, self.global_settings_manager,
+                                                  self.user_settings_controller)
         self.window.show()
 
         settings = QSettings()
@@ -117,6 +120,7 @@ class StateController:
         self.project_management_window = ProjectManagementWindow()
         self.project_management_controller = ProjectManagementController(self.project_management_window, self)
         self.project_management_window.get_widget(0).hide_session_creation_elements()
+        self.project_management_window.get_widget(0).hide_user_setting_element()
         self.project_management_window.show()
 
     @Slot()

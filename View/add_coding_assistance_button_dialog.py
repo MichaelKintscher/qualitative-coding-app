@@ -65,15 +65,17 @@ class AddCodingAssistanceButtonDialog(QDialog):
 
         self.setLayout(dialog_layout)
 
-    def connect_create_button_to_slot(self, slot):
+    def connect_create_button_to_slot(self, slot, dialog):
         """
         Connect a create_button event to a slot function in the controller.
         """
         self.create_button.clicked.connect(slot)
+        self.create_button.clicked.connect(dialog.close)
 
-    def connect_load_button_to_slot(self, slot):
+    def connect_load_button_to_slot(self, slot, dialog):
         """
         Connect a load_button event to a slot function in the controller.
         """
         self.load_button.clicked.connect(slot)
+        self.load_button.clicked.connect(dialog.close)
 

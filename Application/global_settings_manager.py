@@ -15,6 +15,11 @@ class GlobalSettingsManager:
         """
         self.global_settings_entity = GlobalSettingsEntity()
 
+        # Check if global settings have been loaded upon initializing the global settings manager.
+        settings = QSettings()
+        if "global-settings" in settings.childGroups():
+            self.load_global_settings()
+
     def add_button_definition(self, button_definition):
         """
         Add a button definition to the button definition list
@@ -84,6 +89,9 @@ class GlobalSettingsManager:
         settings.beginGroup("encoding-buttons")
 
         button_definitions_length = settings.beginReadArray("button-definitions")
+
+        self.global_settings_entity.button_definitions.clear()  # Clear button definitions
+
         for index in range(button_definitions_length):
             settings.setArrayIndex(index)
             button_id = settings.value("button-id")
