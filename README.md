@@ -35,3 +35,6 @@ Windows: `py main.py`
 ## Development Set up
 Any text-editor or IDE, preferably with python support, can be used to develop the project. The previous steps will manually set up the project,
 however most IDEs should have support for facilitating the process described above. We recommend the PyCharm IDE for development.
+
+## User Tips
+1. When saving a button definition, the name must be globally unique.

@@ -25,8 +25,9 @@ class DeleteCodingAssistanceButtonDialog(QDialog):
 
         self.setLayout(dialog_layout)
 
-    def connect_delete_button_to_slot(self, slot):
+    def connect_delete_button_to_slot(self, slot, dialog):
         """
         Connect a delete_button event to a slot function in the controller.
         """
         self.delete_button.clicked.connect(slot)
+        self.delete_button.clicked.connect(dialog.close)
