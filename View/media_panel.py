@@ -2,7 +2,7 @@ from PySide6.QtMultimedia import QAudioOutput
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
 from View.media_control_panel import MediaControlPanel
-from View.scrubber_bar import ScrubberBar
+from View.ScalableScrubbingBar.scalable_scrubber_bar import ScalableScrubberBar
 from View.video_widget import VideoWidget
 
 
@@ -23,13 +23,13 @@ class MediaPanel(QWidget):
         self.media_control_panel = MediaControlPanel()
         
         # Create sliders for the scalable scrubbing bars.
-        self.scrubber_bar = ScrubberBar()
+        self.scalable_scrubber_bar = ScalableScrubberBar()
 
         # Add vertical layout box to add widgets
         vertical_layout = QVBoxLayout()
 
-        vertical_layout.addWidget(self.video_widget, stretch=7)
-        vertical_layout.addWidget(self.scrubber_bar)
+        vertical_layout.addWidget(self.video_widget)
+        vertical_layout.addWidget(self.scalable_scrubber_bar)
 
         vertical_layout.addWidget(self.media_control_panel)
         self.setLayout(vertical_layout)
