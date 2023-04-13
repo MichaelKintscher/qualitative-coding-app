@@ -52,7 +52,7 @@ class LabeledSliderTickMarks(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         self.setFrameStyle(0)
-        self.setFixedHeight(35)
+        self.setFixedHeight(30)
 
         # Hard coded tick intervals, one of which is chosen for the tick marks.
         self.tick_intervals_sec = [0.25, 0.50, 1, 1.5, 2, 5, 10, 30, 60, 120, 300, 600, 1800, 3600]
