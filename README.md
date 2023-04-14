@@ -65,5 +65,15 @@ however most IDEs should have support for facilitating the process described abo
 5. **Export table data**
     * Users can export table data to a CSV file through the menu bar at the top of the application.
 
-## User Tips
+## Known Bugs
 1. When saving a button definition, the name must be globally unique.
+2. Does not support the load video feature on macOS due to a bug.
+3. User Settings are saved if there is text in any of the fields when User Settings is closed.
+The User Settings will then be applied the next time any session is opened.
+4. If a button is created with x columns pre-defined and executed on a table with columns
+less than x, the data will spill over to the next row.
+5. When creating a new button, the user cannot define columns fields for any unnamed columns.
+
+## Limitations
+1. The user can set a minimum cell height for the table, but cannot manually adjust as they can with table cell width.
+2. Column names are not exported when the table data is exported to a csv file.
