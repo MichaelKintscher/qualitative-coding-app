@@ -54,13 +54,16 @@ class StateController:
             self.global_settings_manager.load_global_settings()
 
             # After loading the values from QSettings, adjusts the table format according to the global user settings.
-            self.window.table_panel.table.set_cell_size(
-                self.global_settings_manager.global_settings_entity.table_cell_size[0],
-                self.global_settings_manager.global_settings_entity.table_cell_size[1])
-            self.window.table_panel.table.set_maximum_width(
-                self.global_settings_manager.global_settings_entity.table_maximum_width)
-            self.window.table_panel.table.set_padding(
-                str(self.global_settings_manager.global_settings_entity.table_padding))
+            if self.global_settings_manager.global_settings_entity.table_cell_size[0] != -1:
+                self.window.table_panel.table.set_table_width(self.global_settings_manager.global_settings_entity.table_cell_size[0])
+            if self.global_settings_manager.global_settings_entity.table_cell_size[1] != -1:
+                self.window.table_panel.table.set_table_height(self.global_settings_manager.global_settings_entity.table_cell_size[1])
+            if self.global_settings_manager.global_settings_entity.table_maximum_width != -1:
+                self.window.table_panel.table.set_maximum_width(
+                    self.global_settings_manager.global_settings_entity.table_maximum_width)
+            if self.global_settings_manager.global_settings_entity.table_padding != -1:
+                self.window.table_panel.table.set_padding(
+                    str(self.global_settings_manager.global_settings_entity.table_padding))
 
         self.window.closing.connect(lambda: self.write_session_slot(session_name))
         self.window_controller.establish_table_title(table_name)
