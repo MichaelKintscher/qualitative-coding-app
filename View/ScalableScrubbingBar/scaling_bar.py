@@ -24,7 +24,8 @@ class ScalingBar(QWidget):
         super().__init__()
 
         self._timestamp_width = timestamp_width
-        self._slider = QRangeSlider(Qt.Orientation.Horizontal)
+        self._slider = QRangeSlider()
+        self._slider.setOrientation(Qt.Orientation.Horizontal)
         self._slider.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
 
         self._min_label = TimestampLabel(self._slider, self._slider, self._timestamp_width)
