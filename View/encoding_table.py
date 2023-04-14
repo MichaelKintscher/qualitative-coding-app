@@ -240,11 +240,22 @@ class EncodingTable(QTableWidget):
             row_data.append(col_data)
         return row_data
 
-    def set_cell_size(self, width, height):
+    def set_table_width(self, width):
         """
         Changes default cell width.
+
+        Parameters:
+            height - height of table cell.
         """
         self.horizontalHeader().setMinimumSectionSize(width)
+
+    def set_table_height(self, height):
+        """
+        Changes default cell height
+
+        Parameters:
+            height - height of table cell.
+        """
         self.verticalHeader().setMinimumSectionSize(height)
 
     def set_maximum_width(self, width):
@@ -252,6 +263,17 @@ class EncodingTable(QTableWidget):
         Changes default cell height.
         """
         self.horizontalHeader().setMaximumSectionSize(width)
+
+    def set_cell_size(self, width, height):
+        """
+        Changes default cell size
+
+        Parameters:
+            width - width of table cell.
+            height - height of table cell.
+        """
+        self.horizontalHeader().setMinimumSectionSize(width)
+        self.verticalHeader().setMinimumSectionSize(height)
 
     def set_padding(self, padding):
         """

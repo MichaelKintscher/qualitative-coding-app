@@ -84,7 +84,7 @@ class WindowController:
         self._window.media_panel.media_control_panel.play_pause_button.clicked.connect(
             self.play_video)
 
-        self._window.media_panel.scalable_scrubber_bar.scrubber_bar.onValueChanged.connect(
+        self._window.media_panel.scalable_scrubber_bar.scrubber_bar.sliderMoved.connect(
             self.update_video_on_progres_bar_movement)
 
         self._media_player.positionChanged.connect(self.update_progress_bar_on_video_position_changed)
@@ -365,12 +365,12 @@ class WindowController:
         """
         width_text = self.user_settings_controller.get_dialog().minimum_size_width_box.text()
         height_text = self.user_settings_controller.get_dialog().minimum_size_height_box.text()
-        try:
+        if width_text != "":
             width = int(width_text)
+            self._window.table_panel.table.set_table_width(width)
+        if height_text != "":
             height = int(height_text)
-            self._window.table_panel.table.set_cell_size(width, height)
-        except ValueError:
-            pass
+            self._window.table_panel.table.set_table_height(height)
 
     @Slot()
     def set_maximum_width(self):

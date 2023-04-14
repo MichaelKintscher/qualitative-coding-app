@@ -77,18 +77,28 @@ class GlobalSettingsManager:
         settings.beginGroup("user-settings")
 
         # Sets the padding and the max width to global settings entity
-        self.global_settings_entity.table_padding = int(settings.value("table_padding"))
-        self.global_settings_entity.table_maximum_width = int(settings.value("table_maximum_width"))
+        table_padding = settings.value("table_padding")
+        table_maximum_width = settings.value("table_maximum_width")
+        if table_padding:
+            self.global_settings_entity.table_padding = int(table_padding)
+        if table_maximum_width:
+            self.global_settings_entity.table_maximum_width = int(table_maximum_width)
 
         # Sets the cell size with width, index 0, and height, index 1 to global settings entity
-        self.global_settings_entity.table_cell_size.append(int(settings.value("table_cell_size_width")))
-        self.global_settings_entity.table_cell_size.append(int(settings.value("table_cell_size_height")))
+        table_cell_size_width = settings.value("table_cell_size_width")
+        table_cell_size_height = settings.value("table_cell_size_height")
+        if table_cell_size_width:
+            self.global_settings_entity.table_cell_size.append(int(table_cell_size_height))
+        if table_cell_size_height:
+            self.global_settings_entity.table_cell_size.append(int(table_cell_size_height))
 
         settings.endGroup()  # user-settings
 
         settings.beginGroup("encoding-buttons")
 
         button_definitions_length = settings.beginReadArray("button-definitions")
+        if not button_definitions_length:
+            button_definitions_length = 0
 
         self.global_settings_entity.button_definitions.clear()  # Clear button definitions
 
