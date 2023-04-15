@@ -84,3 +84,6 @@ however most IDEs should have support for facilitating the process described abo
 1. Globally saved button definitions must have unique button names.
 2. It is not possible to manually adjust the height of a row in the encoding table.
 
+## UML Diagram
+* Link to a pdf version [here](https://github.com/MichaelKintscher/qualitative-coding-app/blob/main/Diagrams/Qualitative%20Coding%20App.pdf)
+* Link to original LucidChart file [here](https://lucid.app/lucidchart/1ee102b0-70dc-4355-b1d6-a0791bb755bc/edit?viewport_loc=-2494%2C-686%2C9117%2C4194%2CHWEp-vi-RSFO&invitationId=inv_c7a332ee-d62e-4f13-b211-3076367d4d1c)
